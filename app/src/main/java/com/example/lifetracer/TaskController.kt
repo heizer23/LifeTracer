@@ -12,4 +12,9 @@ class TaskController(context: Context) {
     fun getAllTasks(): List<Task> {
         return model.getAllTasks()
     }
+
+    fun deleteTask(task: Task) {
+        // Then, delete the task from the database
+        model.deleteTask(task)
+    }
 }

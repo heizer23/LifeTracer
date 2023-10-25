@@ -12,7 +12,10 @@ class TaskModel(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         const val TABLE_NAME = "tasks"
         const val COLUMN_ID = "id"
         const val COLUMN_NAME = "name"
-        const val COLUMN_DATE = "date"
+        const val COLUMN_QUALITY = "quality"
+        const val COLUMN_DATE_CREATION = "date_of_creation"
+        const val COLUMN_REGULARITY = "regularity"
+        const val COLUMN_FIXED = "fixed"
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
@@ -20,7 +23,10 @@ class TaskModel(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
             CREATE TABLE $TABLE_NAME (
                 $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
                 $COLUMN_NAME TEXT,
-                $COLUMN_DATE TEXT
+                $COLUMN_QUALITY TEXT,
+                $COLUMN_DATE_CREATION TEXT,
+                $COLUMN_REGULARITY INTEGER,
+                $COLUMN_FIXED INTEGER
             );
         """.trimIndent()
         db?.execSQL(createTableSQL)
@@ -35,8 +41,19 @@ class TaskModel(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val db = this.writableDatabase
         val values = ContentValues()
         values.put(COLUMN_NAME, task.name)
-        values.put(COLUMN_DATE, task.date)
+        values.put(COLUMN_QUALITY, task.quality)
+        values.put(COLUMN_DATE_CREATION, task.dateOfCreation)
+        values.put(COLUMN_REGULARITY, task.regularity)
+        values.put(COLUMN_FIXED, if (task.fixed) 1 else 0)
         db.insert(TABLE_NAME, null, values)
+        db.close()
+    }
+
+    fun deleteTask(task: Task) {
+        val db = this.writableDatabase
+        val whereClause = "$COLUMN_ID = ?"
+        val whereArgs = arrayOf(task.id.toString())
+        db.delete(TABLE_NAME, whereClause, whereArgs)
         db.close()
     }
 
@@ -47,9 +64,13 @@ class TaskModel(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         val cursor = db.rawQuery(query, null)
         if (cursor.moveToFirst()) {
             do {
+                val id = cursor.getLong(cursor.getColumnIndex(COLUMN_ID))
                 val name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME))
-                val date = cursor.getString(cursor.getColumnIndex(COLUMN_DATE))
-                taskList.add(Task(name, date))
+                val quality = cursor.getString(cursor.getColumnIndex(COLUMN_QUALITY))
+                val dateOfCreation = cursor.getString(cursor.getColumnIndex(COLUMN_DATE_CREATION))
+                val regularity = cursor.getInt(cursor.getColumnIndex(COLUMN_REGULARITY))
+                val fixed = cursor.getInt(cursor.getColumnIndex(COLUMN_FIXED)) == 1
+                taskList.add(Task(id, name, quality, dateOfCreation, regularity, fixed))
             } while (cursor.moveToNext())
         }
         cursor.close()
