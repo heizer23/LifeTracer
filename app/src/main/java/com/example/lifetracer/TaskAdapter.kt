@@ -9,7 +9,7 @@ import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.TextView
 
-class TaskAdapter(private val context: Context, private var taskList: List<Task>,private val taskController: TaskController) : BaseAdapter() {
+class TaskAdapter(private val context: Context, private var taskList: List<Task>,private val taskController: Controller) : BaseAdapter() {
 
     override fun getCount(): Int {
         return taskList.size

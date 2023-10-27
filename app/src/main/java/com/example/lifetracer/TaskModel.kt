@@ -37,7 +37,7 @@ class TaskModel(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         onCreate(db)
     }
 
-    fun addTask(task: Task) {
+    fun addTask(task: Task): Long {
         val db = this.writableDatabase
         val values = ContentValues()
         values.put(COLUMN_NAME, task.name)
@@ -45,8 +45,9 @@ class TaskModel(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, nul
         values.put(COLUMN_DATE_CREATION, task.dateOfCreation)
         values.put(COLUMN_REGULARITY, task.regularity)
         values.put(COLUMN_FIXED, if (task.fixed) 1 else 0)
-        db.insert(TABLE_NAME, null, values)
+        val id = db.insert(TABLE_NAME, null, values)
         db.close()
+        return id
     }
 
     fun deleteTask(task: Task) {

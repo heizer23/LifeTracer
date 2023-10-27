@@ -23,6 +23,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".ManageTasksActivity"
+            android:label="Manage Tasks"
+            android:theme="@style/AppTheme">
+        </activity>
+
     </application>
 
 </manifest>
