@@ -28,7 +28,7 @@ class InstanceAdapter(private val context: Context, private var instanceList: Li
         private val instanceDateTextView: TextView = itemView.findViewById(R.id.textViewInstanceDate)
 
         fun bind(instance: Instance) {
-            instanceNameTextView.setText("temp")
+            instanceNameTextView.text = instance.taskName
             instanceDateTextView.text = instance.date
         }
     }

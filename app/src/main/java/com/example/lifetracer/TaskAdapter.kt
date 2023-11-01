@@ -34,7 +34,7 @@ class TaskAdapter(private val context: Context, private var taskList: List<Task>
         val fixedTextView = view.findViewById<TextView>(R.id.textTaskFixed)
 
         nameTextView.text = task.name
-        qualityTextView.text = task.quality
+        qualityTextView.text = task.taskQuality
         dateOfCreationTextView.text = task.dateOfCreation
         regularityTextView.text = task.regularity.toString()
         fixedTextView.text = if (task.fixed) "Yes" else "No"

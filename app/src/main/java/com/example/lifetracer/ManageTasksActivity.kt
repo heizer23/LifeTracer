@@ -1,6 +1,6 @@
 package com.example.lifetracer
 
-import android.content.Intent
+import android.annotation.SuppressLint
 import android.os.Bundle
 
 
@@ -65,14 +65,13 @@ class ManageTasksActivity : AppCompatActivity() {
                 updateTaskList()
                 preFillValues()
 
-
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
+        //       val intent = Intent(this, MainActivity::class.java)
+       //         startActivity(intent)
 
                 // Finish the ManageTasksActivity to remove it from the back stack
                 finish()
 
-               // clearInputFields()
+            //    clearInputFields()
             }
         }
     }
@@ -90,15 +89,9 @@ class ManageTasksActivity : AppCompatActivity() {
         taskAdapter.updateTasks(tasks)
     }
 
-    private fun clearInputFields() {
-        taskNameEditText.text.clear()
-        taskQualityEditText.text.clear()
-        taskDateOfCreationEditText.text.clear()
-        taskRegularityEditText.text.clear()
-        taskFixedCheckBox.isChecked = false
-    }
 
 
+    @SuppressLint("SetTextI18n")
     private fun preFillValues(){
         taskNameEditText.setText("Task1")
         taskQualityEditText.setText("Good")

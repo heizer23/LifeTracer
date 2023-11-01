@@ -1,31 +1,27 @@
 package com.example.lifetracer
 
+import InstanceModel
+import TaskModel
 import android.content.Context
+
 object Controller {
+
     private lateinit var taskModel: TaskModel
     private lateinit var instanceModel: InstanceModel
 
     fun initialize(context: Context) {
+
+    //   val dbHelper = MyDatabaseHelper.getInstance(context)
+    //    dbHelper.deleteDatabase(context)
+
         taskModel = TaskModel(context)
         instanceModel = InstanceModel(context)
     }
 
     fun addTaskAndInstance(task: Task) {
-        val taskId = taskModel.addTask(task)
+        val newTask = taskModel.addTask(task)
 
-        val instance = Instance(
-            0,
-            taskId = taskId,
-            date = "2023-10-26",   // Dummy date
-            time = "08:00 AM",     // Dummy time
-            duration = 60,         // Dummy duration in minutes
-            totalPause = 0,        // Dummy total pause in minutes
-            quantity = 1,          // Dummy quantity
-            quality = "Good",     // Dummy quality
-            comment = "Dummy comment"
-        )
-
-        instanceModel.addInstance(instance)
+        instanceModel.addEmptyInstance(newTask)
     }
 
     fun getAllTasks(): List<Task> {
@@ -37,7 +33,7 @@ object Controller {
     }
 
     fun getAllInstances(): List<Instance> {
-        return instanceModel.getAllInstances()
+        return instanceModel.getAllInstancesWithTasks()
     }
 
 }

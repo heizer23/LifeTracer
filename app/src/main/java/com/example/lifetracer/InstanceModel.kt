@@ -1,50 +1,18 @@
-package com.example.lifetracer
-
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
+import com.example.lifetracer.Instance
+import com.example.lifetracer.Task
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
-class InstanceModel(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-    companion object {
-        const val DATABASE_NAME = "InstanceDatabase"
-        const val DATABASE_VERSION = 1
-        const val TABLE_NAME = "instances"
-        const val COLUMN_ID = "id"
-        const val COLUMN_TASK_ID = "task_id"
-        const val COLUMN_DATE = "date"
-        const val COLUMN_TIME = "time"
-        const val COLUMN_DURATION = "duration"
-        const val COLUMN_TOTAL_PAUSE = "total_pause"
-        const val COLUMN_QUANTITY = "quantity"
-        const val COLUMN_QUALITY = "quality"
-        const val COLUMN_COMMENT = "comment"
-    }
+class InstanceModel(context: Context) {
 
-    override fun onCreate(db: SQLiteDatabase?) {
-        val createTableSQL = """
-            CREATE TABLE $TABLE_NAME (
-                $COLUMN_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                $COLUMN_TASK_ID INTEGER,
-                $COLUMN_DATE TEXT,
-                $COLUMN_TIME TEXT,
-                $COLUMN_DURATION INTEGER,
-                $COLUMN_TOTAL_PAUSE INTEGER,
-                $COLUMN_QUANTITY INTEGER,
-                $COLUMN_QUALITY TEXT,
-                $COLUMN_COMMENT TEXT
-            );
-        """.trimIndent()
-        db?.execSQL(createTableSQL)
-    }
-
-    override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
-        onCreate(db)
-    }
+    private val databaseHelper: MyDatabaseHelper = MyDatabaseHelper.getInstance(context)
 
     fun addInstance(instance: Instance): Long {
-        val db = this.writableDatabase
+        val db = databaseHelper.writableDatabase
         val values = ContentValues()
         values.put(COLUMN_TASK_ID, instance.taskId)
         values.put(COLUMN_DATE, instance.date)
@@ -60,47 +28,44 @@ class InstanceModel(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
     }
 
     fun deleteInstance(instance: Instance) {
-        val db = this.writableDatabase
+        val db = databaseHelper.writableDatabase
         val whereClause = "$COLUMN_ID = ?"
         val whereArgs = arrayOf(instance.id.toString())
         db.delete(TABLE_NAME, whereClause, whereArgs)
         db.close()
     }
 
-    fun getAllInstancesByTaskId(taskId: Long): List<Instance> {
+    @SuppressLint("Range")
+    fun getAllInstancesWithTasks(): List<Instance> {
         val instanceList = mutableListOf<Instance>()
-        val query = "SELECT * FROM $TABLE_NAME WHERE $COLUMN_TASK_ID = ?"
-        val db = this.readableDatabase
-        val cursor = db.rawQuery(query, arrayOf(taskId.toString()))
-        if (cursor.moveToFirst()) {
-            do {
-                val id = cursor.getLong(cursor.getColumnIndex(COLUMN_ID))
-                val taskId = cursor.getLong(cursor.getColumnIndex(COLUMN_TASK_ID))
-                val date = cursor.getString(cursor.getColumnIndex(COLUMN_DATE))
-                val time = cursor.getString(cursor.getColumnIndex(COLUMN_TIME))
-                val duration = cursor.getInt(cursor.getColumnIndex(COLUMN_DURATION))
-                val totalPause = cursor.getInt(cursor.getColumnIndex(COLUMN_TOTAL_PAUSE))
-                val quantity = cursor.getInt(cursor.getColumnIndex(COLUMN_QUANTITY))
-                val quality = cursor.getString(cursor.getColumnIndex(COLUMN_QUALITY))
-                val comment = cursor.getString(cursor.getColumnIndex(COLUMN_COMMENT))
-                instanceList.add(
-                    Instance(id, taskId, date, time, duration, totalPause, quantity, quality, comment)
-                )
-            } while (cursor.moveToNext())
-        }
-        cursor.close()
-        return instanceList
-    }
+        val query = """
+            SELECT 
+                instances.id AS instanceId,
+                instances.task_Id,
+                tasks.name AS taskName,
+                tasks.quality AS taskQuality,
+                tasks.date_of_creation AS taskDateOfCreation,
+                instances.date,
+                instances.time,
+                instances.duration,
+                instances.total_pause,
+                instances.quantity,
+                instances.quality,
+                instances.comment
+            FROM $TABLE_NAME AS instances
+            LEFT JOIN ${TaskModel.TABLE_NAME} AS tasks ON instances.$COLUMN_TASK_ID = tasks.${TaskModel.COLUMN_ID};
+        """.trimIndent()
 
-    fun getAllInstances(): List<Instance> {
-        val instanceList = mutableListOf<Instance>()
-        val query = "SELECT * FROM $TABLE_NAME"
-        val db = this.readableDatabase
+        val db = databaseHelper.readableDatabase
         val cursor = db.rawQuery(query, null)
+
         if (cursor.moveToFirst()) {
             do {
-                val id = cursor.getLong(cursor.getColumnIndex(COLUMN_ID))
+                val instanceId = cursor.getLong(cursor.getColumnIndex("instanceId"))
                 val taskId = cursor.getLong(cursor.getColumnIndex(COLUMN_TASK_ID))
+                val taskName = cursor.getString(cursor.getColumnIndex("taskName"))
+                val taskQuality = cursor.getString(cursor.getColumnIndex("taskQuality"))
+                val taskDateOfCreation = cursor.getString(cursor.getColumnIndex("taskDateOfCreation"))
                 val date = cursor.getString(cursor.getColumnIndex(COLUMN_DATE))
                 val time = cursor.getString(cursor.getColumnIndex(COLUMN_TIME))
                 val duration = cursor.getInt(cursor.getColumnIndex(COLUMN_DURATION))
@@ -108,14 +73,74 @@ class InstanceModel(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
                 val quantity = cursor.getInt(cursor.getColumnIndex(COLUMN_QUANTITY))
                 val quality = cursor.getString(cursor.getColumnIndex(COLUMN_QUALITY))
                 val comment = cursor.getString(cursor.getColumnIndex(COLUMN_COMMENT))
+
                 instanceList.add(
-                    Instance(id, taskId, date, time, duration, totalPause, quantity, quality, comment)
+                    Instance(
+                        instanceId,
+                        taskId,
+                        taskName,
+                        taskQuality,
+                        taskDateOfCreation,
+                        date,
+                        time,
+                        duration,
+                        totalPause,
+                        quantity,
+                        quality,
+                        comment
+                    )
                 )
             } while (cursor.moveToNext())
         }
+
         cursor.close()
         return instanceList
     }
 
+    fun addEmptyInstance(task: Task): Long {
 
+        val instance = Instance(
+            id = 0,
+        taskName = "",
+        taskQuality = "",
+        taskDateOfCreation ="",
+            taskId = task.id,
+            date = getCurrentDate(),
+            time = getCurrentTime(),
+            duration = 0,
+            totalPause = 0,
+            quantity = 0,
+            quality = "",
+            comment = ""
+        )
+
+        return addInstance(instance)
+    }
+
+
+    fun getCurrentDate(): String {
+        // Use your preferred date format here
+        val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        return currentDate.format(Date())
+    }
+
+    fun getCurrentTime(): String {
+        // Use your preferred time format here
+        val currentTime = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        return currentTime.format(Date())
+    }
+
+
+    companion object {
+        const val TABLE_NAME = "instances"
+        const val COLUMN_ID = "id"
+        const val COLUMN_TASK_ID = "task_id"
+        const val COLUMN_DATE = "date"
+        const val COLUMN_TIME = "time"
+        const val COLUMN_DURATION = "duration"
+        const val COLUMN_TOTAL_PAUSE = "total_pause"
+        const val COLUMN_QUANTITY = "quantity"
+        const val COLUMN_QUALITY = "quality"
+        const val COLUMN_COMMENT = "comment"
+    }
 }
