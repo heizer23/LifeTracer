@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.R
-class MainActivity : AppCompatActivity(), SelectedInstanceFragment.SelectedInstanceListener {
+class MainActivity : AppCompatActivity() {
 
     private lateinit var instanceRecyclerView: RecyclerView
     private lateinit var instanceAdapter: InstanceAdapter
@@ -75,16 +75,6 @@ class MainActivity : AppCompatActivity(), SelectedInstanceFragment.SelectedInsta
         val dummyInstances = mutableListOf<Instance>()
         // Add instances to the list
         return dummyInstances
-    }
-
-    // Handle button click for "Start" in the fragment
-    override fun onStartButtonClicked(instance: Instance) {
-        // Handle the "Start" action here
-    }
-
-    // Handle button click for "Pause" in the fragment
-    override fun onPauseButtonClicked(instance: Instance) {
-        // Handle the "Pause" action here
     }
 
     // Show or hide the selected instance fragment
