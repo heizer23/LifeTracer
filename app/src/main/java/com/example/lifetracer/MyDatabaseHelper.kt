@@ -47,7 +47,8 @@ class MyDatabaseHelper private constructor(context: Context) : SQLiteOpenHelper(
                 ${InstanceModel.COLUMN_TOTAL_PAUSE} INTEGER,
                 ${InstanceModel.COLUMN_QUANTITY} INTEGER,
                 ${InstanceModel.COLUMN_QUALITY} TEXT,
-                ${InstanceModel.COLUMN_COMMENT} TEXT
+                ${InstanceModel.COLUMN_COMMENT} TEXT,
+                ${InstanceModel.COLUMN_STATUS} INTEGER
             );
         """.trimIndent()
         db.execSQL(createInstancesTableSQL)

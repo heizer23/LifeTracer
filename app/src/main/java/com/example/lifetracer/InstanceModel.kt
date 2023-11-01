@@ -22,6 +22,7 @@ class InstanceModel(context: Context) {
         values.put(COLUMN_QUANTITY, instance.quantity)
         values.put(COLUMN_QUALITY, instance.quality)
         values.put(COLUMN_COMMENT, instance.comment)
+        values.put(COLUMN_STATUS, instance.status)
         val id = db.insert(TABLE_NAME, null, values)
         db.close()
         return id
@@ -51,7 +52,8 @@ class InstanceModel(context: Context) {
                 instances.total_pause,
                 instances.quantity,
                 instances.quality,
-                instances.comment
+                instances.comment, 
+                instances.status
             FROM $TABLE_NAME AS instances
             LEFT JOIN ${TaskModel.TABLE_NAME} AS tasks ON instances.$COLUMN_TASK_ID = tasks.${TaskModel.COLUMN_ID};
         """.trimIndent()
@@ -73,6 +75,7 @@ class InstanceModel(context: Context) {
                 val quantity = cursor.getInt(cursor.getColumnIndex(COLUMN_QUANTITY))
                 val quality = cursor.getString(cursor.getColumnIndex(COLUMN_QUALITY))
                 val comment = cursor.getString(cursor.getColumnIndex(COLUMN_COMMENT))
+                val status = cursor.getInt(cursor.getColumnIndex(COLUMN_STATUS))
 
                 instanceList.add(
                     Instance(
@@ -87,7 +90,8 @@ class InstanceModel(context: Context) {
                         totalPause,
                         quantity,
                         quality,
-                        comment
+                        comment,
+                        status
                     )
                 )
             } while (cursor.moveToNext())
@@ -111,7 +115,8 @@ class InstanceModel(context: Context) {
             totalPause = 0,
             quantity = 0,
             quality = "",
-            comment = ""
+            comment = "",
+            status = Instance.STATUS_PLANNED
         )
 
         return addInstance(instance)
@@ -142,5 +147,6 @@ class InstanceModel(context: Context) {
         const val COLUMN_QUANTITY = "quantity"
         const val COLUMN_QUALITY = "quality"
         const val COLUMN_COMMENT = "comment"
+        const val COLUMN_STATUS = "status"
     }
 }

@@ -1,16 +1,24 @@
 package com.example.lifetracer
 
 data class Instance(
-    val id: Long,             // Primary key for the instance
-    val taskId: Long,         // References the task by its primary id
-    val taskName: String,     // Name of the associated task
-    val taskQuality: String,  // Quality of the associated task
-    val taskDateOfCreation: String, // Date of task creation
-    val date: String,         // Date of the instance
-    val time: String,         // Time of the instance
-    val duration: Int,        // Duration of the instance (in minutes)
-    val totalPause: Int,      // Total pause during the instance (in minutes)
-    val quantity: Int,       // Quantity of the task for this instance
-    val quality: String,     // Quality of the instance
-    val comment: String      // Comment for the instance
-)
+    val id: Long,
+    val taskId: Long,
+    val taskName: String,
+    val taskQuality: String,
+    val taskDateOfCreation: String,
+    val date: String,
+    val time: String,
+    val duration: Int,
+    val totalPause: Int,
+    val quantity: Int,
+    val quality: String,
+    val comment: String,
+    val status: Int
+){
+    companion object {
+        const val STATUS_PLANNED = 0
+        const val STATUS_STARTED = 1
+        const val STATUS_PAUSED = 2
+        const val STATUS_FINISHED = 3
+    }
+}
