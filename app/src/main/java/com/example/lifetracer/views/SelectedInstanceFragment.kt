@@ -1,4 +1,4 @@
-package com.example.lifetracer.fragments
+package com.example.lifetracer.views
 
 import android.os.Bundle
 import android.os.SystemClock
@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.lifetracer.Instance
+import com.example.lifetracer.data.Instance
 import com.example.lifetracer.databinding.FragmentSelectedInstanceBinding
 
 class SelectedInstanceFragment : Fragment() {

@@ -1,9 +1,10 @@
-package com.example.lifetracer
+package com.example.lifetracer.views
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.lifetracer.data.Instance
 import com.example.lifetracer.databinding.ListItemInstanceBinding
 
 class InstanceAdapter(

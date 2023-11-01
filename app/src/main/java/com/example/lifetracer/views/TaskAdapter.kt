@@ -1,10 +1,13 @@
-package com.example.lifetracer
+package com.example.lifetracer.views
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.lifetracer.Controller
+import com.example.lifetracer.R
+import com.example.lifetracer.data.Task
 import com.example.lifetracer.databinding.ListItemTaskBinding
 
 class TaskAdapter(
@@ -41,7 +44,7 @@ class TaskAdapter(
             binding.executePendingBindings()
 
             binding.buttonDeleteTask.setOnClickListener {
-                taskController.deleteTask(task)
+                Controller.deleteTask(task)
                 deleteTask(adapterPosition)
             }
         }

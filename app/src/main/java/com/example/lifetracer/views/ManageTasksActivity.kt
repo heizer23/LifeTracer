@@ -1,4 +1,4 @@
-package com.example.lifetracer
+package com.example.lifetracer.views
 
 import android.os.Bundle
 import android.widget.Button
@@ -7,6 +7,9 @@ import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.lifetracer.Controller
+import com.example.lifetracer.R
+import com.example.lifetracer.data.Task
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -52,7 +55,7 @@ class ManageTasksActivity : AppCompatActivity() {
 
             if (name.isNotEmpty() && dateOfCreation.isNotEmpty()) {
                 val task = Task(0, name, quality, dateOfCreation, regularity, fixed)
-                controller.addTaskAndInstance(task)
+                Controller.addTaskAndInstance(task)
                 updateTaskList()
                 preFillValues()
 
@@ -67,7 +70,7 @@ class ManageTasksActivity : AppCompatActivity() {
     }
 
     private fun updateTaskList() {
-        val tasks = controller.getAllTasks()
+        val tasks = Controller.getAllTasks()
         taskAdapter.updateTasks(tasks)
     }
 

@@ -1,8 +1,10 @@
 package com.example.lifetracer
 
-import InstanceModel
-import TaskModel
+import com.example.lifetracer.model.InstanceModel
+import com.example.lifetracer.model.TaskModel
 import android.content.Context
+import com.example.lifetracer.data.Instance
+import com.example.lifetracer.data.Task
 
 object Controller {
 
@@ -11,7 +13,7 @@ object Controller {
 
     fun initialize(context: Context) {
 
-   //    val dbHelper = MyDatabaseHelper.getInstance(context)
+   //    val dbHelper = com.example.lifetracer.model.MyDatabaseHelper.getInstance(context)
    //    dbHelper.deleteDatabase(context)
 
         taskModel = TaskModel(context)

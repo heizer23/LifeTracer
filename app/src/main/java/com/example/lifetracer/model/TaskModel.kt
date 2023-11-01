@@ -1,6 +1,8 @@
+package com.example.lifetracer.model
+
 import android.content.ContentValues
 import android.content.Context
-import com.example.lifetracer.Task
+import com.example.lifetracer.data.Task
 
 class TaskModel(context: Context) {
 
@@ -24,25 +26,25 @@ class TaskModel(context: Context) {
 
     fun deleteTask(task: Task) {
         val db = databaseHelper.writableDatabase
-        val whereClause = "${TaskModel.COLUMN_ID} = ?"
+        val whereClause = "$COLUMN_ID = ?"
         val whereArgs = arrayOf(task.id.toString())
-        db.delete(TaskModel.TABLE_NAME, whereClause, whereArgs)
+        db.delete(TABLE_NAME, whereClause, whereArgs)
         db.close()
     }
 
     fun getAllTasks(): List<Task> {
         val taskList = mutableListOf<Task>()
-        val query = "SELECT * FROM ${TaskModel.TABLE_NAME}"
+        val query = "SELECT * FROM $TABLE_NAME"
         val db = databaseHelper.readableDatabase
         val cursor = db.rawQuery(query, null)
         if (cursor.moveToFirst()) {
             do {
-                val id = cursor.getLong(cursor.getColumnIndex(TaskModel.COLUMN_ID))
-                val name = cursor.getString(cursor.getColumnIndex(TaskModel.COLUMN_NAME))
-                val quality = cursor.getString(cursor.getColumnIndex(TaskModel.COLUMN_QUALITY))
-                val dateOfCreation = cursor.getString(cursor.getColumnIndex(TaskModel.COLUMN_DATE_CREATION))
-                val regularity = cursor.getInt(cursor.getColumnIndex(TaskModel.COLUMN_REGULARITY))
-                val fixed = cursor.getInt(cursor.getColumnIndex(TaskModel.COLUMN_FIXED)) == 1
+                val id = cursor.getLong(cursor.getColumnIndex(COLUMN_ID))
+                val name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME))
+                val quality = cursor.getString(cursor.getColumnIndex(COLUMN_QUALITY))
+                val dateOfCreation = cursor.getString(cursor.getColumnIndex(COLUMN_DATE_CREATION))
+                val regularity = cursor.getInt(cursor.getColumnIndex(COLUMN_REGULARITY))
+                val fixed = cursor.getInt(cursor.getColumnIndex(COLUMN_FIXED)) == 1
                 taskList.add(Task(id, name, quality, dateOfCreation, regularity, fixed))
             } while (cursor.moveToNext())
         }

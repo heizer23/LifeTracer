@@ -1,4 +1,4 @@
-package com.example.lifetracer
+package com.example.lifetracer.data
 
 data class Instance(
     val id: Long,

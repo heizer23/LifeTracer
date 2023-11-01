@@ -9,7 +9,7 @@
     android:paddingTop="16dp"
     android:paddingEnd="16dp"
     android:paddingBottom="16dp"
-    tools:context=".MainActivity">
+    tools:context=".views.MainActivity">
 
     <!-- FrameLayout to host com.example.lifetracer.fragments.SelectedInstanceFragment (top of the screen) -->
     <FrameLayout

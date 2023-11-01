@@ -1,4 +1,4 @@
-package com.example.lifetracer
+package com.example.lifetracer.data
 
 data class Task(
     private var _id: Long, // Make _id private

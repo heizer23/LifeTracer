@@ -1,8 +1,10 @@
+package com.example.lifetracer.model
+
 import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
-import com.example.lifetracer.Instance
-import com.example.lifetracer.Task
+import com.example.lifetracer.data.Instance
+import com.example.lifetracer.data.Task
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
