@@ -1,55 +1,58 @@
 
 package com.example.lifetracer
-
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
 import android.widget.Button
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 
-class TaskAdapter(private val context: Context, private var taskList: List<Task>,private val taskController: Controller) : BaseAdapter() {
+class TaskAdapter(
+    private val context: Context,
+    private var taskList: List<Task>,
+    private val taskController: Controller
+) : RecyclerView.Adapter<TaskAdapter.ViewHolder>() {
 
-    override fun getCount(): Int {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        val nameTextView: TextView = itemView.findViewById(R.id.textTaskName)
+        val qualityTextView: TextView = itemView.findViewById(R.id.textTaskQuality)
+        val dateOfCreationTextView: TextView = itemView.findViewById(R.id.textTaskDateOfCreation)
+        val regularityTextView: TextView = itemView.findViewById(R.id.textTaskRegularity)
+        val fixedTextView: TextView = itemView.findViewById(R.id.textTaskFixed)
+        val deleteButton: Button = itemView.findViewById(R.id.buttonDeleteTask)
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val itemView = LayoutInflater.from(parent.context).inflate(R.layout.list_item_task, parent, false)
+        return ViewHolder(itemView)
+    }
+
+    override fun getItemCount(): Int {
         return taskList.size
     }
 
-    override fun getItem(position: Int): Task {
-        return taskList[position]
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val task = taskList[position]
+
+        holder.nameTextView.text = task.name
+        holder.qualityTextView.text = task.taskQuality
+        holder.dateOfCreationTextView.text = task.dateOfCreation
+        holder.regularityTextView.text = task.regularity.toString()
+        holder.fixedTextView.text = if (task.fixed) "Yes" else "No"
+
+        holder.deleteButton.setOnClickListener {
+            // Handle the delete action here
+            // You can call a method to delete the task from the list or database
+            taskController.deleteTask(task)
+            deleteTask(position)
+        }
     }
 
     override fun getItemId(position: Int): Long {
         return position.toLong()
     }
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-        val view = convertView ?: LayoutInflater.from(context).inflate(R.layout.list_item_task, parent, false)
-        val task = getItem(position)
-
-        val nameTextView = view.findViewById<TextView>(R.id.textTaskName)
-        val qualityTextView = view.findViewById<TextView>(R.id.textTaskQuality)
-        val dateOfCreationTextView = view.findViewById<TextView>(R.id.textTaskDateOfCreation)
-        val regularityTextView = view.findViewById<TextView>(R.id.textTaskRegularity)
-        val fixedTextView = view.findViewById<TextView>(R.id.textTaskFixed)
-
-        nameTextView.text = task.name
-        qualityTextView.text = task.taskQuality
-        dateOfCreationTextView.text = task.dateOfCreation
-        regularityTextView.text = task.regularity.toString()
-        fixedTextView.text = if (task.fixed) "Yes" else "No"
-
-        val deleteButton = view.findViewById<Button>(R.id.buttonDeleteTask)
-        deleteButton.setOnClickListener {
-            // Handle the delete action here
-            // You can call a method to delete the task from the list or database
-            taskController.deleteTask(task)
-            deleteTask(position)
-        }
-
-
-        return view
-    }
 
     // Function to delete a task from the list
     private fun deleteTask(position: Int) {

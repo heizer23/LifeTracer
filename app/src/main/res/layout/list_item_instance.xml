@@ -1,34 +1,44 @@
 <!-- list_item_instance.xml -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp"
-    android:background="?attr/selectableItemBackground">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <TextView
-        android:id="@+id/textViewInstanceName"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Instance Name"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="4dp" />
+    <data>
+        <variable
+            name="instance"
+            type="com.example.lifetracer.Instance" />
+    </data>
 
-    <TextView
-        android:id="@+id/textViewInstanceDate"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Instance Date"
-        android:textSize="16sp"
-        android:textStyle="italic" />
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="?attr/selectableItemBackground">
 
-    <TextView
-        android:id="@+id/textViewInstanceStatus"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Instance Status"
-        android:textSize="16sp" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/textViewInstanceName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{instance.taskName}"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/textViewInstanceDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{instance.date}"
+            android:textSize="16sp"
+            android:textStyle="italic" />
+
+        <TextView
+            android:id="@+id/textViewInstanceStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{String.valueOf(instance.status)}"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+</layout>

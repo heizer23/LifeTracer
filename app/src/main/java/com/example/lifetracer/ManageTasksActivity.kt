@@ -1,26 +1,22 @@
 package com.example.lifetracer
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-
-
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
-import android.widget.ListView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-
 
 class ManageTasksActivity : AppCompatActivity() {
     private lateinit var taskNameEditText: EditText
     private lateinit var taskQualityEditText: EditText
-    private lateinit var taskDateOfCreationEditText: EditText
     private lateinit var taskRegularityEditText: EditText
     private lateinit var taskFixedCheckBox: CheckBox
     private lateinit var addTaskButton: Button
-    private lateinit var taskListView: ListView
+    private lateinit var taskRecyclerView: RecyclerView
     private lateinit var taskAdapter: TaskAdapter
     private val controller = Controller
 
@@ -35,18 +31,13 @@ class ManageTasksActivity : AppCompatActivity() {
         taskFixedCheckBox = findViewById(R.id.checkBoxTaskFixed)
         addTaskButton = findViewById(R.id.buttonAddTask)
 
-
-        taskListView = findViewById(R.id.listViewTasks)
-
-        // Initialize TaskAdapter with an empty list of tasks
+        taskRecyclerView = findViewById(R.id.recyclerViewTasks)
+        taskRecyclerView.layoutManager = LinearLayoutManager(this)
         taskAdapter = TaskAdapter(this, emptyList(), controller)
-        taskListView.adapter = taskAdapter
-
+        taskRecyclerView.adapter = taskAdapter
 
         // Create a formatted date string
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-
 
         // Handle the "Add Task" button click
         addTaskButton.setOnClickListener {
@@ -61,27 +52,18 @@ class ManageTasksActivity : AppCompatActivity() {
 
             if (name.isNotEmpty() && dateOfCreation.isNotEmpty()) {
                 val task = Task(0, name, quality, dateOfCreation, regularity, fixed)
-               controller.addTaskAndInstance(task)
+                controller.addTaskAndInstance(task)
                 updateTaskList()
                 preFillValues()
 
-        //       val intent = Intent(this, MainActivity::class.java)
-       //         startActivity(intent)
-
-                // Finish the ManageTasksActivity to remove it from the back stack
                 finish()
-
-            //    clearInputFields()
             }
         }
     }
 
     override fun onResume() {
         super.onResume()
-
-        // Update the task list when the activity resumes
-        val tasks = controller.getAllTasks()
-        taskAdapter.updateTasks(tasks)
+        updateTaskList()
     }
 
     private fun updateTaskList() {
@@ -89,12 +71,8 @@ class ManageTasksActivity : AppCompatActivity() {
         taskAdapter.updateTasks(tasks)
     }
 
-
-
-    @SuppressLint("SetTextI18n")
-    private fun preFillValues(){
+    private fun preFillValues() {
         taskNameEditText.setText("Task1")
         taskQualityEditText.setText("Good")
     }
-
 }

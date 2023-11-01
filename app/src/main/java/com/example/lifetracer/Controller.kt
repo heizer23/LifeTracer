@@ -12,7 +12,7 @@ object Controller {
     fun initialize(context: Context) {
 
    //    val dbHelper = MyDatabaseHelper.getInstance(context)
-  //     dbHelper.deleteDatabase(context)
+   //    dbHelper.deleteDatabase(context)
 
         taskModel = TaskModel(context)
         instanceModel = InstanceModel(context)

@@ -2,18 +2,20 @@ package com.example.lifetracer
 
 import android.content.Context
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.lifetracer.databinding.ListItemInstanceBinding
 
-class InstanceAdapter(private val context: Context, private var instanceList: List<Instance>) : RecyclerView.Adapter<InstanceAdapter.ViewHolder>() {
+class InstanceAdapter(
+    private val context: Context,
+    private var instanceList: List<Instance>
+) : RecyclerView.Adapter<InstanceAdapter.ViewHolder>() {
 
     var onItemClickListener: ((Instance) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(context).inflate(R.layout.list_item_instance, parent, false)
-        return ViewHolder(view)
+        val binding = ListItemInstanceBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
     override fun getItemCount(): Int {
@@ -30,16 +32,10 @@ class InstanceAdapter(private val context: Context, private var instanceList: Li
         }
     }
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val instanceNameTextView: TextView = itemView.findViewById(R.id.textViewInstanceName)
-        private val instanceDateTextView: TextView = itemView.findViewById(R.id.textViewInstanceDate)
-        private val instanceStatusTextView: TextView = itemView.findViewById(R.id.textViewInstanceStatus)
-
-
+    inner class ViewHolder(private val binding: ListItemInstanceBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(instance: Instance) {
-            instanceNameTextView.text = instance.taskName
-            instanceDateTextView.text = instance.date
-            instanceStatusTextView.text = (instance.status).toString()
+            binding.instance = instance
+            binding.executePendingBindings()
         }
     }
 
@@ -47,5 +43,4 @@ class InstanceAdapter(private val context: Context, private var instanceList: Li
         instanceList = newList
         notifyDataSetChanged()
     }
-
 }
