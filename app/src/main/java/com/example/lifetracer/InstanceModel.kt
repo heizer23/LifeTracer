@@ -40,29 +40,29 @@ class InstanceModel(context: Context) {
     fun getAllInstancesWithTasks(): List<Instance> {
         val instanceList = mutableListOf<Instance>()
         val query = """
-            SELECT 
-                instances.id AS instanceId,
-                instances.task_Id,
-                tasks.name AS taskName,
-                tasks.quality AS taskQuality,
-                tasks.date_of_creation AS taskDateOfCreation,
-                instances.date,
-                instances.time,
-                instances.duration,
-                instances.total_pause,
-                instances.quantity,
-                instances.quality,
-                instances.comment, 
-                instances.status
-            FROM $TABLE_NAME AS instances
-            LEFT JOIN ${TaskModel.TABLE_NAME} AS tasks ON instances.$COLUMN_TASK_ID = tasks.${TaskModel.COLUMN_ID};
-        """.trimIndent()
+        SELECT 
+            instances.id AS instanceId,
+            instances.task_Id,
+            tasks.name AS taskName,
+            tasks.quality AS taskQuality,
+            tasks.date_of_creation AS taskDateOfCreation,
+            instances.date,
+            instances.time,
+            instances.duration,
+            instances.total_pause,
+            instances.quantity,
+            instances.quality,
+            instances.comment, 
+            instances.status
+        FROM $TABLE_NAME AS instances
+        LEFT JOIN ${TaskModel.TABLE_NAME} AS tasks ON instances.$COLUMN_TASK_ID = tasks.${TaskModel.COLUMN_ID};
+    """.trimIndent()
 
         val db = databaseHelper.readableDatabase
         val cursor = db.rawQuery(query, null)
 
-        if (cursor.moveToFirst()) {
-            do {
+        cursor.use { cursor ->
+            while (cursor.moveToNext()) {
                 val instanceId = cursor.getLong(cursor.getColumnIndex("instanceId"))
                 val taskId = cursor.getLong(cursor.getColumnIndex(COLUMN_TASK_ID))
                 val taskName = cursor.getString(cursor.getColumnIndex("taskName"))
@@ -77,37 +77,37 @@ class InstanceModel(context: Context) {
                 val comment = cursor.getString(cursor.getColumnIndex(COLUMN_COMMENT))
                 val status = cursor.getInt(cursor.getColumnIndex(COLUMN_STATUS))
 
-                instanceList.add(
-                    Instance(
-                        instanceId,
-                        taskId,
-                        taskName,
-                        taskQuality,
-                        taskDateOfCreation,
-                        date,
-                        time,
-                        duration,
-                        totalPause,
-                        quantity,
-                        quality,
-                        comment,
-                        status
-                    )
+                val instance = Instance(
+                    instanceId,
+                    taskId,
+                    taskName,
+                    taskQuality,
+                    taskDateOfCreation,
+                    date,
+                    time,
+                    duration,
+                    totalPause,
+                    quantity,
+                    quality,
+                    comment,
+                    status
                 )
-            } while (cursor.moveToNext())
+
+                instanceList.add(instance)
+            }
         }
 
-        cursor.close()
         return instanceList
     }
+
 
     fun addEmptyInstance(task: Task): Long {
 
         val instance = Instance(
             id = 0,
-        taskName = "",
-        taskQuality = "",
-        taskDateOfCreation ="",
+            taskName = "",
+            taskQuality = "",
+            taskDateOfCreation ="",
             taskId = task.id,
             date = getCurrentDate(),
             time = getCurrentTime(),

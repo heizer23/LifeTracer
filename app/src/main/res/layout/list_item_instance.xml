@@ -15,9 +15,7 @@
         android:text="Instance Name"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:layout_marginBottom="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_marginBottom="4dp" />
 
     <TextView
         android:id="@+id/textViewInstanceDate"
@@ -25,8 +23,12 @@
         android:layout_height="wrap_content"
         android:text="Instance Date"
         android:textSize="16sp"
-        android:textStyle="italic"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewInstanceName" />
+        android:textStyle="italic" />
 
+    <TextView
+        android:id="@+id/textViewInstanceStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Instance Status"
+        android:textSize="16sp" />
 </LinearLayout>

@@ -3,6 +3,9 @@ package com.example.lifetracer
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -12,6 +15,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var instanceRecyclerView: RecyclerView
     private lateinit var instanceAdapter: InstanceAdapter
+    private lateinit var slideDownAnimation: Animation
+    private lateinit var selectedInstanceView: View
+    private lateinit var textViewInstanceName: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +33,11 @@ class MainActivity : AppCompatActivity() {
 
         // Find the button by its ID
         val buttonGoToManageTasks = findViewById<View>(R.id.buttonGoToManageTasks)
+        selectedInstanceView = findViewById<View>(R.id.selectedInstanceView) // Replace with the actual ID
+
+        // Load the slide-down animation
+        slideDownAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_down)
+
 
         // Set a click listener for the button
         buttonGoToManageTasks.setOnClickListener {
@@ -34,6 +45,13 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, ManageTasksActivity::class.java)
             startActivity(intent)
         }
+
+        // here we add the onclicklistener to the Listitems
+        instanceAdapter.onItemClickListener = { instance ->
+            // Update the selected view with the clicked item's information
+            updateSelectedView(instance)
+        }
+
     }
 
     override fun onResume() {
@@ -52,5 +70,32 @@ class MainActivity : AppCompatActivity() {
         val dummyInstances = mutableListOf<Instance>()
         // Add instances to the list
         return dummyInstances
+    }
+
+    private fun updateSelectedView(instance: Instance) {
+        // Update the selected view with the information from the clicked instance
+        // You can access and set the views in the selected view layout here.
+        val selectedInstanceView = findViewById<View>(R.id.selectedInstanceView) // Replace with the actual ID
+        val textViewInstanceName = selectedInstanceView.findViewById<TextView>(R.id.selectedInstanceName)
+
+        textViewInstanceName.text = instance.taskName
+
+        // Show the selected view if it's not already visible
+        if (selectedInstanceView.visibility != View.VISIBLE) {
+            selectedInstanceView.visibility = View.VISIBLE
+            selectedInstanceView.startAnimation(slideDownAnimation)
+        }
+    }
+
+    private fun toogleSelectedView() {
+        if (selectedInstanceView.visibility == View.VISIBLE) {
+            // Hide the selected view with animation
+            selectedInstanceView.visibility = View.GONE
+            selectedInstanceView.startAnimation(slideDownAnimation)
+        } else {
+            // Show the selected view with animation
+            selectedInstanceView.visibility = View.VISIBLE
+            selectedInstanceView.startAnimation(slideDownAnimation)
+        }
     }
 }
