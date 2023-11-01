@@ -1,43 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?android:attr/colorBackground"
+    android:paddingStart="16dp"
+    android:paddingTop="16dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="16dp"
     tools:context=".MainActivity">
 
-    <include
-        layout="@layout/selected_instance_view"
-        android:id="@+id/selectedInstanceView"
+    <!-- FrameLayout to host SelectedInstanceFragment (top of the screen) -->
+    <FrameLayout
+        android:id="@+id/selectedInstanceContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:visibility="visible" />
 
-    <!-- RecyclerView for displaying the list of instances -->
-
+    <!-- RecyclerView for instances (below the FrameLayout and above the button) -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewInstances"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/selectedInstanceView"
-        app:layout_constraintVertical_bias="1.0" />
+        android:layout_below="@+id/selectedInstanceContainer"
+        android:layout_above="@+id/buttonGoToManageTasks"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
-    <com.google.android.material.button.MaterialButton
+    <!-- Button to go to ManageTasksActivity (at the bottom) -->
+    <Button
         android:id="@+id/buttonGoToManageTasks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Manage Tasks"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
-
-
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Go to Manage Tasks" />
+</RelativeLayout>

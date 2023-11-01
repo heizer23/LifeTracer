@@ -10,34 +10,33 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.R
-
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), SelectedInstanceFragment.SelectedInstanceListener {
 
     private lateinit var instanceRecyclerView: RecyclerView
     private lateinit var instanceAdapter: InstanceAdapter
     private lateinit var slideDownAnimation: Animation
-    private lateinit var selectedInstanceView: View
-    private lateinit var textViewInstanceName: TextView
+    private lateinit var selectedInstanceFragment: SelectedInstanceFragment
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         Controller.initialize(applicationContext)
+
         // Initialize the RecyclerView for instances
         instanceRecyclerView = findViewById(R.id.recyclerViewInstances)
         instanceRecyclerView.layoutManager = LinearLayoutManager(this)
-        instanceAdapter = InstanceAdapter(this, getDummyInstances()) // Replace with actual instances
+        instanceAdapter = InstanceAdapter(this, getDummyInstances())
         instanceRecyclerView.adapter = instanceAdapter
-
 
         // Find the button by its ID
         val buttonGoToManageTasks = findViewById<View>(R.id.buttonGoToManageTasks)
-        selectedInstanceView = findViewById<View>(R.id.selectedInstanceView) // Replace with the actual ID
 
         // Load the slide-down animation
         slideDownAnimation = AnimationUtils.loadAnimation(this, R.anim.slide_down)
 
+        // Create the SelectedInstanceFragment
+        selectedInstanceFragment = SelectedInstanceFragment()
 
         // Set a click listener for the button
         buttonGoToManageTasks.setOnClickListener {
@@ -46,18 +45,24 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // here we add the onclicklistener to the Listitems
+        // here we add the onclicklistener to the List items
         instanceAdapter.onItemClickListener = { instance ->
             // Update the selected view with the clicked item's information
-            updateSelectedView(instance)
+            selectedInstanceFragment.updateSelectedView(instance)
         }
 
+
+        // Attach the fragment to the activity
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.selectedInstanceContainer, selectedInstanceFragment)
+            .commit()
+
+    //    toggleSelectedInstanceFragment()
     }
 
     override fun onResume() {
         super.onResume()
         updateInstanceList()
-
     }
 
     private fun updateInstanceList() {
@@ -72,30 +77,24 @@ class MainActivity : AppCompatActivity() {
         return dummyInstances
     }
 
-    private fun updateSelectedView(instance: Instance) {
-        // Update the selected view with the information from the clicked instance
-        // You can access and set the views in the selected view layout here.
-        val selectedInstanceView = findViewById<View>(R.id.selectedInstanceView) // Replace with the actual ID
-        val textViewInstanceName = selectedInstanceView.findViewById<TextView>(R.id.selectedInstanceName)
-
-        textViewInstanceName.text = instance.taskName
-
-        // Show the selected view if it's not already visible
-        if (selectedInstanceView.visibility != View.VISIBLE) {
-            selectedInstanceView.visibility = View.VISIBLE
-            selectedInstanceView.startAnimation(slideDownAnimation)
-        }
+    // Handle button click for "Start" in the fragment
+    override fun onStartButtonClicked(instance: Instance) {
+        // Handle the "Start" action here
     }
 
-    private fun toogleSelectedView() {
-        if (selectedInstanceView.visibility == View.VISIBLE) {
-            // Hide the selected view with animation
-            selectedInstanceView.visibility = View.GONE
-            selectedInstanceView.startAnimation(slideDownAnimation)
+    // Handle button click for "Pause" in the fragment
+    override fun onPauseButtonClicked(instance: Instance) {
+        // Handle the "Pause" action here
+    }
+
+    // Show or hide the selected instance fragment
+    private fun toggleSelectedInstanceFragment() {
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        if (selectedInstanceFragment.isAdded) {
+            fragmentTransaction.hide(selectedInstanceFragment)
         } else {
-            // Show the selected view with animation
-            selectedInstanceView.visibility = View.VISIBLE
-            selectedInstanceView.startAnimation(slideDownAnimation)
+            fragmentTransaction.show(selectedInstanceFragment)
         }
+        fragmentTransaction.commit()
     }
 }
