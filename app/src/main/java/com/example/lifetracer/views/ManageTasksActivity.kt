@@ -70,8 +70,8 @@ class ManageTasksActivity : AppCompatActivity() {
     }
 
     private fun updateTaskList() {
-        val tasks = Controller.getAllTasks()
-        taskAdapter.updateTasks(tasks)
+   // todo    val tasks = Controller.getAllTasks()
+    //    taskAdapter.updateTasks(tasks)
     }
 
     private fun preFillValues() {

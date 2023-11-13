@@ -6,11 +6,20 @@ import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.Controller
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.R
+import androidx.lifecycle.ViewModelProvider
+import androidx.room.Room
+import com.example.lifetracer.ViewModel.InstancesViewModel
+import com.example.lifetracer.ViewModel.InstancesViewModelFactory
+import com.example.lifetracer.model.AppDatabase
+import com.example.lifetracer.model.InstanceRepository
+import com.example.lifetracer.model.TaskRepository
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,9 +27,28 @@ class MainActivity : AppCompatActivity() {
     private lateinit var instanceAdapter: InstanceAdapter
     private lateinit var slideDownAnimation: Animation
     private lateinit var selectedInstanceFragment: SelectedInstanceFragment
+    private lateinit var viewModel: InstancesViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Initialize the database and DAO
+        val database = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "lifetracer-database"
+        ).build()
+        val instanceDao = database.instanceDao()
+        val instanceRepository = InstanceRepository(instanceDao)
+
+        val taskDao = database.taskDao()
+        val taskRepository = TaskRepository(taskDao)
+
+
+        val factory = InstancesViewModelFactory(taskRepository, instanceRepository)
+        viewModel = ViewModelProvider(this, factory).get(InstancesViewModel::class.java)
+
+
+
         setContentView(R.layout.activity_main)
 
         Controller.initialize(applicationContext)
@@ -28,8 +56,22 @@ class MainActivity : AppCompatActivity() {
         // Initialize the RecyclerView for instances
         instanceRecyclerView = findViewById(R.id.recyclerViewInstances)
         instanceRecyclerView.layoutManager = LinearLayoutManager(this)
-        instanceAdapter = InstanceAdapter(this, getDummyInstances())
+
+        // Initialize your adapter with an empty list or initial state
+        instanceAdapter = InstanceAdapter(this, emptyList())
         instanceRecyclerView.adapter = instanceAdapter
+
+        // Observe LiveData from ViewModel and update the adapter
+        viewModel.getAllInstances().observe(this, Observer { returnedInstancesTasks ->
+            // Update your adapter's data
+            instanceAdapter.updateList(returnedInstancesTasks)
+        })
+
+
+
+
+
+
 
         // Find the button by its ID
         val buttonGoToManageTasks = findViewById<View>(R.id.buttonGoToManageTasks)
@@ -68,8 +110,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateInstanceList() {
-        val instances = Controller.getAllInstances()
-        instanceAdapter.updateList(instances)
+    //   val instances = viewModel.getAllInstances()
+    //    instanceAdapter.updateList(instances)
     }
 
     private fun getDummyInstances(): List<Instance> {

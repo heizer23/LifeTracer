@@ -7,11 +7,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.example.lifetracer.data.Instance
+import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.FragmentSelectedInstanceBinding
 
 class SelectedInstanceFragment : Fragment() {
     private lateinit var binding: FragmentSelectedInstanceBinding
-    private var instance: Instance? = null
+    private var instance: InstanceWithTask? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,8 +31,8 @@ class SelectedInstanceFragment : Fragment() {
 
         instance?.let { nonNullInstance ->
             val instance = nonNullInstance
-            binding.textViewInstanceName.text = instance.taskName
-            binding.textViewInstanceDate.text = instance.date
+      //todo     binding.textViewInstanceName.text = instance.taskName
+            binding.textViewInstanceDate.text = instance.instance.date
         }
 
 
@@ -69,10 +70,10 @@ class SelectedInstanceFragment : Fragment() {
     }
 
     // Update the selected instance details
-    fun updateSelectedView(instance: Instance) {
+    fun updateSelectedView(instance: InstanceWithTask) {
         this.instance = instance
-        binding.textViewInstanceName.text = instance.taskName
-        binding.textViewInstanceDate.text = instance.date
+    // todo    binding.textViewInstanceName.text = instance.taskName
+        binding.textViewInstanceDate.text = instance.instance.date
         // Update other views as needed
     }
 }

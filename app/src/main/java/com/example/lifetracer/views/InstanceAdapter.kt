@@ -5,14 +5,15 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.data.Instance
+import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemInstanceBinding
 
 class InstanceAdapter(
     private val context: Context,
-    private var instanceList: List<Instance>
+    private var instanceList: List<InstanceWithTask>
 ) : RecyclerView.Adapter<InstanceAdapter.ViewHolder>() {
 
-    var onItemClickListener: ((Instance) -> Unit)? = null
+    var onItemClickListener: ((InstanceWithTask) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ListItemInstanceBinding.inflate(LayoutInflater.from(parent.context), parent, false)
@@ -34,13 +35,13 @@ class InstanceAdapter(
     }
 
     inner class ViewHolder(private val binding: ListItemInstanceBinding) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(instance: Instance) {
-            binding.instance = instance
+        fun bind(instance: InstanceWithTask) {
+          // todo   binding.instance = instance
             binding.executePendingBindings()
         }
     }
 
-    fun updateList(newList: List<Instance>) {
+    fun updateList(newList: List<InstanceWithTask>) {
         instanceList = newList
         notifyDataSetChanged()
     }

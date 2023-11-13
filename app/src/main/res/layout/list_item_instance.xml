@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="instance"
-            type="com.example.lifetracer.data.Instance" />
+            name="instanceWithTask"
+            type="com.example.lifetracer.data.InstanceWithTask" />
     </data>
 
     <LinearLayout
@@ -20,7 +20,7 @@
             android:id="@+id/textViewInstanceName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{instance.taskName}"
+            android:text="@{instanceWithTask.task.name}"
             android:textSize="18sp"
             android:textStyle="bold"
             android:layout_marginBottom="4dp" />
@@ -29,7 +29,7 @@
             android:id="@+id/textViewInstanceDate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{instance.date}"
+            android:text="@{instanceWithTask.instance.date}"
             android:textSize="16sp"
             android:textStyle="italic" />
 
@@ -37,7 +37,7 @@
             android:id="@+id/textViewInstanceStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{String.valueOf(instance.status)}"
+            android:text="@{String.valueOf(instanceWithTask.instance.status)}"
             android:textSize="16sp" />
 
     </LinearLayout>

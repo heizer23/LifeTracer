@@ -1,24 +1,27 @@
 package com.example.lifetracer.data
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.ColumnInfo
+
+@Entity(tableName = "tasks")
 data class Task(
-    private var _id: Long, // Make _id private
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "task_id")
+    val taskId: Long = 0,
+
+    @ColumnInfo(name = "name")
     val name: String,
+
+    @ColumnInfo(name = "task_quality")
     val taskQuality: String,
+
+    @ColumnInfo(name = "date_of_creation")
     val dateOfCreation: String,
+
+    @ColumnInfo(name = "regularity")
     val regularity: Int,
+
+    @ColumnInfo(name = "fixed")
     val fixed: Boolean
-) {
-    var id: Long
-        get() = _id // Getter to access the id
-        private set(value) {
-            _id = value // Setter to update the id (private to restrict external updates)
-        }
-
-    // Other methods and properties for your Task class
-
-    // Custom method to set the id
-    fun updateId(newId: Long) {
-        // Add any validation or constraints here if needed
-        id = newId
-    }
-}
+)
