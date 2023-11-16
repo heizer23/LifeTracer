@@ -1,16 +1,14 @@
 package com.example.lifetracer.views
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemInstanceBinding
 
-class InstanceAdapter(
-    private var instanceList: List<InstanceWithTask>
-) : RecyclerView.Adapter<InstanceAdapter.ViewHolder>() {
+class InstanceAdapter : ListAdapter<InstanceWithTask, InstanceAdapter.ViewHolder>(InstanceDiffCallback()) {
 
     var onItemClickListener: ((InstanceWithTask) -> Unit)? = null
 
@@ -19,29 +17,27 @@ class InstanceAdapter(
         return ViewHolder(binding)
     }
 
-    override fun getItemCount(): Int {
-        return instanceList.size
-    }
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val instance = instanceList[position]
+        val instance = getItem(position)
         holder.bind(instance)
-
-        // Set a click listener for the item view
-        holder.itemView.setOnClickListener {
-            onItemClickListener?.invoke(instance)
-        }
+        holder.itemView.setOnClickListener { onItemClickListener?.invoke(instance) }
     }
 
-    inner class ViewHolder(private val binding: ListItemInstanceBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val binding: ListItemInstanceBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(instance: InstanceWithTask) {
             binding.instanceWithTask = instance
             binding.executePendingBindings()
         }
     }
 
-    fun updateList(newList: List<InstanceWithTask>) {
-        instanceList = newList
-        notifyDataSetChanged()
+    class InstanceDiffCallback : DiffUtil.ItemCallback<InstanceWithTask>() {
+        override fun areItemsTheSame(oldItem: InstanceWithTask, newItem: InstanceWithTask): Boolean {
+            // Define logic to check if items are the same, usually based on unique IDs
+            return oldItem.instance.id == newItem.instance.id
+        }
+        override fun areContentsTheSame(oldItem: InstanceWithTask, newItem: InstanceWithTask): Boolean {
+            // Define logic to check if the content of items is the same
+            return oldItem == newItem
+        }
     }
 }

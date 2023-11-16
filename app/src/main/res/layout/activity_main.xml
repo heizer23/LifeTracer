@@ -1,38 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingStart="16dp"
-    android:paddingTop="16dp"
-    android:paddingEnd="16dp"
-    android:paddingBottom="16dp"
-    tools:context=".views.MainActivity">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- FrameLayout to host com.example.lifetracer.fragments.SelectedInstanceFragment (top of the screen) -->
-    <FrameLayout
-        android:id="@+id/selectedInstanceContainer"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:visibility="visible" />
+        android:layout_height="match_parent"
+        android:paddingStart="16dp"
+        android:paddingTop="16dp"
+        android:paddingEnd="16dp"
+        android:paddingBottom="16dp"
+        tools:context=".views.MainActivity">
 
-    <!-- RecyclerView for instances (below the FrameLayout and above the button) -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerViewInstances"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_below="@+id/selectedInstanceContainer"
-        android:layout_above="@+id/buttonGoToManageTasks"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        <!-- FrameLayout to host com.example.lifetracer.fragments.SelectedInstanceFragment (top of the screen) -->
+        <FrameLayout
+            android:id="@+id/selectedInstanceContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="visible" />
 
-    <!-- Button to go to ManageTasksActivity (at the bottom) -->
-    <Button
-        android:id="@+id/buttonGoToManageTasks"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:text="Go to Manage Tasks" />
-</RelativeLayout>
+        <!-- RecyclerView for instances (below the FrameLayout and above the button) -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewInstances"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_below="@+id/selectedInstanceContainer"
+            android:layout_above="@+id/buttonGoToManageTasks"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <!-- Button to go to ManageTasksActivity (at the bottom) -->
+        <Button
+            android:id="@+id/buttonGoToManageTasks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="Go to Manage Tasks" />
+    </RelativeLayout>
+</layout>
+
