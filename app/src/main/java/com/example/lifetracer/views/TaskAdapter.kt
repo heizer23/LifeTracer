@@ -4,21 +4,20 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.R
 import com.example.lifetracer.data.Task
 import com.example.lifetracer.databinding.ListItemTaskBinding
 
 class TaskAdapter(
-    private val context: Context,
-    private var taskList: LiveData<List<Task>>,
-    private val taskController: Controller
+    private var taskList: List<Task>,
+    private val onDeleteTask: (Task) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
-        val layoutInflater = LayoutInflater.from(context)
         val binding = DataBindingUtil.inflate<ListItemTaskBinding>(
-            layoutInflater, R.layout.list_item_task, parent, false
+            LayoutInflater.from(parent.context), R.layout.list_item_task, parent, false
         )
         return TaskViewHolder(binding)
     }
@@ -32,7 +31,7 @@ class TaskAdapter(
         holder.bind(task)
     }
 
-    fun updateTasks(newTaskList: List<Task>) {
+    fun updateList(newTaskList: List<Task>) {
         taskList = newTaskList
         notifyDataSetChanged()
     }
@@ -43,16 +42,13 @@ class TaskAdapter(
             binding.executePendingBindings()
 
             binding.buttonDeleteTask.setOnClickListener {
-                Controller.deleteTask(task)
-                deleteTask(adapterPosition)
+                // Lambda to have Databse deletion dealt with in the Activity
+                onDeleteTask(task)
+                //delete the
+             //   taskList = taskList.toMutableList().apply { removeAt(adapterPosition) }
+               // notifyItemRemoved(adapterPosition)
             }
         }
     }
 
-    private fun deleteTask(position: Int) {
-        if (position >= 0 && position < taskList.size) {
-            taskList = taskList.toMutableList().apply { removeAt(position) }
-            notifyItemRemoved(position)
-        }
-    }
 }

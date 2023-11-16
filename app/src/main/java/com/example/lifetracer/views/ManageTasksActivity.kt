@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.R
@@ -16,8 +17,9 @@ import com.example.lifetracer.ViewModel.InstancesViewModelFactory
 import com.example.lifetracer.data.Task
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
-import com.example.lifetracer.model.TaskRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -52,18 +54,29 @@ class ManageTasksActivity : AppCompatActivity() {
 
         // Get DAOs from the database
         val instanceDao = database.instanceDao()
-        val instanceRepository = InstanceRepository(instanceDao)
         val taskDao = database.taskDao()
-        val taskRepository = TaskRepository(taskDao)
+        val instanceRepository = InstanceRepository(instanceDao, taskDao)
 
         // Get viewModel
-        val factory = InstancesViewModelFactory(taskRepository, instanceRepository)
+        val factory = InstancesViewModelFactory(instanceRepository)
         viewModel = ViewModelProvider(this, factory).get(InstancesViewModel::class.java)
 
 
+        taskAdapter = TaskAdapter(emptyList()) { task ->
+            // Launch a coroutine in the ViewModel's scope
+            viewModel.viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    instanceRepository.deleteTask(task)
+                }
+            }
+        }
 
-      //  taskAdapter = TaskAdapter(this, emptyList(), controller)
-        taskAdapter = TaskAdapter(this, emptyList())
+        // Observe LiveData from ViewModel and update the adapter
+        viewModel.getAllTasks().observe(this, Observer { returnedTasks ->
+            // Update your adapter's data
+            taskAdapter.updateList(returnedTasks)
+        })
+
         taskRecyclerView.adapter = taskAdapter
 
         // Create a formatted date string
@@ -101,7 +114,7 @@ class ManageTasksActivity : AppCompatActivity() {
 
     private fun updateTaskList() {
         viewModel.getAllTasks().observe(this, Observer { tasks ->
-            taskAdapter.updateTasks(tasks)
+            taskAdapter.updateList(tasks)
         })
     }
 

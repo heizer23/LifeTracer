@@ -21,11 +21,15 @@ interface InstanceDao {
     @Delete
     fun delete(instance: Instance)
 
+    @Query("DELETE FROM instances WHERE task_id = :taskId")
+    suspend fun deleteInstancesByTaskId(taskId: Long)
+
     @Query("SELECT * FROM instances")
     fun getAllInstances(): LiveData<List<Instance>>
 
     @Query("SELECT * FROM instances WHERE id = :instanceId")
     fun getInstanceById(instanceId: Long): Instance?
+
 
     // Define a query to retrieve instances along with their associated tasks
     @Transaction

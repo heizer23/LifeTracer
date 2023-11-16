@@ -12,12 +12,10 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.R
 import androidx.lifecycle.ViewModelProvider
-import androidx.room.Room
 import com.example.lifetracer.ViewModel.InstancesViewModel
 import com.example.lifetracer.ViewModel.InstancesViewModelFactory
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
-import com.example.lifetracer.model.TaskRepository
 
 class MainActivity : AppCompatActivity() {
 
@@ -40,13 +38,11 @@ class MainActivity : AppCompatActivity() {
         val database = AppDatabase.getDatabase(applicationContext)
 
         val instanceDao = database.instanceDao()
-        val instanceRepository = InstanceRepository(instanceDao)
-
         val taskDao = database.taskDao()
-        val taskRepository = TaskRepository(taskDao)
+        val instanceRepository = InstanceRepository(instanceDao, taskDao)
 
         // Create ViewModel
-        val factory = InstancesViewModelFactory(taskRepository, instanceRepository)
+        val factory = InstancesViewModelFactory(instanceRepository)
         viewModel = ViewModelProvider(this, factory).get(InstancesViewModel::class.java)
 
         setContentView(R.layout.activity_main)
@@ -103,7 +99,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateInstanceList() {
-    //   val instances = viewModel.getAllInstances()
+    //   todo val instances = viewModel.getAllInstances()
     //    instanceAdapter.updateList(instances)
     }
 

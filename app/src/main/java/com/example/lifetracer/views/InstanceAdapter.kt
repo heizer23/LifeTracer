@@ -36,7 +36,7 @@ class InstanceAdapter(
 
     inner class ViewHolder(private val binding: ListItemInstanceBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(instance: InstanceWithTask) {
-          // todo   binding.instance = instance
+            binding.instanceWithTask = instance
             binding.executePendingBindings()
         }
     }

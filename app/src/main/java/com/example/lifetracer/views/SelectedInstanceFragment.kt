@@ -31,7 +31,7 @@ class SelectedInstanceFragment : Fragment() {
 
         instance?.let { nonNullInstance ->
             val instance = nonNullInstance
-      //todo     binding.textViewInstanceName.text = instance.taskName
+            binding.textViewInstanceName.text = instance.task.name
             binding.textViewInstanceDate.text = instance.instance.date
         }
 
@@ -72,7 +72,7 @@ class SelectedInstanceFragment : Fragment() {
     // Update the selected instance details
     fun updateSelectedView(instance: InstanceWithTask) {
         this.instance = instance
-    // todo    binding.textViewInstanceName.text = instance.taskName
+        binding.textViewInstanceName.text = instance.task.name
         binding.textViewInstanceDate.text = instance.instance.date
         // Update other views as needed
     }
