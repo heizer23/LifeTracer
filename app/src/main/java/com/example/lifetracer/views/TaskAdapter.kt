@@ -5,14 +5,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
-import com.example.lifetracer.Controller
 import com.example.lifetracer.R
 import com.example.lifetracer.data.Task
 import com.example.lifetracer.databinding.ListItemTaskBinding
 
 class TaskAdapter(
     private val context: Context,
-    private var taskList: List<Task>,
+    private var taskList: LiveData<List<Task>>,
     private val taskController: Controller
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 

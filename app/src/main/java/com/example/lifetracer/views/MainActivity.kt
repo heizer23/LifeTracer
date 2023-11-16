@@ -7,10 +7,8 @@ import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.lifetracer.Controller
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.R
 import androidx.lifecycle.ViewModelProvider
@@ -33,25 +31,25 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // Initialize the database and DAO
-        val database = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "lifetracer-database"
-        ).build()
+//        val database = Room.databaseBuilder(
+//            applicationContext,
+//            AppDatabase::class.java, "lifetracer-database"
+//        ).build()
+
+        // Get the singleton database instance and Daos
+        val database = AppDatabase.getDatabase(applicationContext)
+
         val instanceDao = database.instanceDao()
         val instanceRepository = InstanceRepository(instanceDao)
 
         val taskDao = database.taskDao()
         val taskRepository = TaskRepository(taskDao)
 
-
+        // Create ViewModel
         val factory = InstancesViewModelFactory(taskRepository, instanceRepository)
         viewModel = ViewModelProvider(this, factory).get(InstancesViewModel::class.java)
 
-
-
         setContentView(R.layout.activity_main)
-
-        Controller.initialize(applicationContext)
 
         // Initialize the RecyclerView for instances
         instanceRecyclerView = findViewById(R.id.recyclerViewInstances)
@@ -66,11 +64,6 @@ class MainActivity : AppCompatActivity() {
             // Update your adapter's data
             instanceAdapter.updateList(returnedInstancesTasks)
         })
-
-
-
-
-
 
 
         // Find the button by its ID
