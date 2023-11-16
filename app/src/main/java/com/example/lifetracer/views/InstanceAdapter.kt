@@ -9,7 +9,6 @@ import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemInstanceBinding
 
 class InstanceAdapter(
-    private val context: Context,
     private var instanceList: List<InstanceWithTask>
 ) : RecyclerView.Adapter<InstanceAdapter.ViewHolder>() {
 

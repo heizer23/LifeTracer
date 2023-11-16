@@ -28,12 +28,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize the database and DAO
-//        val database = Room.databaseBuilder(
-//            applicationContext,
-//            AppDatabase::class.java, "lifetracer-database"
-//        ).build()
-
         // Get the singleton database instance and Daos
         val database = AppDatabase.getDatabase(applicationContext)
 
@@ -52,7 +46,7 @@ class MainActivity : AppCompatActivity() {
         instanceRecyclerView.layoutManager = LinearLayoutManager(this)
 
         // Initialize your adapter with an empty list or initial state
-        instanceAdapter = InstanceAdapter(this, emptyList())
+        instanceAdapter = InstanceAdapter(emptyList())
         instanceRecyclerView.adapter = instanceAdapter
 
         // Observe LiveData from ViewModel and update the adapter
@@ -90,34 +84,5 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.selectedInstanceContainer, selectedInstanceFragment)
             .commit()
 
-    //    toggleSelectedInstanceFragment()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        updateInstanceList()
-    }
-
-    private fun updateInstanceList() {
-    //   todo val instances = viewModel.getAllInstances()
-    //    instanceAdapter.updateList(instances)
-    }
-
-    private fun getDummyInstances(): List<Instance> {
-        // Return a list of dummy instances here or fetch real data from the database
-        val dummyInstances = mutableListOf<Instance>()
-        // Add instances to the list
-        return dummyInstances
-    }
-
-    // Show or hide the selected instance fragment
-    private fun toggleSelectedInstanceFragment() {
-        val fragmentTransaction = supportFragmentManager.beginTransaction()
-        if (selectedInstanceFragment.isAdded) {
-            fragmentTransaction.hide(selectedInstanceFragment)
-        } else {
-            fragmentTransaction.show(selectedInstanceFragment)
-        }
-        fragmentTransaction.commit()
     }
 }
