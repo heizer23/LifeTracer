@@ -10,26 +10,27 @@ import com.example.lifetracer.data.Task
 @Database(entities = [Task::class, Instance::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
-    // Define DAOs for your entities
     abstract fun taskDao(): TaskDao
     abstract fun instanceDao(): InstanceDao
 
     companion object {
-        // Singleton instance of the database
-        @Volatile
+        // Using 'by lazy' to ensure thread-safe initialization of the database instance
+        private val LOCK = Any()
         private var INSTANCE: AppDatabase? = null
 
-        // Get or create the database instance
         fun getDatabase(context: Context): AppDatabase {
-            return INSTANCE ?: synchronized(this) {
-                val instance = Room.databaseBuilder(
-                    context.applicationContext,
-                    AppDatabase::class.java,
-                    "app_database"
-                ).fallbackToDestructiveMigration().build()
-                INSTANCE = instance
-                instance
+            return INSTANCE ?: synchronized(LOCK) {
+                INSTANCE ?: buildDatabase(context).also { INSTANCE = it }
             }
+        }
+
+        private fun buildDatabase(context: Context): AppDatabase {
+            return Room.databaseBuilder(
+                context.applicationContext,
+                AppDatabase::class.java,
+                "app_database"
+            ).fallbackToDestructiveMigration().build()
         }
     }
 }
+

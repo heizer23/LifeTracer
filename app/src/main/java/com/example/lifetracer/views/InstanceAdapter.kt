@@ -5,10 +5,12 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.lifetracer.ViewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemInstanceBinding
 
-class InstanceAdapter : ListAdapter<InstanceWithTask, InstanceAdapter.ViewHolder>(InstanceDiffCallback()) {
+class InstanceAdapter(private val viewModel: InstancesViewModel) :
+    ListAdapter<InstanceWithTask, InstanceAdapter.ViewHolder>(InstanceDiffCallback()) {
 
     var onItemClickListener: ((InstanceWithTask) -> Unit)? = null
 
@@ -20,7 +22,9 @@ class InstanceAdapter : ListAdapter<InstanceWithTask, InstanceAdapter.ViewHolder
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val instance = getItem(position)
         holder.bind(instance)
-        holder.itemView.setOnClickListener { onItemClickListener?.invoke(instance) }
+        holder.itemView.setOnClickListener {
+            viewModel.selectAndStartInstance(instance)
+        }
     }
 
     class ViewHolder(private val binding: ListItemInstanceBinding) : RecyclerView.ViewHolder(binding.root) {

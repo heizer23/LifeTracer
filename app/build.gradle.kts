@@ -58,6 +58,7 @@ dependencies {
 
 
     implementation("androidx.activity:activity-compose:1.8.0")
+    implementation("androidx.fragment:fragment-ktx:1.3.6")
     implementation("androidx.appcompat:appcompat:1.6.1")
 
     // Compose & Material

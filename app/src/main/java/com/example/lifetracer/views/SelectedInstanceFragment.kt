@@ -6,13 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import com.example.lifetracer.data.Instance
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
+import com.example.lifetracer.ViewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.FragmentSelectedInstanceBinding
 
 class SelectedInstanceFragment : Fragment() {
     private lateinit var binding: FragmentSelectedInstanceBinding
-    private var instance: InstanceWithTask? = null
+
+    private val viewModel: InstancesViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -27,27 +30,25 @@ class SelectedInstanceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Access your views through the binding object
-
-        instance?.let { nonNullInstance ->
-            val instance = nonNullInstance
-            binding.textViewInstanceName.text = instance.task.name
-            binding.textViewInstanceDate.text = instance.instance.date
-        }
-
-
+        viewModel.selectedInstance.observe(viewLifecycleOwner, Observer { instance ->
+            instance?.let {
+                updateSelectedView(it)
+            }
+        })
 
         binding.buttonStart.setOnClickListener {
-            // Start button action
-            // Example: Start the timer and update the instance
+            viewModel.startCurrentInstance()
             startTimer()
         }
-
         binding.buttonPause.setOnClickListener {
-            // Pause button action
-            // Example: Pause the timer
+            viewModel.pauseCurrentInstance()
             pauseTimer()
         }
+        binding.buttonFinish.setOnClickListener {
+            viewModel.finishSelectedInstance()
+        }
+
+
     }
 
     private var timerRunning = false
@@ -71,7 +72,6 @@ class SelectedInstanceFragment : Fragment() {
 
     // Update the selected instance details
     fun updateSelectedView(instance: InstanceWithTask) {
-        this.instance = instance
         binding.textViewInstanceName.text = instance.task.name
         binding.textViewInstanceDate.text = instance.instance.date
         // Update other views as needed

@@ -15,13 +15,14 @@ import com.example.lifetracer.ViewModel.InstancesViewModelFactory
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val instanceAdapter: InstanceAdapter by lazy { InstanceAdapter() }
+
     private val viewModel: InstancesViewModel by viewModels {
         InstancesViewModelFactory(InstanceRepository(
             AppDatabase.getDatabase(applicationContext).instanceDao(),
             AppDatabase.getDatabase(applicationContext).taskDao()
         ))
     }
+    private val instanceAdapter: InstanceAdapter by lazy { InstanceAdapter(viewModel) }
     private var selectedInstanceFragment: SelectedInstanceFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {

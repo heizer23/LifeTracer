@@ -1,125 +1,114 @@
 package com.example.lifetracer.views
 
 import android.os.Bundle
-import android.widget.Button
-import android.widget.CheckBox
-import android.widget.EditText
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.R
 import com.example.lifetracer.ViewModel.InstancesViewModel
 import com.example.lifetracer.ViewModel.InstancesViewModelFactory
 import com.example.lifetracer.data.Task
+import com.example.lifetracer.databinding.ActivityManageTasksBinding
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class ManageTasksActivity : AppCompatActivity() {
-    private lateinit var taskNameEditText: EditText
-    private lateinit var taskQualityEditText: EditText
-    private lateinit var taskRegularityEditText: EditText
-    private lateinit var taskFixedCheckBox: CheckBox
-    private lateinit var addTaskButton: Button
-    private lateinit var taskRecyclerView: RecyclerView
-    private lateinit var taskAdapter: TaskAdapter
-    private lateinit var viewModel: InstancesViewModel
+    private lateinit var binding: ActivityManageTasksBinding
 
+    private val viewModel: InstancesViewModel by viewModels {
+        InstancesViewModelFactory(InstanceRepository(
+            AppDatabase.getDatabase(applicationContext).instanceDao(),
+            AppDatabase.getDatabase(applicationContext).taskDao()
+        ))
+    }
+    private lateinit var taskAdapter: TaskAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_manage_tasks)
+        binding = ActivityManageTasksBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Initialize UI elements
-        taskNameEditText = findViewById(R.id.editTextTaskName)
-        taskQualityEditText = findViewById(R.id.editTextTaskQuality)
-        taskRegularityEditText = findViewById(R.id.editTextTaskRegularity)
-        taskFixedCheckBox = findViewById(R.id.checkBoxTaskFixed)
-        addTaskButton = findViewById(R.id.buttonAddTask)
+        setupRecyclerView()
+        observeTaskListChanges()
+        setupAddTaskButtonListener()
+    }
 
-        taskRecyclerView = findViewById(R.id.recyclerViewTasks)
-        taskRecyclerView.layoutManager = LinearLayoutManager(this)
-
-
-        // Get the singleton database instance
-        val database = AppDatabase.getDatabase(applicationContext)
-
-        // Get DAOs from the database
-        val instanceDao = database.instanceDao()
-        val taskDao = database.taskDao()
-        val instanceRepository = InstanceRepository(instanceDao, taskDao)
-
-        // Get viewModel
-        val factory = InstancesViewModelFactory(instanceRepository)
-        viewModel = ViewModelProvider(this, factory).get(InstancesViewModel::class.java)
-
-
+    private fun setupRecyclerView() {
         taskAdapter = TaskAdapter(emptyList()) { task ->
-            // Launch a coroutine in the ViewModel's scope
-            viewModel.viewModelScope.launch {
-                withContext(Dispatchers.IO) {
-                    instanceRepository.deleteTask(task)
-                }
-            }
+            deleteTask(task)
         }
-
-        // Observe LiveData from ViewModel and update the adapter
-        viewModel.getAllTasks().observe(this, Observer { returnedTasks ->
-            // Update your adapter's data
-            taskAdapter.updateList(returnedTasks)
-        })
-
-        taskRecyclerView.adapter = taskAdapter
-
-        // Create a formatted date string
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-
-        // Handle the "Add Task" button click
-        addTaskButton.setOnClickListener {
-            val name = taskNameEditText.text.toString()
-            val quality = taskQualityEditText.text.toString()
-            val currentDate = LocalDate.now()
-            val dateOfCreation = currentDate.format(formatter)
-            val regularity = taskRegularityEditText.text.toString().toIntOrNull() ?: 0
-            val fixed = taskFixedCheckBox.isChecked
-
-            preFillValues()
-
-            if (name.isNotEmpty()) {
-                val task = Task(0, name, quality, dateOfCreation, regularity, fixed)
-
-                lifecycleScope.launch {
-                    viewModel.addTaskAndInstance(task)
-                    updateTaskList()
-                }
-
-                preFillValues()
-                finish()
-            }
+        binding.recyclerViewTasks.apply {
+            layoutManager = LinearLayoutManager(this@ManageTasksActivity)
+            adapter = taskAdapter
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        updateTaskList()
+    private fun observeTaskListChanges() {
+        viewModel.getAllTasks().observe(this) { tasks ->
+            taskAdapter.updateList(tasks)
+        }
+    }
+
+    private fun setupAddTaskButtonListener() {
+        binding.buttonAddTask.setOnClickListener { handleAddTask() }
+    }
+
+    private fun handleAddTask() {
+        val task = createTaskFromInput()
+        if (task != null) {
+            addNewTask(task)
+            preFillValues()
+            finish()
+        }
+    }
+
+    private fun createTaskFromInput(): Task? {
+        val name = binding.editTextTaskName.text.toString()
+        val quality = binding.editTextTaskQuality.text.toString()
+        val regularity = binding.editTextTaskRegularity.text.toString().toIntOrNull() ?: 0
+        val fixed = binding.checkBoxTaskFixed.isChecked
+
+        return if (name.isNotEmpty()) {
+            val dateOfCreation = getCurrentFormattedDate()
+            Task(0, name, quality, dateOfCreation, regularity, fixed)
+        } else {
+            null
+        }
+    }
+
+    private fun getCurrentFormattedDate(): String {
+        val currentDate = LocalDate.now()
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        return currentDate.format(formatter)
+    }
+
+    private fun addNewTask(task: Task) {
+        CoroutineScope(Dispatchers.Main).launch {
+            viewModel.addTaskAndInstance(task)
+            updateTaskList()
+        }
+    }
+
+    private fun deleteTask(task: Task) {
+        CoroutineScope(Dispatchers.IO).launch {
+            viewModel.deleteTask(task)
+        }
     }
 
     private fun updateTaskList() {
-        viewModel.getAllTasks().observe(this, Observer { tasks ->
+        viewModel.getAllTasks().observe(this) { tasks ->
             taskAdapter.updateList(tasks)
-        })
+        }
     }
 
     private fun preFillValues() {
-        taskNameEditText.setText("Task1")
-        taskQualityEditText.setText("Good")
+        binding.editTextTaskName.setText("Task1")
+        binding.editTextTaskQuality.setText("Good")
     }
 }

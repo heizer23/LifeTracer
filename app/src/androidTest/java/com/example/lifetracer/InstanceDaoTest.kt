@@ -91,7 +91,7 @@ class InstanceDaoTest {
             instanceDao.insert(instance2)
         }
 
-        val allInstancesWithTask = LiveDataTestUtil.getValue(instanceDao.getInstancesWithTasks())
+        val allInstancesWithTask = LiveDataTestUtil.getValue(instanceDao.getActiveInstancesWithTasks())
 
         // Check if the emitted list is not empty and contains the inserted instances
         assert(allInstancesWithTask.isNotEmpty())
