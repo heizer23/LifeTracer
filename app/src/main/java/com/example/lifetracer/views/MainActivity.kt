@@ -12,7 +12,6 @@ import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.ViewModel.InstancesViewModel
 import com.example.lifetracer.ViewModel.InstancesViewModelFactory
-import com.example.lifetracer.ViewUtils.setupItemTouchHelper
 
 class MainActivity : AppCompatActivity() {
 

@@ -5,6 +5,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.lifetracer.Utilities.getCurrentDate
+import com.example.lifetracer.Utilities.getCurrentTime
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.data.Task
@@ -53,9 +55,7 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
 
     fun updateInstanceOrder(instances: List<InstanceWithTask>) {
         viewModelScope.launch {
-            Log.d("DD up ViewModel", instances[0].instance.id.toString())
             instances.forEachIndexed { index, instanceWithTask ->
-                Log.d("DD up ViewModel it", instances[index].instance.id.toString() + " " + instances[index].instance.priority.toString())
                 instanceRepository.updatePrio(instanceWithTask.instance.id, index)
             }
         }
@@ -85,17 +85,4 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
     fun getAllInstances(): LiveData<List<InstanceWithTask>> {
         return instanceRepository.allActiveInstancesWithTasks
     }
-
-
-    // Todo move those:
-    fun getCurrentDate(): String {
-        val currentDate = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        return currentDate.format(Date())
-    }
-    fun getCurrentTime(): String {
-        val currentTime = SimpleDateFormat("hh:mm a", Locale.getDefault())
-        return currentTime.format(Date())
-    }
-
-
 }

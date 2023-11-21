@@ -24,4 +24,10 @@ data class Task(
 
     @ColumnInfo(name = "fixed")
     val fixed: Boolean
-)
+) {
+    companion object {
+        const val TYPE_ONE_OFF = 0
+        const val TYPE_RECURRING = 1
+        const val TYPE_REGULAR = 2
+    }
+}
