@@ -1,5 +1,6 @@
 package com.example.lifetracer.ViewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -49,6 +50,16 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
         }
     }
 
+
+    fun updateInstanceOrder(instances: List<InstanceWithTask>) {
+        viewModelScope.launch {
+            Log.d("DD up ViewModel", instances[0].instance.id.toString())
+            instances.forEachIndexed { index, instanceWithTask ->
+                Log.d("DD up ViewModel it", instances[index].instance.id.toString() + " " + instances[index].instance.priority.toString())
+                instanceRepository.updatePrio(instanceWithTask.instance.id, index)
+            }
+        }
+    }
 
 
     private fun updateInstance(instance: Instance) {

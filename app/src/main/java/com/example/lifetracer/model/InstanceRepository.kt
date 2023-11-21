@@ -1,5 +1,6 @@
 package com.example.lifetracer.model
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.InstanceWithTask
@@ -31,6 +32,12 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
         instanceDao.update(instance)
     }
 
+    suspend fun updatePrio(instanceId: Long, priority: Int){
+        val text = instanceId + priority
+        Log.d("DD up Rep", "$instanceId $priority")
+        instanceDao.updatePrio(instanceId, priority)
+    }
+
     suspend fun addEmptyInstance(taskId: Long, date: String, time: String) {
         val instance = Instance(
             taskId = taskId,
@@ -41,8 +48,9 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
             quantity = 0, // default value
             quality = "", // default value
             comment = "", // default value
-            status = Instance.STATUS_PLANNED // default value, using the constant from Instance class
-        )
+            status = Instance.STATUS_PLANNED, // default value, using the constant from Instance class
+            priority = 0
+            )
         insertInstance(instance)
     }
 }

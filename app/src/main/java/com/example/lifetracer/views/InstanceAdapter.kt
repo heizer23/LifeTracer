@@ -1,5 +1,6 @@
 package com.example.lifetracer.views
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -8,16 +9,42 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.ViewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemInstanceBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.util.Collections
 
 class InstanceAdapter(private val viewModel: InstancesViewModel) :
-    ListAdapter<InstanceWithTask, InstanceAdapter.ViewHolder>(InstanceDiffCallback()) {
+    ListAdapter<InstanceWithTask, InstanceAdapter.ViewHolder>(InstanceDiffCallback()),
+    ItemTouchHelperAdapter, CoroutineScope by CoroutineScope(Dispatchers.Main)  {
 
     var onItemClickListener: ((InstanceWithTask) -> Unit)? = null
+    var job: Job? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ListItemInstanceBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
+
+    //Drag and Drop funtionality
+    override fun onItemMove(fromPosition: Int, toPosition: Int) {
+        val currentList = currentList.toMutableList()
+        Collections.swap(currentList, fromPosition, toPosition)
+        submitList(currentList)
+        onDragEnded()
+    }
+
+    // the db update is a bit delayed and in a coroutine for quicker updates
+    fun onDragEnded() {
+        job?.cancel() // Cancel any existing job
+        job = launch {
+            delay(500) // Debounce delay
+            viewModel.updateInstanceOrder(currentList)
+        }
+    }
+
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val instance = getItem(position)

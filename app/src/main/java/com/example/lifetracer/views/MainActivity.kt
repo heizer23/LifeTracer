@@ -2,6 +2,7 @@ package com.example.lifetracer.views
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,6 +12,7 @@ import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.ViewModel.InstancesViewModel
 import com.example.lifetracer.ViewModel.InstancesViewModelFactory
+import com.example.lifetracer.ViewUtils.setupItemTouchHelper
 
 class MainActivity : AppCompatActivity() {
 
@@ -31,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         setupRecyclerView()
+        setupItemTouchHelper(binding.recyclerViewInstances, instanceAdapter)
         setupViewModelObserver()
         setupButtonClickListeners()
         attachSelectedInstanceFragment()
@@ -48,9 +51,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupViewModelObserver() {
-        viewModel.getAllInstances().observe(this, { instances ->
+        viewModel.getAllInstances().observe(this) { instances ->
             instanceAdapter.submitList(instances)
-        })
+        }
     }
 
     private fun setupButtonClickListeners() {
@@ -58,6 +61,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ManageTasksActivity::class.java))
         }
     }
+
+
+
 
     private fun attachSelectedInstanceFragment() {
         selectedInstanceFragment = supportFragmentManager.findFragmentById(R.id.selectedInstanceContainer) as? SelectedInstanceFragment

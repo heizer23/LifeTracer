@@ -31,8 +31,11 @@ interface InstanceDao {
     fun getInstanceById(instanceId: Long): Instance?
 
 
+    @Query("UPDATE instances SET priority = :priority WHERE id = :instanceId")
+    suspend fun updatePrio(instanceId: Long, priority: Int)
+
     // Define a query to retrieve instances along with their associated tasks
     @Transaction
-    @Query("SELECT * FROM instances WHERE status != 3")
+    @Query("SELECT * FROM instances WHERE status != 3 order by priority")
     fun getActiveInstancesWithTasks(): LiveData<List<InstanceWithTask>>
 }
