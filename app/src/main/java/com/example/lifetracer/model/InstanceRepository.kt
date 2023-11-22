@@ -2,14 +2,26 @@ package com.example.lifetracer.model
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.switchMap
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.data.Task
 
 class InstanceRepository(private val instanceDao: InstanceDao, private val taskDao: TaskDao) {
 
+    private val _currentFilter = MutableLiveData<Int>().apply { value = Task.REGULARITY_ALL }
+    val currentFilter: LiveData<Int> = _currentFilter
+
     val allActiveInstancesWithTasks: LiveData<List<InstanceWithTask>> = instanceDao.getActiveInstancesWithTasks()
-    val allTasks: LiveData<List<Task>> = taskDao.getAllTasks()
+
+    val tasks: LiveData<List<Task>> = _currentFilter.switchMap() { filter ->
+        when (filter) {
+            Task.REGULARITY_ALL -> taskDao.getAllTasks()
+            Task.TYPE_ONE_OFF -> taskDao.getRegularUnfinshedTasks()
+            else -> taskDao.getTasksByRegularity(filter)
+        }
+    }
 
     // Task-related operations
     suspend fun insertTask(task: Task): Long = taskDao.insert(task)
@@ -33,7 +45,6 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
     }
 
     suspend fun updatePrio(instanceId: Long, priority: Int){
-        val text = instanceId + priority
         Log.d("DD up Rep", "$instanceId $priority")
         instanceDao.updatePrio(instanceId, priority)
     }
@@ -43,14 +54,19 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
             taskId = taskId,
             date = date,
             time = time,
-            duration = 0, // default value
-            totalPause = 0, // default value
-            quantity = 0, // default value
-            quality = "", // default value
-            comment = "", // default value
-            status = Instance.STATUS_PLANNED, // default value, using the constant from Instance class
+            duration = 0,
+            totalPause = 0,
+            quantity = 0,
+            quality = "",
+            comment = "",
+            status = Instance.STATUS_PLANNED,
             priority = 0
-            )
+        )
         insertInstance(instance)
     }
+
+    fun setFilter(taskType: Int) {
+        _currentFilter.value = taskType
+    }
+
 }

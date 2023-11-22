@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/filter_all"
+        android:title="All"/>
+    <item android:id="@+id/filter_one_off"
+        android:title="One-off"/>
+    <item android:id="@+id/filter_recurring"
+        android:title="Recurring"/>
+    <item android:id="@+id/filter_regular"
+        android:title="Regular"/>
+</menu>

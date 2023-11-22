@@ -1,11 +1,13 @@
 package com.example.lifetracer.views
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lifetracer.R
+import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.ViewModel.InstancesViewModel
 import com.example.lifetracer.ViewModel.InstancesViewModelFactory
 import com.example.lifetracer.data.Task
@@ -15,8 +17,6 @@ import com.example.lifetracer.model.InstanceRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class ManageTasksActivity : AppCompatActivity() {
     private lateinit var binding: ActivityManageTasksBinding
@@ -37,6 +37,39 @@ class ManageTasksActivity : AppCompatActivity() {
         setupRecyclerView()
         observeTaskListChanges()
         setupAddTaskButtonListener()
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                // Handle the Up button, close this activity
+                finish()
+                true
+            }
+            R.id.filter_all -> {
+                viewModel.updateTaskFilter(Task.REGULARITY_ALL)
+                true
+            }
+            R.id.filter_one_off -> {
+                viewModel.updateTaskFilter(Task.TYPE_ONE_OFF)
+                true
+            }
+            R.id.filter_recurring -> {
+                viewModel.updateTaskFilter(Task.TYPE_RECURRING)
+                true
+            }
+            R.id.filter_regular -> {
+                viewModel.updateTaskFilter(Task.TYPE_REGULAR)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.menu_filters, menu)
+        return true
     }
 
     private fun setupRecyclerView() {
@@ -75,17 +108,11 @@ class ManageTasksActivity : AppCompatActivity() {
         val fixed = binding.checkBoxTaskFixed.isChecked
 
         return if (name.isNotEmpty()) {
-            val dateOfCreation = getCurrentFormattedDate()
+            val dateOfCreation = getCurrentDate()
             Task(0, name, quality, dateOfCreation, regularity, fixed)
         } else {
             null
         }
-    }
-
-    private fun getCurrentFormattedDate(): String {
-        val currentDate = LocalDate.now()
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-        return currentDate.format(formatter)
     }
 
     private fun addNewTask(task: Task) {

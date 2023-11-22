@@ -26,6 +26,7 @@ data class Task(
     val fixed: Boolean
 ) {
     companion object {
+        const val REGULARITY_ALL = -1
         const val TYPE_ONE_OFF = 0
         const val TYPE_RECURRING = 1
         const val TYPE_REGULAR = 2
