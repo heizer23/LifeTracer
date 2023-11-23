@@ -44,6 +44,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{task.fixed ? `Yes` : `No`}" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="_____" />
     </LinearLayout>
 
         <Button
@@ -54,6 +58,13 @@
             android:text="Delete"
             android:textColor="#FFFFFF" />
 
+        <Button
+            android:id="@+id/buttonAddInstance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/holo_red_light"
+            android:text="Add"
+            android:textColor="#FFFFFF" />
 
     </LinearLayout>
 

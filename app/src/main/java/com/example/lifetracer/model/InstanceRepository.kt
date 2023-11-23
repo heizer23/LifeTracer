@@ -2,25 +2,43 @@ package com.example.lifetracer.model
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.switchMap
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.data.Task
+import com.example.lifetracer.data.TaskFilter
 
 class InstanceRepository(private val instanceDao: InstanceDao, private val taskDao: TaskDao) {
 
-    private val _currentFilter = MutableLiveData<Int>().apply { value = Task.REGULARITY_ALL }
-    val currentFilter: LiveData<Int> = _currentFilter
-
     val allActiveInstancesWithTasks: LiveData<List<InstanceWithTask>> = instanceDao.getActiveInstancesWithTasks()
 
-    val tasks: LiveData<List<Task>> = _currentFilter.switchMap() { filter ->
-        when (filter) {
-            Task.REGULARITY_ALL -> taskDao.getAllTasks()
-            Task.TYPE_ONE_OFF -> taskDao.getRegularUnfinshedTasks()
-            else -> taskDao.getTasksByRegularity(filter)
+    val allTasks: LiveData<List<Task>> = taskDao.getAllTasks()
+
+    private val _currentFilter = MutableLiveData<TaskFilter>()
+
+    val filteredTasks: LiveData<List<Task>> = MediatorLiveData<List<Task>>().apply {
+        addSource(allTasks) { tasks ->
+            value = filterTasks(tasks, _currentFilter.value)
         }
+        addSource(_currentFilter) { filter ->
+            value = filterTasks(allTasks.value ?: emptyList(), filter)
+        }
+    }
+
+    private fun filterTasks(tasks: List<Task>, filter: TaskFilter?): List<Task> {
+        filter ?: return tasks // Return all tasks if filter is null
+
+        return tasks.filter { task ->
+            val regularityMatch = filter.regularities.contains(task.regularity)
+          //  val instanceMatch = !filter.noInstances || !taskWithInfo.hasInstances
+            //  regularityMatch && instanceMatch
+            regularityMatch
+        }
+    }
+
+    fun setFilter(filter: TaskFilter) {
+        _currentFilter.value = filter
     }
 
     // Task-related operations
@@ -45,6 +63,7 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
     }
 
     suspend fun updatePrio(instanceId: Long, priority: Int){
+        val text = instanceId + priority
         Log.d("DD up Rep", "$instanceId $priority")
         instanceDao.updatePrio(instanceId, priority)
     }
@@ -54,19 +73,14 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
             taskId = taskId,
             date = date,
             time = time,
-            duration = 0,
-            totalPause = 0,
-            quantity = 0,
-            quality = "",
-            comment = "",
-            status = Instance.STATUS_PLANNED,
+            duration = 0, // default value
+            totalPause = 0, // default value
+            quantity = 0, // default value
+            quality = "", // default value
+            comment = "", // default value
+            status = Instance.STATUS_PLANNED, // default value, using the constant from Instance class
             priority = 0
-        )
+            )
         insertInstance(instance)
     }
-
-    fun setFilter(taskType: Int) {
-        _currentFilter.value = taskType
-    }
-
 }

@@ -1,6 +1,8 @@
 package com.example.lifetracer.ViewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,10 +11,14 @@ import com.example.lifetracer.Utilities.getCurrentTime
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.data.Task
+import com.example.lifetracer.data.TaskFilter
 import com.example.lifetracer.model.InstanceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class InstancesViewModel(private val instanceRepository: InstanceRepository) : ViewModel() {
     private val _selectedInstance = MutableLiveData<InstanceWithTask?>()
@@ -71,15 +77,15 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
         }
 
     fun getAllTasks(): LiveData<List<Task>> {
-        return instanceRepository.tasks
-    }
-
-    fun updateTaskFilter(taskType: Int){
-        instanceRepository.setFilter(taskType)
+        return instanceRepository.filteredTasks
     }
 
     suspend fun deleteTask(task: Task) {
         instanceRepository.deleteTask(task)
+    }
+
+    fun setTaskFilter(filter: TaskFilter) {
+        instanceRepository.setFilter(filter)
     }
 
     fun getAllInstances(): LiveData<List<InstanceWithTask>> {

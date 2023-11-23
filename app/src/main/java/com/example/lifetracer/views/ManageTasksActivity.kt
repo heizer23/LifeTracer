@@ -1,22 +1,25 @@
 package com.example.lifetracer.views
 
 import android.os.Bundle
-import android.view.Menu
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lifetracer.R
 import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.ViewModel.InstancesViewModel
 import com.example.lifetracer.ViewModel.InstancesViewModelFactory
 import com.example.lifetracer.data.Task
+import com.example.lifetracer.data.TaskFilter
 import com.example.lifetracer.databinding.ActivityManageTasksBinding
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 class ManageTasksActivity : AppCompatActivity() {
     private lateinit var binding: ActivityManageTasksBinding
@@ -34,44 +37,30 @@ class ManageTasksActivity : AppCompatActivity() {
         binding = ActivityManageTasksBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setupRecyclerView()
         observeTaskListChanges()
         setupAddTaskButtonListener()
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        someFunctionToSetFilter()
     }
+
+    private fun someFunctionToSetFilter() {
+        // Assuming you have determined the filter criteria
+        val filter = TaskFilter(regularities = listOf(1, 2, 3))
+        viewModel.setTaskFilter(filter)
+    }
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                // Handle the Up button, close this activity
-                finish()
-                true
-            }
-            R.id.filter_all -> {
-                viewModel.updateTaskFilter(Task.REGULARITY_ALL)
-                true
-            }
-            R.id.filter_one_off -> {
-                viewModel.updateTaskFilter(Task.TYPE_ONE_OFF)
-                true
-            }
-            R.id.filter_recurring -> {
-                viewModel.updateTaskFilter(Task.TYPE_RECURRING)
-                true
-            }
-            R.id.filter_regular -> {
-                viewModel.updateTaskFilter(Task.TYPE_REGULAR)
+                // Handle the back button action
+                onBackPressed()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_filters, menu)
-        return true
-    }
-
     private fun setupRecyclerView() {
         taskAdapter = TaskAdapter(emptyList()) { task ->
             deleteTask(task)
@@ -114,6 +103,7 @@ class ManageTasksActivity : AppCompatActivity() {
             null
         }
     }
+
 
     private fun addNewTask(task: Task) {
         CoroutineScope(Dispatchers.Main).launch {
