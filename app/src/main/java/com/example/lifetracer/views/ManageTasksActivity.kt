@@ -4,9 +4,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.lifetracer.R
 import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.ViewModel.InstancesViewModel
 import com.example.lifetracer.ViewModel.InstancesViewModelFactory
@@ -18,8 +16,6 @@ import com.example.lifetracer.model.InstanceRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 class ManageTasksActivity : AppCompatActivity() {
     private lateinit var binding: ActivityManageTasksBinding
@@ -41,7 +37,7 @@ class ManageTasksActivity : AppCompatActivity() {
         setupRecyclerView()
         observeTaskListChanges()
         setupAddTaskButtonListener()
-        someFunctionToSetFilter()
+       // someFunctionToSetFilter()
     }
 
     private fun someFunctionToSetFilter() {
@@ -62,9 +58,15 @@ class ManageTasksActivity : AppCompatActivity() {
         }
     }
     private fun setupRecyclerView() {
-        taskAdapter = TaskAdapter(emptyList()) { task ->
-            deleteTask(task)
-        }
+        taskAdapter = TaskAdapter(
+            tasks = emptyList(),
+            onDeleteTask = { task ->
+                deleteTask(task)
+            },
+            onCreateNewInstance = { task ->
+                onCreateNewInstance(task)
+            }
+        )
         binding.recyclerViewTasks.apply {
             layoutManager = LinearLayoutManager(this@ManageTasksActivity)
             adapter = taskAdapter
@@ -107,7 +109,7 @@ class ManageTasksActivity : AppCompatActivity() {
 
     private fun addNewTask(task: Task) {
         CoroutineScope(Dispatchers.Main).launch {
-            viewModel.addTaskAndInstance(task)
+            viewModel.addTask(task)
             updateTaskList()
         }
     }
@@ -115,6 +117,12 @@ class ManageTasksActivity : AppCompatActivity() {
     private fun deleteTask(task: Task) {
         CoroutineScope(Dispatchers.IO).launch {
             viewModel.deleteTask(task)
+        }
+    }
+
+    private fun onCreateNewInstance(task: Task) {
+        CoroutineScope(Dispatchers.IO).launch {
+           viewModel.addInstance(task)
         }
     }
 

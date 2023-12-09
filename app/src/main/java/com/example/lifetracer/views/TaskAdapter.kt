@@ -8,7 +8,8 @@ import com.example.lifetracer.databinding.ListItemTaskBinding
 
 class TaskAdapter(
     private var tasks: List<Task>,
-    private val onDeleteTask: (Task) -> Unit
+    private val onDeleteTask: (Task) -> Unit,
+    private val onCreateNewInstance: (Task) -> Unit
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskViewHolder {
@@ -34,6 +35,12 @@ class TaskAdapter(
                 val position = adapterPosition
                 if (position != RecyclerView.NO_POSITION) {
                     onDeleteTask(tasks[position])
+                }
+            }
+            binding.buttonAddInstance.setOnClickListener {
+                val position = adapterPosition
+                if (position != RecyclerView.NO_POSITION) {
+                    onCreateNewInstance(tasks[position])
                 }
             }
         }

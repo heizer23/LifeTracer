@@ -23,11 +23,31 @@ interface TaskDao {
     fun delete(task: Task)
 
     @Query("""
-        SELECT * FROM tasks 
-            LEFT JOIN instances ON tasks.task_id = instances.task_id
-            WHERE NOT (tasks.regularity = 0 AND instances.status = 1)
+        SELECT * FROM tasks
     """)
     fun getAllTasks():  LiveData<List<Task>>
+
+    @Query("""
+        SELECT 
+            t.task_id,
+            t.name,
+            t.task_quality,
+            t.date_of_creation,
+            t.regularity,
+            t.fixed
+        FROM 
+            tasks t
+        LEFT JOIN 
+            instances i ON t.task_id = i.task_id
+        GROUP BY 
+            t.task_id
+        HAVING 
+            (t.regularity = 0 AND COUNT(i.id) = 0)
+            OR (t.regularity != 0 AND SUM(CASE WHEN i.status != 99 THEN 1 ELSE 0 END) = 0);
+    """)
+    fun getAllTasksWithoutInstance():  LiveData<List<Task>>
+
+
 
     @Query("SELECT * FROM tasks WHERE task_id = :taskId")
     fun getTaskById(taskId: Long): LiveData<Task>

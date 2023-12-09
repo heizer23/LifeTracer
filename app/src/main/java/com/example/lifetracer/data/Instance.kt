@@ -25,6 +25,6 @@ data class Instance(
         const val STATUS_PLANNED = 0
         const val STATUS_STARTED = 1
         const val STATUS_PAUSED = 2
-        const val STATUS_FINISHED = 3
+        const val STATUS_FINISHED = 99
     }
 }

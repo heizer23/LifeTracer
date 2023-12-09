@@ -13,16 +13,16 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
 
     val allActiveInstancesWithTasks: LiveData<List<InstanceWithTask>> = instanceDao.getActiveInstancesWithTasks()
 
-    val allTasks: LiveData<List<Task>> = taskDao.getAllTasks()
+    val allTasksWithoutOpenInst: LiveData<List<Task>> = taskDao.getAllTasksWithoutInstance()
 
     private val _currentFilter = MutableLiveData<TaskFilter>()
 
     val filteredTasks: LiveData<List<Task>> = MediatorLiveData<List<Task>>().apply {
-        addSource(allTasks) { tasks ->
+        addSource(allTasksWithoutOpenInst) { tasks ->
             value = filterTasks(tasks, _currentFilter.value)
         }
         addSource(_currentFilter) { filter ->
-            value = filterTasks(allTasks.value ?: emptyList(), filter)
+            value = filterTasks(allTasksWithoutOpenInst.value ?: emptyList(), filter)
         }
     }
 
