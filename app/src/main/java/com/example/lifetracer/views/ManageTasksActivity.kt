@@ -6,8 +6,8 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lifetracer.Utilities.getCurrentDate
-import com.example.lifetracer.ViewModel.InstancesViewModel
-import com.example.lifetracer.ViewModel.InstancesViewModelFactory
+import com.example.lifetracer.viewModel.InstancesViewModel
+import com.example.lifetracer.viewModel.InstancesViewModelFactory
 import com.example.lifetracer.data.Task
 import com.example.lifetracer.data.TaskFilter
 import com.example.lifetracer.databinding.ActivityManageTasksBinding

@@ -1,4 +1,4 @@
-package com.example.lifetracer.ViewModel
+package com.example.lifetracer.viewModel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider

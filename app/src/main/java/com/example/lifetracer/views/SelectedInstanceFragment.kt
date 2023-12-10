@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import com.example.lifetracer.ViewModel.InstancesViewModel
+import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.FragmentSelectedInstanceBinding
 
@@ -30,25 +30,15 @@ class SelectedInstanceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.selectedInstance.observe(viewLifecycleOwner, Observer { instance ->
-            instance?.let {
+        viewModel.selectedInstance.observe(viewLifecycleOwner, Observer { instanceWithTask ->
+            instanceWithTask?.let {
                 updateSelectedView(it)
+                binding.instanceWithTask = it
             }
         })
 
-        binding.buttonStart.setOnClickListener {
-            viewModel.startCurrentInstance()
-            startTimer()
-        }
-        binding.buttonPause.setOnClickListener {
-            viewModel.pauseCurrentInstance()
-            pauseTimer()
-        }
-        binding.buttonFinish.setOnClickListener {
-            viewModel.finishSelectedInstance()
-        }
-
-
+        binding.viewModel = viewModel ?: return // Check if viewModel is not null
+        binding.lifecycleOwner = viewLifecycleOwner // Important for LiveData binding
     }
 
     private var timerRunning = false
@@ -71,9 +61,10 @@ class SelectedInstanceFragment : Fragment() {
     }
 
     // Update the selected instance details
-    fun updateSelectedView(instance: InstanceWithTask) {
-        binding.textViewInstanceName.text = instance.task.name
-        binding.textViewInstanceDate.text = instance.instance.date
+    fun updateSelectedView(instanceWithTask: InstanceWithTask) {
+        binding.textViewInstanceName.text = instanceWithTask.task.name
+        binding.textViewInstanceStatus.text = instanceWithTask.instance.status.toString()
         // Update other views as needed
     }
 }
+

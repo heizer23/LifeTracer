@@ -36,6 +36,6 @@ interface InstanceDao {
 
     // Define a query to retrieve instances along with their associated tasks
     @Transaction
-    @Query("SELECT * FROM instances WHERE status != 3 order by priority")
+    @Query("SELECT * FROM instances WHERE status != 99 order by priority")
     fun getActiveInstancesWithTasks(): LiveData<List<InstanceWithTask>>
 }

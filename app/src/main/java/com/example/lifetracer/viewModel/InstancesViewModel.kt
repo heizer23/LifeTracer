@@ -1,4 +1,4 @@
-package com.example.lifetracer.ViewModel
+package com.example.lifetracer.viewModel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+
 class InstancesViewModel(private val instanceRepository: InstanceRepository) : ViewModel() {
     private val _selectedInstance = MutableLiveData<InstanceWithTask?>()
     val selectedInstance: LiveData<InstanceWithTask?> = _selectedInstance
@@ -27,6 +28,14 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
         }
     }
 
+
+    fun toggleStartPauseInstance(instanceWithTask: InstanceWithTask) {
+        if (instanceWithTask.instance.status == Instance.STATUS_STARTED) {
+            pauseCurrentInstance()
+        } else {
+            startCurrentInstance()
+        }
+    }
     fun startCurrentInstance() {
         _selectedInstance.value?.let {
             val updatedInstance = it.instance.copy(status = Instance.STATUS_STARTED)

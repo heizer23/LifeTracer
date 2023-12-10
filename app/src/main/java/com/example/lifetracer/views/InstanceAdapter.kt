@@ -1,12 +1,11 @@
 package com.example.lifetracer.views
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.example.lifetracer.ViewModel.InstancesViewModel
+import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemInstanceBinding
 import kotlinx.coroutines.CoroutineScope

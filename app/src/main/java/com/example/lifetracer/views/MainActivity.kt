@@ -2,7 +2,6 @@ package com.example.lifetracer.views
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -10,8 +9,8 @@ import com.example.lifetracer.R
 import com.example.lifetracer.databinding.ActivityMainBinding
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
-import com.example.lifetracer.ViewModel.InstancesViewModel
-import com.example.lifetracer.ViewModel.InstancesViewModelFactory
+import com.example.lifetracer.viewModel.InstancesViewModel
+import com.example.lifetracer.viewModel.InstancesViewModelFactory
 
 class MainActivity : AppCompatActivity() {
 

@@ -13,6 +13,7 @@ data class Instance(
     val taskId: Long, // Foreign key to link Instance to Task
     val date: String, // The date for this instance
     val time: String, // The time for this instance
+    // actual Date, time and duration
     val duration: Int, // The duration of this instance
     val totalPause: Int, // The total pause for this instance
     val quantity: Int, // The quantity for this instance

@@ -64,7 +64,6 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
 
     suspend fun updatePrio(instanceId: Long, priority: Int){
         val text = instanceId + priority
-        Log.d("DD up Rep", "$instanceId $priority")
         instanceDao.updatePrio(instanceId, priority)
     }
 
