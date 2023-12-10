@@ -34,7 +34,8 @@ interface TaskDao {
             t.task_quality,
             t.date_of_creation,
             t.regularity,
-            t.fixed
+            t.fixed,
+            t.task_type
         FROM 
             tasks t
         LEFT JOIN 

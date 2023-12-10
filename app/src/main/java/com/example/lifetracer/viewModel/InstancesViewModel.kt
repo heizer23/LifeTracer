@@ -90,7 +90,7 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
         }
     }
 
-    fun finishSelectedInstance() {
+    fun finishSelectedInstance(inputQuality: String?, inputQuantity: String?) {
         val currentTime = System.currentTimeMillis()
         _selectedInstance.value?.let { instanceWithTask ->
             val instance = instanceWithTask.instance
@@ -100,7 +100,9 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
                 val finalDuration = (currentTime - (instance.activeStartTime ?: currentTime)) / 1000
                 instance.copy(
                     status = Instance.STATUS_FINISHED,
-                    duration = instance.duration + finalDuration
+                    duration = instance.duration + finalDuration,
+                    quality = if (instanceWithTask.task.taskType == 1 || instanceWithTask.task.taskType == 3) inputQuality ?: instance.quality else instance.quality,
+                    quantity = if (instanceWithTask.task.taskType == 2 || instanceWithTask.task.taskType == 3) inputQuantity?.toIntOrNull() ?: instance.quantity else instance.quantity
                     // No need to update activeStartTime or pauseStartTime here.
                 )
             } else {
@@ -114,7 +116,14 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
         }
     }
 
-
+    fun canFinishInstance(instanceWithTask: InstanceWithTask, inputQuality: String?, inputQuantity: String?): Boolean {
+        return when (instanceWithTask.task.taskType) {
+            1 -> !inputQuality.isNullOrEmpty()  // Task requires quality input
+            2 -> !inputQuantity.isNullOrEmpty() // Task requires quantity input
+            3 -> !inputQuality.isNullOrEmpty() && !inputQuantity.isNullOrEmpty() // Both inputs required
+            else -> true // No input required
+        }
+    }
 
     fun updateInstanceOrder(instances: List<InstanceWithTask>) {
         viewModelScope.launch {

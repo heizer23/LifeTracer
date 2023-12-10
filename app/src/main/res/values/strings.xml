@@ -2,4 +2,6 @@
     <string name="app_name">LifeTracer</string>
     <string name="start">Start</string>
     <string name="pause">Pause</string>
+    <string name="quantity_hint">Quantity</string>
+    <string name="quality_hint">Quality</string>
 </resources>

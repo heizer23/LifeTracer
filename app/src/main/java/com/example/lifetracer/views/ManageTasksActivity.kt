@@ -96,11 +96,12 @@ class ManageTasksActivity : AppCompatActivity() {
         val name = binding.editTextTaskName.text.toString()
         val quality = binding.editTextTaskQuality.text.toString()
         val regularity = binding.editTextTaskRegularity.text.toString().toIntOrNull() ?: 0
+        val taskType = binding.editTextTaskType.text.toString().toIntOrNull() ?: 0
         val fixed = binding.checkBoxTaskFixed.isChecked
 
         return if (name.isNotEmpty()) {
             val dateOfCreation = getCurrentDate()
-            Task(0, name, quality, dateOfCreation, regularity, fixed)
+            Task(0, name, quality, dateOfCreation, regularity, taskType, fixed)
         } else {
             null
         }

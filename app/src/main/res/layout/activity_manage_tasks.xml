@@ -36,12 +36,22 @@
                 android:hint="Regularity" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/taskNameInputLayout4"
+            android:layout_below="@id/taskNameInputLayout3"
+            style="@style/MyTextInputLayout" >
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextTaskType"
+                style="@style/MyTextInputEditText"
+                android:hint="Type" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <CheckBox
             android:id="@+id/checkBoxTaskFixed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Fixed"
-            android:layout_below="@id/taskNameInputLayout3"
+            android:layout_below="@id/taskNameInputLayout4"
             android:layout_marginTop="16dp"/>
 
         <com.google.android.material.button.MaterialButton

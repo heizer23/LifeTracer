@@ -22,12 +22,24 @@ data class Task(
     @ColumnInfo(name = "regularity")
     val regularity: Int,
 
+    @ColumnInfo(name = "task_type")
+    val taskType: Int,
+
     @ColumnInfo(name = "fixed")
     val fixed: Boolean
 ) {
     companion object {
+        //regularity
         const val TYPE_ONE_OFF = 0
         const val TYPE_RECURRING = 1
         const val TYPE_REGULAR = 2
+
+        //taskType
+        const val TYPE_NON = 0
+        const val TYPE_QUALITY = 1
+        const val TYPE_QUANTITY = 2
+        const val TYPE_BOTH = 3
+
     }
+
 }
