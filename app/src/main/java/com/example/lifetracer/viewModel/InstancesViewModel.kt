@@ -44,7 +44,7 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
 
             // Calculate the additional pause time if the instance was paused
             val additionalPauseTime = if (instance.status == Instance.STATUS_PAUSED) {
-                (currentTime - (instance.pauseStartTime ?: currentTime)) / 1000 / 60
+                (currentTime - (instance.pauseStartTime ?: currentTime)) / 1000
             } else {
                 0
             }
