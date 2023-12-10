@@ -1,6 +1,5 @@
 package com.example.lifetracer.model
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -63,7 +62,6 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
     }
 
     suspend fun updatePrio(instanceId: Long, priority: Int){
-        val text = instanceId + priority
         instanceDao.updatePrio(instanceId, priority)
     }
 

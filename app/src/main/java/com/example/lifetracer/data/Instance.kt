@@ -3,7 +3,6 @@ package com.example.lifetracer.data
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import androidx.room.ForeignKey
 
 @Entity(tableName = "instances")
 data class Instance(
@@ -13,9 +12,11 @@ data class Instance(
     val taskId: Long, // Foreign key to link Instance to Task
     val date: String, // The date for this instance
     val time: String, // The time for this instance
-    // actual Date, time and duration
-    val duration: Int, // The duration of this instance
-    val totalPause: Int, // The total pause for this instance
+    // todo actual Date, time and duration
+    val activeStartTime: Long? = null,  // Timestamp when the instance was last started
+    val pauseStartTime: Long? = null,
+    val duration: Long, // The duration of this instance
+    val totalPause: Long, // The total pause for this instance
     val quantity: Int, // The quantity for this instance
     val quality: String, // The quality for this instance
     val comment: String, // Any comments related to this instance

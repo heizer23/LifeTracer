@@ -62,8 +62,7 @@ class SelectedInstanceFragment : Fragment() {
 
     // Update the selected instance details
     fun updateSelectedView(instanceWithTask: InstanceWithTask) {
-        binding.textViewInstanceName.text = instanceWithTask.task.name
-        binding.textViewInstanceStatus.text = instanceWithTask.instance.status.toString()
+        binding.textViewInstanceStartTime.text = instanceWithTask.instance.time.toString()
         // Update other views as needed
     }
 }
