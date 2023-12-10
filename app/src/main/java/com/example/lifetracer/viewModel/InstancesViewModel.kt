@@ -91,12 +91,29 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
     }
 
     fun finishSelectedInstance() {
+        val currentTime = System.currentTimeMillis()
         _selectedInstance.value?.let { instanceWithTask ->
-            val updatedInstance = instanceWithTask.instance.copy(status = Instance.STATUS_FINISHED)
+            val instance = instanceWithTask.instance
+
+            val updatedInstance = if (instance.status == Instance.STATUS_STARTED) {
+                // If the instance is active, calculate the final active duration.
+                val finalDuration = (currentTime - (instance.activeStartTime ?: currentTime)) / 1000
+                instance.copy(
+                    status = Instance.STATUS_FINISHED,
+                    duration = instance.duration + finalDuration
+                    // No need to update activeStartTime or pauseStartTime here.
+                )
+            } else {
+                // If the instance is not active, simply mark it as finished.
+                instance.copy(status = Instance.STATUS_FINISHED)
+            }
+
             updateInstance(updatedInstance)
-            _selectedInstance.value = null  // Optionally clear the selected instance
+            // Optionally clear the selected instance. Consider how you want to handle this in the UI.
+            _selectedInstance.value = null
         }
     }
+
 
 
     fun updateInstanceOrder(instances: List<InstanceWithTask>) {
