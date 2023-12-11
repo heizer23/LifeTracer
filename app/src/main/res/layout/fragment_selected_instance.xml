@@ -112,6 +112,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:text="Finish"
+            android:visibility="@{instanceWithTask.instance.status == 99? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="@+id/buttonStartPause"
             app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toEndOf="@id/guideline2"

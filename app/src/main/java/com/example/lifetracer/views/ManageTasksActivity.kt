@@ -87,8 +87,6 @@ class ManageTasksActivity : AppCompatActivity() {
         val task = createTaskFromInput()
         if (task != null) {
             addNewTask(task)
-            preFillValues()
-            finish()
         }
     }
 
@@ -133,8 +131,4 @@ class ManageTasksActivity : AppCompatActivity() {
         }
     }
 
-    private fun preFillValues() {
-        binding.editTextTaskName.setText("Task1")
-        binding.editTextTaskQuality.setText("Good")
-    }
 }
