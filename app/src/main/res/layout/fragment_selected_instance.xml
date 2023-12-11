@@ -101,6 +101,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="@{() -> viewModel.toggleStartPauseInstance(instanceWithTask)}"
+            android:visibility="@{instanceWithTask.instance.status == 99? View.GONE : View.VISIBLE}"
             android:text="@{instanceWithTask.instance.status == 1 ? @string/pause : @string/start}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/guideline2"

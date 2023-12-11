@@ -1,5 +1,6 @@
 package com.example.lifetracer.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -25,7 +26,10 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
 
     fun selectAndStartInstance(instanceWithTask: InstanceWithTask) {
         if (_selectedInstance.value != instanceWithTask) {
-            pauseCurrentInstance()
+            // this conditional prevent the pausing of an finished instance
+            if (instanceWithTask.instance.status == Instance.STATUS_STARTED) {
+                pauseCurrentInstance()
+            }
             _selectedInstance.value = instanceWithTask
             startCurrentInstance()
         }
@@ -65,7 +69,6 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
                 instanceWithTask.task.taskType
             )
             updateInstance(updatedInstance)
-            _selectedInstance.value = null // Optionally clear the selected instance
         }
     }
 
@@ -89,21 +92,26 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
 
 
     private fun updateInstance(instance: Instance) {
-        //todo this breaks the Single source of truth principle - woulld be better to observe the data instead of having of copy (_selectedInstance)
         viewModelScope.launch(Dispatchers.IO) {
-            instanceRepository.updateInstance(instance)
-            // Switch back to the main thread to update LiveData
-            withContext(Dispatchers.Main) {
-                // Check if the updated instance is the same as the selected instance
-                _selectedInstance.value?.let { currentInstanceWithTask ->
-                    if (currentInstanceWithTask.instance.id == instance.id) {
-                        // Update _selectedInstance with the new instance details
-                        _selectedInstance.value = currentInstanceWithTask.copy(instance = instance)
+            try {
+                instanceRepository.updateInstance(instance)
+                Log.d("ViewModel", "Instance updated in repository")
+                withContext(Dispatchers.Main) {
+                    Log.d("ViewModel", "Switched to main thread")
+                    _selectedInstance.value?.let { currentInstanceWithTask ->
+                        Log.d("ViewModel", "Current instance ID: ${currentInstanceWithTask.instance.id}, Updated instance ID: ${instance.id}")
+                        if (currentInstanceWithTask.instance.id == instance.id) {
+                            _selectedInstance.value = currentInstanceWithTask.copy(instance = instance)
+                            Log.d("ViewModel", "LiveData _selectedInstance updated")
+                        }
                     }
                 }
+            } catch (e: Exception) {
+                Log.e("ViewModel", "Error updating instance: ${e.message}")
             }
         }
     }
+
 
 
          suspend fun addTask(task: Task) = withContext(Dispatchers.IO) {

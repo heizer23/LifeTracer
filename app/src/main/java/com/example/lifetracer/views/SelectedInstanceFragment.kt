@@ -51,17 +51,17 @@ class SelectedInstanceFragment : Fragment() {
         binding.viewModel = viewModel ?: return // Check if viewModel is not null
         binding.lifecycleOwner = viewLifecycleOwner // Important for LiveData binding
         binding.buttonFinish.setOnClickListener {
-            val qualityInput = binding.editTextQuality.text.toString()
-            val quantityInput = binding.editTextQuantity.text.toString()
+        val qualityInput = binding.editTextQuality.text.toString()
+        val quantityInput = binding.editTextQuantity.text.toString()
 
-            val instanceWithTask = viewModel.selectedInstance.value
-            if (instanceWithTask != null && viewModel.canFinishInstance(instanceWithTask, qualityInput, quantityInput)) {
-                viewModel.finishSelectedInstance(qualityInput, quantityInput)
-            } else {
-                // Show error message
-                Toast.makeText(context, "Please fill in the required fields", Toast.LENGTH_SHORT).show()
-            }
+        val instanceWithTask = viewModel.selectedInstance.value
+        if (instanceWithTask != null && viewModel.canFinishInstance(instanceWithTask, qualityInput, quantityInput)) {
+            viewModel.finishSelectedInstance(qualityInput, quantityInput)
+        } else {
+            // Show error message
+            Toast.makeText(context, "Please fill in the required fields", Toast.LENGTH_SHORT).show()
         }
+    }
     }
 
 
