@@ -11,5 +11,6 @@ data class InstanceWithTask(
         parentColumn = "task_id",
         entityColumn = "task_id"
     )
-    val task: Task
+    val task: Task,
+    val historical_data: String?
 )

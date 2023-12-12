@@ -51,8 +51,10 @@ class SelectedInstanceFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         chartManager = ChartManager(binding.barChart)
-        chartViewModel.chartData.observe(viewLifecycleOwner) { data ->
-            chartManager.setupChart(data, "Instance Data")
+        viewModel.instanceWithLowestPrio.observe(viewLifecycleOwner) { instanceWithLowestPrio ->
+            instanceWithLowestPrio.historical_data?.let{ dataString ->
+                chartManager.setupChart(dataString, "Instance Data")
+            }
         }
 
 
@@ -136,21 +138,6 @@ class SelectedInstanceFragment : Fragment() {
     fun updateSelectedView(instanceWithTask: InstanceWithTask) {
         binding.textViewInstanceStartTime.text = instanceWithTask.instance.time.toString()
         // Update other views as needed
-    }
-
-    private fun setupBarChart() {
-        // Dummy data setup for BarChart...
-        val entries = ArrayList<BarEntry>()
-        entries.add(BarEntry(1f, 10f))
-        entries.add(BarEntry(2f, 20f))
-        entries.add(BarEntry(3f, 30f))
-        entries.add(BarEntry(4f, 40f))
-        entries.add(BarEntry(5f, 50f))
-        // ... Add your data
-        val barDataSet = BarDataSet(entries, "Label")
-        val barData = BarData(barDataSet)
-        binding.barChart.data = barData
-        binding.barChart.invalidate() // Refresh the chart
     }
 
 }

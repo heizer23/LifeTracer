@@ -38,11 +38,42 @@ interface InstanceDao {
 
     // Define a query to retrieve instances along with their associated tasks
     @Transaction
-    @Query("SELECT * FROM instances WHERE status != 99 order by priority")
+    @Query("""
+        SELECT
+            t.name,
+            ci.*,
+            GROUP_CONCAT(hi.date || '_' || hi.quantity) AS historical_data
+        FROM
+            tasks t
+        LEFT JOIN
+            instances ci ON t.task_id = ci.task_id AND ci.status <> 99  -- Current instance
+        LEFT JOIN
+            instances hi ON t.task_id = hi.task_id AND hi.status = 99  -- Historical instances
+        WHERE
+             ci.id is not NULL
+        GROUP BY
+            t.task_id;
+            """)
     fun getActiveInstancesWithTasks(): LiveData<List<InstanceWithTask>>
 
     @Transaction
-    @Query("SELECT * FROM instances WHERE status != 99 ORDER BY priority LIMIT 1")
+    @Query("""
+        SELECT
+            t.name,
+            ci.*,
+            GROUP_CONCAT(hi.date || '_' || hi.quantity) AS historical_data
+        FROM
+            tasks t
+        INNER JOIN (
+            SELECT * FROM instances WHERE status != 99 ORDER BY priority LIMIT 1
+        ) ci ON t.task_id = ci.task_id
+        LEFT JOIN
+            instances hi ON t.task_id = hi.task_id AND hi.status = 99
+        WHERE
+            t.task_id = ci.task_id
+        GROUP BY
+            t.task_id;
+            """)
     fun getLowestPriorityInstanceWithTask(): LiveData<InstanceWithTask>
 
 
