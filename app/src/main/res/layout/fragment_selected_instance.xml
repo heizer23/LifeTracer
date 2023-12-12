@@ -113,7 +113,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:onClick="@{() -> viewModel.toggleStartPauseInstance(instanceWithTask)}"
+            android:onClick="@{() -> viewModel.toggleStartPauseInstance()}"
             android:src="@{instanceWithTask.instance.status == 1 ? @drawable/pause_circle : @drawable/play_circle}"
             android:visibility="@{instanceWithTask.instance.status == 0 ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"

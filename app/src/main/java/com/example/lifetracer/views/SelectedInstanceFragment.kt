@@ -31,7 +31,7 @@ class SelectedInstanceFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentSelectedInstanceBinding.inflate(inflater, container, false)
         val view = binding.root
 
@@ -41,22 +41,22 @@ class SelectedInstanceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        viewModel.selectedInstance.observe(viewLifecycleOwner, Observer { instanceWithTask ->
+        viewModel.instanceWithLowestPrio.observe(viewLifecycleOwner, Observer { instanceWithTask ->
             instanceWithTask?.let {
                 updateSelectedView(it)
                 binding.instanceWithTask = it
             }
         })
 
-        binding.viewModel = viewModel ?: return // Check if viewModel is not null
+        binding.viewModel = viewModel // Check if viewModel is not null
         binding.lifecycleOwner = viewLifecycleOwner // Important for LiveData binding
         binding.buttonFinish.setOnClickListener {
         val qualityInput = binding.editTextQuality.text.toString()
         val quantityInput = binding.editTextQuantity.text.toString()
 
-        val instanceWithTask = viewModel.selectedInstance.value
+        val instanceWithTask = viewModel.instanceWithLowestPrio.value
         if (instanceWithTask != null && viewModel.canFinishInstance(instanceWithTask, qualityInput, quantityInput)) {
-            viewModel.finishSelectedInstance(qualityInput, quantityInput)
+            viewModel.finishActiveInstance(qualityInput, quantityInput)
         } else {
             // Show error message
             Toast.makeText(context, "Please fill in the required fields", Toast.LENGTH_SHORT).show()
@@ -69,7 +69,7 @@ class SelectedInstanceFragment : Fragment() {
     private fun startUiUpdater() {
         uiUpdateJob = viewLifecycleOwner.lifecycleScope.launch {
             while (isActive) {
-                val instanceWithTask = viewModel.selectedInstance.value
+                val instanceWithTask = viewModel.instanceWithLowestPrio.value
                 instanceWithTask?.let {
                     updateUi(it.instance)
                 }

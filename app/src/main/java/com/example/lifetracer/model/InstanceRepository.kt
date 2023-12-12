@@ -14,6 +14,8 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
 
     val allTasksWithoutOpenInst: LiveData<List<Task>> = taskDao.getAllTasksWithoutInstance()
 
+    val instanceWithLowestPrio: LiveData<InstanceWithTask> = instanceDao.getLowestPriorityInstanceWithTask()
+
     private val _currentFilter = MutableLiveData<TaskFilter>()
 
     val filteredTasks: LiveData<List<Task>> = MediatorLiveData<List<Task>>().apply {

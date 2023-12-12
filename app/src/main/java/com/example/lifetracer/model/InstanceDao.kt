@@ -31,6 +31,8 @@ interface InstanceDao {
     fun getInstanceById(instanceId: Long): Instance?
 
 
+
+
     @Query("UPDATE instances SET priority = :priority WHERE id = :instanceId")
     suspend fun updatePrio(instanceId: Long, priority: Int)
 
@@ -38,4 +40,10 @@ interface InstanceDao {
     @Transaction
     @Query("SELECT * FROM instances WHERE status != 99 order by priority")
     fun getActiveInstancesWithTasks(): LiveData<List<InstanceWithTask>>
+
+    @Transaction
+    @Query("SELECT * FROM instances WHERE status != 99 ORDER BY priority LIMIT 1")
+    fun getLowestPriorityInstanceWithTask(): LiveData<InstanceWithTask>
+
+
 }

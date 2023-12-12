@@ -6,8 +6,7 @@ import androidx.lifecycle.Observer
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-class TestUtilities {
-}
+class TestUtilities
 
 object LiveDataTestUtil {
     fun <T> getValue(liveData: LiveData<T>): T {
