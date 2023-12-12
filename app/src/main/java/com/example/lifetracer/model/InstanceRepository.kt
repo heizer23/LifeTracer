@@ -61,6 +61,10 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
         instanceDao.update(instance)
     }
 
+    suspend fun deleteInstance(instance: Instance) {
+        instanceDao.delete(instance)
+    }
+
     suspend fun updatePrio(instanceId: Long, priority: Int){
         instanceDao.updatePrio(instanceId, priority)
     }

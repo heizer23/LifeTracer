@@ -69,8 +69,22 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
                 instanceWithTask.task.taskType
             )
             updateInstance(updatedInstance)
+           // _selectedInstance.value = null
         }
     }
+
+    fun finishSelectedInstance(instanceWithTask: InstanceWithTask) {
+        // zusammenfügen mit der anderen
+        val currentTime = System.currentTimeMillis()
+        val updatedInstance = instanceWithTask.instance.finish(
+            currentTime,
+            null,
+            null,
+            instanceWithTask.task.taskType
+        )
+            updateInstance(updatedInstance)
+    }
+
 
 
     fun canFinishInstance(instanceWithTask: InstanceWithTask, inputQuality: String?, inputQuantity: String?): Boolean {
@@ -114,12 +128,18 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
 
 
 
-         suspend fun addTask(task: Task) = withContext(Dispatchers.IO) {
-            val newTaskId = instanceRepository.insertTask(task)
-        }
+     suspend fun addTask(task: Task) = withContext(Dispatchers.IO) {
+        val newTaskId = instanceRepository.insertTask(task)
+    }
 
     suspend fun addInstance(task: Task) = withContext(Dispatchers.IO) {
         instanceRepository.addEmptyInstance(task.taskId, getCurrentDate(), getCurrentTime())
+    }
+
+    suspend fun deleteInstance(instance: Instance) {
+        withContext(Dispatchers.IO) {
+                instanceRepository.deleteInstance(instance)
+         }
     }
 
     fun getAllTasks(): LiveData<List<Task>> {

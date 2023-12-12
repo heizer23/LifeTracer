@@ -15,8 +15,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Collections
 
-class InstanceAdapter(private val viewModel: InstancesViewModel) :
-    ListAdapter<InstanceWithTask, InstanceAdapter.ViewHolder>(InstanceDiffCallback()),
+class InstanceAdapter(
+    private val viewModel: InstancesViewModel,
+    private val onDeleteInstance: (InstanceWithTask) -> Unit,
+    private val onFinishInstance: (InstanceWithTask) -> Unit
+) : ListAdapter<InstanceWithTask, InstanceAdapter.ViewHolder>(InstanceDiffCallback()),
     ItemTouchHelperAdapter, CoroutineScope by CoroutineScope(Dispatchers.Main)  {
 
     var onItemClickListener: ((InstanceWithTask) -> Unit)? = null
@@ -24,7 +27,7 @@ class InstanceAdapter(private val viewModel: InstancesViewModel) :
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ListItemInstanceBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding)
+        return ViewHolder(binding, onDeleteInstance, onFinishInstance)
     }
 
     //Drag and Drop funtionality
@@ -53,9 +56,20 @@ class InstanceAdapter(private val viewModel: InstancesViewModel) :
         }
     }
 
-    class ViewHolder(private val binding: ListItemInstanceBinding) : RecyclerView.ViewHolder(binding.root) {
+    class ViewHolder(private val binding: ListItemInstanceBinding,
+                     private val onDeleteInstance: (InstanceWithTask) -> Unit,
+                     private val onFinishInstance: (InstanceWithTask) -> Unit) : RecyclerView.ViewHolder(binding.root) {
         fun bind(instance: InstanceWithTask) {
             binding.instanceWithTask = instance
+
+            binding.buttonDeleteTask.setOnClickListener {
+                onDeleteInstance(instance)
+            }
+
+            binding.buttonFinishInstance.setOnClickListener {
+                onFinishInstance(instance)
+            }
+
             binding.executePendingBindings()
         }
     }

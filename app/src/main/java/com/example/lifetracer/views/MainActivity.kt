@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lifetracer.R
 import com.example.lifetracer.databinding.ActivityMainBinding
@@ -11,6 +12,7 @@ import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.viewModel.InstancesViewModelFactory
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -22,7 +24,7 @@ class MainActivity : AppCompatActivity() {
             AppDatabase.getDatabase(applicationContext).taskDao()
         ))
     }
-    private val instanceAdapter: InstanceAdapter by lazy { InstanceAdapter(viewModel) }
+    private lateinit var instanceAdapter: InstanceAdapter
     private var selectedInstanceFragment: SelectedInstanceFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,11 +32,26 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        setupInstanceAdapter()
         setupRecyclerView()
         setupItemTouchHelper(binding.recyclerViewInstances, instanceAdapter)
         setupViewModelObserver()
         setupButtonClickListeners()
         attachSelectedInstanceFragment()
+    }
+
+    private fun setupInstanceAdapter() {
+        instanceAdapter = InstanceAdapter(
+            viewModel,
+            onDeleteInstance = { instanceWithTask ->
+                viewModel.viewModelScope.launch {
+                    viewModel.deleteInstance(instanceWithTask.instance)
+                }
+            },
+            onFinishInstance = { instanceWithTask ->
+                viewModel.finishSelectedInstance(instanceWithTask)
+            }
+        )
     }
 
     private fun setupRecyclerView() {
@@ -59,9 +76,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, ManageTasksActivity::class.java))
         }
     }
-
-
-
 
     private fun attachSelectedInstanceFragment() {
         selectedInstanceFragment = supportFragmentManager.findFragmentById(R.id.selectedInstanceContainer) as? SelectedInstanceFragment

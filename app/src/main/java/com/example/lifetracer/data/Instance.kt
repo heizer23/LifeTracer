@@ -87,7 +87,6 @@ fun Instance.finish(currentTime: Long, inputQuality: String?, inputQuantity: Str
     } else {
         0
     }
-
     return this.copy(
         status = Instance.STATUS_FINISHED,
         duration = this.duration + finalDuration,

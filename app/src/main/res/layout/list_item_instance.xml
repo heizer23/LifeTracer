@@ -9,36 +9,74 @@
             type="com.example.lifetracer.data.InstanceWithTask" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
         android:background="?attr/selectableItemBackground">
 
+        <!-- Instance Name -->
         <TextView
             android:id="@+id/textViewInstanceName"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{instanceWithTask.task.name}"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:layout_marginBottom="4dp" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/buttonDeleteTask" />
 
+        <!-- Instance Date -->
         <TextView
             android:id="@+id/textViewInstanceDate"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{instanceWithTask.instance.date}"
             android:textSize="16sp"
-            android:textStyle="italic" />
+            android:textStyle="italic"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textViewInstanceName"
+            app:layout_constraintEnd_toStartOf="@id/buttonDeleteTask" />
 
+        <!-- Instance Status -->
         <TextView
             android:id="@+id/textViewInstanceStatus"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{String.valueOf(instanceWithTask.instance.status)}"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/textViewInstanceDate"
+            app:layout_constraintEnd_toStartOf="@id/buttonDeleteTask"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-    </LinearLayout>
+
+        <!-- Delete Button -->
+        <ImageButton
+            android:id="@+id/buttonDeleteTask"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/delete"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Add Finish Button -->
+        <ImageButton
+            android:id="@+id/buttonFinishInstance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/done"
+            app:layout_constraintTop_toBottomOf="@id/buttonDeleteTask"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
