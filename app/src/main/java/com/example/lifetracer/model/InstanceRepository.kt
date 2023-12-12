@@ -78,7 +78,7 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
             time = time,
             duration = 0, // default value
             totalPause = 0, // default value
-            quantity = 0, // default value
+            quantity = 0.0, // default value
             quality = "", // default value
             comment = "", // default value
             status = Instance.STATUS_PLANNED, // default value, using the constant from Instance class

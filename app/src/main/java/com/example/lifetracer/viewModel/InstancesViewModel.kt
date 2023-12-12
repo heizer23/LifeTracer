@@ -78,15 +78,8 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
     }
 
     fun finishActiveInstance(inputQuality: String? = null, inputQuantity: String? = null) {
-        val currentTime = System.currentTimeMillis()
         instanceWithLowestPrio.value?.let { instanceWithTask ->
-            val updatedInstance = instanceWithTask.instance.finish(
-                currentTime,
-                inputQuality,
-                inputQuantity,
-                instanceWithTask.task.taskType
-            )
-            updateInstance(updatedInstance)
+            finishInstance(instanceWithTask, inputQuality, inputQuantity)
         }
     }
 

@@ -19,7 +19,7 @@ data class Instance(
     val pauseStartTime: Long? = null,
     val duration: Long, // The duration of this instance
     val totalPause: Long, // The total pause for this instance
-    val quantity: Int, // The quantity for this instance
+    val quantity: Double, // The quantity for this instance
     val quality: String, // The quality for this instance
     val comment: String, // Any comments related to this instance
     val status: Int, // The status of this instance (e.g., planned, started, paused, finished)
@@ -90,7 +90,9 @@ fun Instance.finish(currentTime: Long, inputQuality: String?, inputQuantity: Str
     return this.copy(
         status = Instance.STATUS_FINISHED,
         duration = this.duration + finalDuration,
+        date = getCurrentDate(),
+        time = getCurrentTime(),
         quality = if (taskType == 1 || taskType == 3) inputQuality ?: this.quality else this.quality,
-        quantity = if (taskType == 2 || taskType == 3) inputQuantity?.toIntOrNull() ?: this.quantity else this.quantity
+        quantity = if (taskType == 2 || taskType == 3) inputQuantity?.toDoubleOrNull() ?: this.quantity else this.quantity
     )
 }

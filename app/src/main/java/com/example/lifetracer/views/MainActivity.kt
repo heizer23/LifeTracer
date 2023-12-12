@@ -49,7 +49,7 @@ class MainActivity : AppCompatActivity() {
                 }
             },
             onFinishInstance = { instanceWithTask ->
-                viewModel.finishActiveInstance()
+                viewModel.finishInstance(instanceWithTask)
             }
         )
     }

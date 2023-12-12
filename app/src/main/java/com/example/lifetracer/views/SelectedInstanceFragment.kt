@@ -11,10 +11,15 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import com.example.lifetracer.charts.ChartManager
+import com.example.lifetracer.charts.ChartViewModel
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.FragmentSelectedInstanceBinding
+import com.github.mikephil.charting.data.BarData
+import com.github.mikephil.charting.data.BarDataSet
+import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -24,6 +29,10 @@ import java.time.Duration
 class SelectedInstanceFragment : Fragment() {
     private lateinit var binding: FragmentSelectedInstanceBinding
     private val viewModel: InstancesViewModel by activityViewModels()
+
+    private val chartViewModel: ChartViewModel by activityViewModels()
+    private lateinit var chartManager: ChartManager
+
 
     // Job is for updating duration and pause
     private var uiUpdateJob: Job? = null
@@ -40,6 +49,12 @@ class SelectedInstanceFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        chartManager = ChartManager(binding.barChart)
+        chartViewModel.chartData.observe(viewLifecycleOwner) { data ->
+            chartManager.setupChart(data, "Instance Data")
+        }
+
 
         viewModel.instanceWithLowestPrio.observe(viewLifecycleOwner, Observer { instanceWithTask ->
             instanceWithTask?.let {
@@ -122,5 +137,21 @@ class SelectedInstanceFragment : Fragment() {
         binding.textViewInstanceStartTime.text = instanceWithTask.instance.time.toString()
         // Update other views as needed
     }
+
+    private fun setupBarChart() {
+        // Dummy data setup for BarChart...
+        val entries = ArrayList<BarEntry>()
+        entries.add(BarEntry(1f, 10f))
+        entries.add(BarEntry(2f, 20f))
+        entries.add(BarEntry(3f, 30f))
+        entries.add(BarEntry(4f, 40f))
+        entries.add(BarEntry(5f, 50f))
+        // ... Add your data
+        val barDataSet = BarDataSet(entries, "Label")
+        val barData = BarData(barDataSet)
+        binding.barChart.data = barData
+        binding.barChart.invalidate() // Refresh the chart
+    }
+
 }
 
