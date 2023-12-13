@@ -4,25 +4,29 @@ import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class ChartManager(private val chart: BarChart) {
-    fun setupChart(dataString: String, label: String) {
-        var data: List<BarEntry> = parseToBarEntries(dataString)
 
-        val dataSet = BarDataSet(data, label).apply {
-            // Setting the visibility of the value labels on each bar
+class ChartManager(private val chart: BarChart) {
+
+    // Now setupChart takes a List<BarEntry> directly
+    fun setupChart(entries: List<BarEntry>, label: String) {
+        val dataSet = BarDataSet(entries, label).apply {
+            // Customize the appearance of the bars
             setDrawValues(false)
-            // Customization of the bar appearance can go here
-            // ...
+            // Additional customization can go here
         }
 
         val barData = BarData(dataSet)
-
         chart.data = barData
 
-        // Remove grid lines and axis labels
+        chart.invalidate() // Refresh the chart
+    }
+
+    fun configureChartAppearance() {
         chart.axisLeft.apply {
             setDrawLabels(false) // Remove y-axis labels
             setDrawGridLines(false) // Remove grid lines
@@ -40,29 +44,33 @@ class ChartManager(private val chart: BarChart) {
         // Remove description label and legend
         chart.description.isEnabled = false
         chart.legend.isEnabled = false
-
-        // Additional customization can be added here
-        // ...
-
-        chart.invalidate() // Refresh the chart
     }
 
-    fun parseToBarEntries(historicalData: String): List<BarEntry> {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-        val referenceDate = dateFormat.parse("2020-01-01") // Reference date for converting to float
 
-        return historicalData.split(",").mapIndexedNotNull { index, pairString ->
+    fun parseToBarEntries(historicalData: String): Flow<List<BarEntry>> = flow {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val referenceDate = dateFormat.parse("2020-01-01") ?: return@flow
+        val entries = mutableListOf<BarEntry>()
+
+        historicalData.split(",").forEachIndexed { index, pairString ->
             pairString.split("_").let {
                 if (it.size >= 2) {
                     val date = dateFormat.parse(it[0])
                     val quantity = it[1].toFloatOrNull()
                     if (date != null && quantity != null) {
-                        // Convert date to days since reference date
-                        val daysSinceReference = ((date.time - referenceDate.time) / (1000 * 60 * 60 * 24)).toFloat()
-                        BarEntry(daysSinceReference, quantity)
-                    } else null
-                } else null
+                        val daysSinceReference =
+                            ((date.time - referenceDate.time) / (1000 * 60 * 60 * 24)).toFloat()
+                        entries.add(BarEntry(daysSinceReference, quantity))
+                    }
+                }
+            }
+            // Emit partial results at intervals (e.g., every 10 entries)
+            if (index % 2 == 0) {
+                emit(entries.toList()) // Emit a copy of the current list
             }
         }
+
+        // Emit final result
+        emit(entries.toList())
     }
 }

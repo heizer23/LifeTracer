@@ -24,6 +24,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import java.time.Duration
 
 class SelectedInstanceFragment : Fragment() {
@@ -50,19 +51,29 @@ class SelectedInstanceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        chartManager = ChartManager(binding.barChart)
-        viewModel.instanceWithLowestPrio.observe(viewLifecycleOwner) { instanceWithLowestPrio ->
-            instanceWithLowestPrio.historical_data?.let{ dataString ->
-                chartManager.setupChart(dataString, "Instance Data")
-            }
-        }
-
-
         viewModel.instanceWithLowestPrio.observe(viewLifecycleOwner, Observer { instanceWithTask ->
             instanceWithTask?.let {
                 updateSelectedView(it)
                 binding.instanceWithTask = it
             }
+
+        chartManager = ChartManager(binding.barChart)
+        chartManager.configureChartAppearance()
+
+
+        viewModel.instanceWithLowestPrio.observe(viewLifecycleOwner) { instanceWithLowestPrio ->
+            instanceWithLowestPrio.historical_data?.let { dataString ->
+                lifecycleScope.launch {
+                    chartManager.parseToBarEntries(dataString).collect { partialEntries ->
+                        chartManager.setupChart(partialEntries, "Instance Data")
+                        yield() // Yield control back to the UI thread
+                    }
+                }
+            }
+        }
+
+
+
         })
 
         binding.viewModel = viewModel // Check if viewModel is not null
