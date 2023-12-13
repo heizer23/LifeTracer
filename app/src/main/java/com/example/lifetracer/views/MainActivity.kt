@@ -66,8 +66,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupViewModelObserver() {
-        viewModel.getAllInstances().observe(this) { instances ->
-            instanceAdapter.submitList(instances)
+        viewModel.instanceWithHistory.observe(this) { instanceWithHistoryList ->
+            instanceAdapter.submitList(instanceWithHistoryList)
         }
     }
 

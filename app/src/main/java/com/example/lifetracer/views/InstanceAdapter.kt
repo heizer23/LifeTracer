@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.lifetracer.data.InstanceWithHistory
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemInstanceBinding
@@ -19,7 +20,7 @@ class InstanceAdapter(
     private val viewModel: InstancesViewModel,
     private val onDeleteInstance: (InstanceWithTask) -> Unit,
     private val onFinishInstance: (InstanceWithTask) -> Unit
-) : ListAdapter<InstanceWithTask, InstanceAdapter.ViewHolder>(InstanceDiffCallback()),
+) : ListAdapter<InstanceWithHistory, InstanceAdapter.ViewHolder>(InstanceDiffCallback()),
     ItemTouchHelperAdapter, CoroutineScope by CoroutineScope(Dispatchers.Main)  {
 
     var onItemClickListener: ((InstanceWithTask) -> Unit)? = null
@@ -43,43 +44,44 @@ class InstanceAdapter(
         job?.cancel() // Cancel any existing job
         job = launch {
             delay(500) // Debounce delay
-            viewModel.updateInstanceOrder(currentList)
+            val instancesWithTask = currentList.map { it.instanceWithTask }
+            viewModel.updateInstanceOrder(instancesWithTask)
         }
     }
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val instance = getItem(position)
-        holder.bind(instance)
+        val instanceWithHistory  = getItem(position)
+        holder.bind(instanceWithHistory )
         holder.itemView.setOnClickListener {
-            viewModel.selectAndStartInstance(instance)
+            viewModel.selectAndStartInstance(instanceWithHistory.instanceWithTask )
         }
     }
 
     class ViewHolder(private val binding: ListItemInstanceBinding,
                      private val onDeleteInstance: (InstanceWithTask) -> Unit,
                      private val onFinishInstance: (InstanceWithTask) -> Unit) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(instance: InstanceWithTask) {
-            binding.instanceWithTask = instance
+        fun bind(instanceWithHistory : InstanceWithHistory ) {
+            binding.instanceWithTask = instanceWithHistory.instanceWithTask
 
             binding.buttonDeleteTask.setOnClickListener {
-                onDeleteInstance(instance)
+                onDeleteInstance(instanceWithHistory.instanceWithTask )
             }
 
             binding.buttonFinishInstance.setOnClickListener {
-                onFinishInstance(instance)
+                onFinishInstance(instanceWithHistory.instanceWithTask )
             }
 
             binding.executePendingBindings()
         }
     }
 
-    class InstanceDiffCallback : DiffUtil.ItemCallback<InstanceWithTask>() {
-        override fun areItemsTheSame(oldItem: InstanceWithTask, newItem: InstanceWithTask): Boolean {
+    class InstanceDiffCallback : DiffUtil.ItemCallback<InstanceWithHistory>() {
+        override fun areItemsTheSame(oldItem: InstanceWithHistory, newItem: InstanceWithHistory): Boolean {
             // Define logic to check if items are the same, usually based on unique IDs
-            return oldItem.instance.id == newItem.instance.id
+            return oldItem.instanceWithTask.instance.id == newItem.instanceWithTask.instance.id
         }
-        override fun areContentsTheSame(oldItem: InstanceWithTask, newItem: InstanceWithTask): Boolean {
+        override fun areContentsTheSame(oldItem: InstanceWithHistory, newItem: InstanceWithHistory): Boolean {
             // Define logic to check if the content of items is the same
             return oldItem == newItem
         }

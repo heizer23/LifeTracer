@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.Utilities.getCurrentTime
 import com.example.lifetracer.data.Instance
+import com.example.lifetracer.data.InstanceWithHistory
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.data.Task
 import com.example.lifetracer.data.TaskFilter
@@ -17,6 +18,9 @@ import com.example.lifetracer.model.InstanceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import androidx.lifecycle.map
+import com.example.lifetracer.charts.BarEntryData
+import com.github.mikephil.charting.data.BarEntry
 
 class InstancesViewModel(private val instanceRepository: InstanceRepository) : ViewModel() {
 
@@ -26,6 +30,28 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
     }
 
     val instanceWithLowestPrio: LiveData<InstanceWithTask> = instanceRepository.instanceWithLowestPrio
+
+    val instanceWithHistory: LiveData<List<InstanceWithHistory>> = instanceRepository.allActiveInstancesWithTasks.map { instances ->
+        // Combine instances with their historical data
+        instances.map { instance ->
+            InstanceWithHistory(instance, getHistoricalDataForInstance(instance))
+        }
+    }
+
+    private fun getHistoricalDataForInstance(instance: InstanceWithTask): List<BarEntryData> {
+        val data = listOf(
+            BarEntryData("2023-01-03", 2.0),
+            BarEntryData("2023-01-04", 5.0),
+            BarEntryData("2023-01-08", 3.0),
+            BarEntryData("2023-01-12", 2.0),
+            BarEntryData("2023-01-18", 3.0),
+            BarEntryData("2023-01-25", 4.0),
+            BarEntryData("2023-02-03", 5.0)
+        )
+
+        return data // Placeholder return, replace with actual logic
+    }
+
 
     fun selectAndStartInstance(newInstanceWithTask: InstanceWithTask) {
 
