@@ -20,9 +20,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.map
 import com.example.lifetracer.charts.BarEntryData
+import com.example.lifetracer.charts.ChartRepository
 import com.github.mikephil.charting.data.BarEntry
 
-class InstancesViewModel(private val instanceRepository: InstanceRepository) : ViewModel() {
+class InstancesViewModel(private val instanceRepository: InstanceRepository, private val chartRepository: ChartRepository) : ViewModel() {
 
     // Instances-----------------------------------------------------------------------------------
     fun getAllInstances(): LiveData<List<InstanceWithTask>> {

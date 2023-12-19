@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lifetracer.R
+import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.databinding.ActivityMainBinding
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
@@ -19,11 +20,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private val viewModel: InstancesViewModel by viewModels {
-        InstancesViewModelFactory(InstanceRepository(
-            AppDatabase.getDatabase(applicationContext).instanceDao(),
-            AppDatabase.getDatabase(applicationContext).taskDao()
-        ))
+        InstancesViewModelFactory(
+            instanceRepository = InstanceRepository(
+                instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
+                taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
+            ),
+            chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDao())
+        )
     }
+
     private lateinit var instanceAdapter: InstanceAdapter
     private var selectedInstanceFragment: SelectedInstanceFragment? = null
 

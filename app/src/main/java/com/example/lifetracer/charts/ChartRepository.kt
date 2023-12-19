@@ -1,12 +1,22 @@
 package com.example.lifetracer.charts
 
 import androidx.lifecycle.LiveData
-import com.example.lifetracer.model.AppDatabase
 
-class ChartRepository(private val chartDao: ChartDao) {
+class ChartRepository(private val chartDataDao: ChartDataDao) {
 
-    fun getBarChartData(): LiveData<List<BarEntryData>> {
-        return chartDao.getBarChartData()
+        private val historyCache = mutableMapOf<Long, LiveData<List<ChartData>>>()
+
+        fun getHistoryData(taskId: Long): LiveData<List<ChartData>> {
+            historyCache[taskId]?.let {
+                // Return cached data if available
+                return it
+            }
+
+            // Data not in cache, fetch from database and update the cache
+            val historyData = chartDataDao.getChartDataForTask(taskId)
+            historyCache[taskId] = historyData
+            return historyData
+        }
     }
 
-}
+
