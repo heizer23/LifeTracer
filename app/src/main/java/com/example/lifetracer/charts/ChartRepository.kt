@@ -1,6 +1,9 @@
 package com.example.lifetracer.charts
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 class ChartRepository(private val chartDataDao: ChartDataDao) {
 
@@ -17,6 +20,17 @@ class ChartRepository(private val chartDataDao: ChartDataDao) {
             historyCache[taskId] = historyData
             return historyData
         }
+
+
+    fun updateChartData(taskId: Long, scope: CoroutineScope) {
+        scope.launch {
+            val aggregatedData = chartDataDao.getAggregatedDataForTask(taskId)
+            aggregatedData.forEach { data ->
+                chartDataDao.insertOrUpdate(data)
+            }
+        }
+    }
+
     }
 
 

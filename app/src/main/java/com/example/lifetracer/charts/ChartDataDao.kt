@@ -14,5 +14,9 @@ interface ChartDataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdate(chartData: ChartData)
 
+    // Fetch aggregated data
+    @Query("SELECT task_id, strftime('%Y.%W', date) as calendarWeek, COUNT(*) as numberOfInstances FROM instances WHERE task_id = :taskId AND status = 99 GROUP BY strftime('%Y.%W', date)")
+    suspend fun getAggregatedDataForTask(taskId: Long): List<ChartData>
+
     // Other necessary queries
 }

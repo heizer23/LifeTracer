@@ -4,16 +4,17 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.lifetracer.charts.ChartData
 import com.example.lifetracer.charts.ChartDataDao
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.Task
 
-@Database(entities = [Task::class, Instance::class], version = 1)
+@Database(entities = [Task::class, Instance::class, ChartData::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao
     abstract fun instanceDao(): InstanceDao
-    abstract fun chartDao(): ChartDataDao
+    abstract fun chartDataDao(): ChartDataDao
 
     companion object {
         // Using 'by lazy' to ensure thread-safe initialization of the database instance

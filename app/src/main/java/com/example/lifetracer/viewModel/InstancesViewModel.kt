@@ -19,9 +19,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import androidx.lifecycle.map
-import com.example.lifetracer.charts.BarEntryData
 import com.example.lifetracer.charts.ChartRepository
-import com.github.mikephil.charting.data.BarEntry
 
 class InstancesViewModel(private val instanceRepository: InstanceRepository, private val chartRepository: ChartRepository) : ViewModel() {
 
@@ -35,25 +33,9 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
     val instanceWithHistory: LiveData<List<InstanceWithHistory>> = instanceRepository.allActiveInstancesWithTasks.map { instances ->
         // Combine instances with their historical data
         instances.map { instance ->
-            InstanceWithHistory(instance, getHistoricalDataForInstance(instance))
+            InstanceWithHistory(instance, chartRepository.getHistoryData(instance.instance.taskId))
         }
     }
-
-    private fun getHistoricalDataForInstance(instance: InstanceWithTask): List<BarEntryData> {
-        val data = listOf(
-            BarEntryData("2023-01-03", 2.0),
-            BarEntryData("2023-01-04", 5.0),
-            BarEntryData("2023-01-08", 3.0),
-            BarEntryData("2023-01-12", 2.0),
-            BarEntryData("2023-01-18", 3.0),
-            BarEntryData("2023-01-25", 4.0),
-            BarEntryData("2023-02-03", 5.0)
-        )
-
-        return data // Placeholder return, replace with actual logic
-    }
-
-
     fun selectAndStartInstance(newInstanceWithTask: InstanceWithTask) {
 
         instanceWithLowestPrio.value?.let { instanceWithTask ->
@@ -119,6 +101,8 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
             instanceWithTask.task.taskType
         )
         updateInstance(updatedInstance)
+
+
     }
 
     fun updateInstanceOrder(instances: List<InstanceWithTask>) {
@@ -137,6 +121,7 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
                 Log.e("ViewModel", "Error updating instance: ${e.message}")
             }
         }
+        chartRepository.updateChartData(instance.taskId, viewModelScope)
     }
 
     suspend fun deleteInstance(instance: Instance) {
@@ -161,6 +146,10 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
     suspend fun deleteTask(task: Task) {
         instanceRepository.deleteTask(task)
     }
+
+
+
+
 
     fun setTaskFilter(filter: TaskFilter) {
         instanceRepository.setFilter(filter)

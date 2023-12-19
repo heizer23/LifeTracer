@@ -1,8 +1,9 @@
 package com.example.lifetracer.data
 
-import com.example.lifetracer.charts.BarEntryData
+import androidx.lifecycle.LiveData
+import com.example.lifetracer.charts.ChartData
 
 data class InstanceWithHistory(
     val instanceWithTask: InstanceWithTask,
-    val history: List<BarEntryData>
+    val history: LiveData<List<ChartData>>
 )
