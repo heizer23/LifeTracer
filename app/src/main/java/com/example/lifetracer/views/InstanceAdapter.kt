@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.charts.ChartManager
-import com.example.lifetracer.data.InstanceWithHistory
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemInstanceBinding
+import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,10 +18,13 @@ import kotlinx.coroutines.launch
 import java.util.Collections
 
 class InstanceAdapter(
+    private val scope: CoroutineScope,
+    //todo Do I need the viewmodel here?
     private val viewModel: InstancesViewModel,
     private val onDeleteInstance: (InstanceWithTask) -> Unit,
-    private val onFinishInstance: (InstanceWithTask) -> Unit
-) : ListAdapter<InstanceWithHistory, InstanceAdapter.ViewHolder>(InstanceDiffCallback()),
+    private val onFinishInstance: (InstanceWithTask) -> Unit,
+    private val fetchChartData: suspend (Long) -> List<BarEntry>
+) : ListAdapter<InstanceWithTask, InstanceAdapter.ViewHolder>(InstanceDiffCallback()),
     ItemTouchHelperAdapter, CoroutineScope by CoroutineScope(Dispatchers.Main)  {
 
     var onItemClickListener: ((InstanceWithTask) -> Unit)? = null
@@ -45,47 +48,51 @@ class InstanceAdapter(
         job?.cancel() // Cancel any existing job
         job = launch {
             delay(500) // Debounce delay
-            val instancesWithTask = currentList.map { it.instanceWithTask }
+            val instancesWithTask = currentList.map { it }
             viewModel.updateInstanceOrder(instancesWithTask)
         }
     }
 
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val instanceWithHistory  = getItem(position)
-        holder.bind(instanceWithHistory )
+        val instanceWithTask  = getItem(position)
+
+        holder.bind(instanceWithTask, fetchChartData, scope)
         holder.itemView.setOnClickListener {
-            viewModel.selectAndStartInstance(instanceWithHistory.instanceWithTask )
+            viewModel.selectAndStartInstance(instanceWithTask )
         }
     }
 
     class ViewHolder(private val binding: ListItemInstanceBinding,
                      private val onDeleteInstance: (InstanceWithTask) -> Unit,
                      private val onFinishInstance: (InstanceWithTask) -> Unit) : RecyclerView.ViewHolder(binding.root) {
-        fun bind(instanceWithHistory : InstanceWithHistory ) {
-            binding.instanceWithTask = instanceWithHistory.instanceWithTask
+        fun bind(instanceWithTask : InstanceWithTask, fetchChartData: suspend (Long) -> List<BarEntry>, scope: CoroutineScope) {
+            binding.instanceWithTask = instanceWithTask
 
-            val chartManager = ChartManager(binding.barChart) // Assuming barChart is in your item layout
-            chartManager.setupChart(instanceWithHistory.history)
+            scope.launch {
+                val barEntries = fetchChartData(instanceWithTask.instance.taskId)
+                val chartManager = ChartManager(binding.barChart)
+                chartManager.setupChart(barEntries, "hu")
+            }
 
             binding.buttonDeleteTask.setOnClickListener {
-                onDeleteInstance(instanceWithHistory.instanceWithTask )
+                onDeleteInstance(instanceWithTask )
             }
 
             binding.buttonFinishInstance.setOnClickListener {
-                onFinishInstance(instanceWithHistory.instanceWithTask )
+                onFinishInstance(instanceWithTask )
             }
 
             binding.executePendingBindings()
         }
     }
 
-    class InstanceDiffCallback : DiffUtil.ItemCallback<InstanceWithHistory>() {
-        override fun areItemsTheSame(oldItem: InstanceWithHistory, newItem: InstanceWithHistory): Boolean {
+    class InstanceDiffCallback : DiffUtil.ItemCallback<InstanceWithTask>() {
+        override fun areItemsTheSame(oldItem: InstanceWithTask, newItem: InstanceWithTask): Boolean {
             // Define logic to check if items are the same, usually based on unique IDs
-            return oldItem.instanceWithTask.instance.id == newItem.instanceWithTask.instance.id
+            return oldItem.instance.id == newItem.instance.id
         }
-        override fun areContentsTheSame(oldItem: InstanceWithHistory, newItem: InstanceWithHistory): Boolean {
+        override fun areContentsTheSame(oldItem: InstanceWithTask, newItem: InstanceWithTask): Boolean {
             // Define logic to check if the content of items is the same
             return oldItem == newItem
         }

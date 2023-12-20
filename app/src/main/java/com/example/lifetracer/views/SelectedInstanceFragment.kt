@@ -135,20 +135,7 @@ class SelectedInstanceFragment : Fragment() {
         // Update other views as needed
     }
 
-    private fun setupBarChart() {
-        // Dummy data setup for BarChart...
-        val entries = ArrayList<BarEntry>()
-        entries.add(BarEntry(1f, 10f))
-        entries.add(BarEntry(2f, 20f))
-        entries.add(BarEntry(3f, 30f))
-        entries.add(BarEntry(4f, 40f))
-        entries.add(BarEntry(5f, 50f))
-        // ... Add your data
-        val barDataSet = BarDataSet(entries, "Label")
-        val barData = BarData(barDataSet)
-        binding.barChart.data = barData
-        binding.barChart.invalidate() // Refresh the chart
-    }
+
 
 }
 

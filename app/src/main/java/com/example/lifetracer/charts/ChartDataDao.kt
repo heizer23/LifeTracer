@@ -9,7 +9,7 @@ import androidx.room.Query
 @Dao
 interface ChartDataDao {
     @Query("SELECT * FROM chart_cw WHERE task_id = :taskId")
-    fun getChartDataForTask(taskId: Long): LiveData<List<ChartData>>
+    fun getChartDataForTask(taskId: Long): List<ChartData>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdate(chartData: ChartData)

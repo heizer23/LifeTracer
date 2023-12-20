@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lifetracer.R
@@ -23,9 +24,9 @@ class MainActivity : AppCompatActivity() {
         InstancesViewModelFactory(
             instanceRepository = InstanceRepository(
                 instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
-                taskDao = AppDatabase.getDatabase(applicationContext).taskDao(),
-                chartDataDao = AppDatabase.getDatabase(applicationContext).chartDataDao()
-            )
+                taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
+            ),
+            chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
         )
     }
 
@@ -47,6 +48,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupInstanceAdapter() {
         instanceAdapter = InstanceAdapter(
+            lifecycleScope,
             viewModel,
             onDeleteInstance = { instanceWithTask ->
                 viewModel.viewModelScope.launch {
@@ -55,6 +57,9 @@ class MainActivity : AppCompatActivity() {
             },
             onFinishInstance = { instanceWithTask ->
                 viewModel.finishInstance(instanceWithTask)
+            },
+            fetchChartData = { taskId ->
+                viewModel.getChartData(taskId)
             }
         )
     }
@@ -71,7 +76,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupViewModelObserver() {
-        viewModel.allActiveInstanceWithHistory.observe(this) { instanceWithHistoryList ->
+        viewModel.allActiveInstanceWithTask.observe(this) { instanceWithHistoryList ->
             instanceAdapter.submitList(instanceWithHistoryList)
         }
     }

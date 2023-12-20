@@ -6,8 +6,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.Utilities.getCurrentTime
+import com.example.lifetracer.charts.ChartData
+import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.data.Instance
-import com.example.lifetracer.data.InstanceWithHistory
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.data.Task
 import com.example.lifetracer.data.TaskFilter
@@ -15,16 +16,17 @@ import com.example.lifetracer.data.finish
 import com.example.lifetracer.data.pause
 import com.example.lifetracer.data.start
 import com.example.lifetracer.model.InstanceRepository
+import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class InstancesViewModel(private val instanceRepository: InstanceRepository) : ViewModel() {
+class InstancesViewModel(private val instanceRepository: InstanceRepository, private val chartRepository: ChartRepository) : ViewModel() {
 
     // Instances-----------------------------------------------------------------------------------
     val instanceWithLowestPrio: LiveData<InstanceWithTask> = instanceRepository.instanceWithTaskAndLowestPrio
 
-    val allActiveInstanceWithHistory: LiveData<List<InstanceWithHistory>> = instanceRepository.allActiveInstanceWithHistory
+    val allActiveInstanceWithTask: LiveData<List<InstanceWithTask>> = instanceRepository.allActiveInstancesWithTasks
 
     fun selectAndStartInstance(newInstanceWithTask: InstanceWithTask) {
 
@@ -111,7 +113,7 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
                 Log.e("ViewModel", "Error updating instance: ${e.message}")
             }
         }
-        instanceRepository.updateChartData(instance.taskId, viewModelScope)
+        chartRepository.updateChartData(instance.taskId, viewModelScope)
     }
 
     suspend fun deleteInstance(instance: Instance) {
@@ -140,4 +142,9 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository) : V
     fun setTaskFilter(filter: TaskFilter) {
         instanceRepository.setFilter(filter)
     }
+
+    suspend fun getChartData(taskId: Long): List<BarEntry> {
+        return chartRepository.getChartData(taskId)
+    }
+
 }

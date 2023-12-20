@@ -25,11 +25,12 @@ class ManageTasksActivity : AppCompatActivity() {
         InstancesViewModelFactory(
             instanceRepository = InstanceRepository(
                 instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
-                taskDao = AppDatabase.getDatabase(applicationContext).taskDao(),
-                chartDataDao = AppDatabase.getDatabase(applicationContext).chartDataDao()
-            )
+                taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
+            ),
+            chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
         )
     }
+
     private lateinit var taskAdapter: TaskAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
