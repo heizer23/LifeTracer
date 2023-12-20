@@ -3,18 +3,31 @@ package com.example.lifetracer.model
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.map
+import com.example.lifetracer.charts.ChartData
+import com.example.lifetracer.charts.ChartDataDao
 import com.example.lifetracer.data.Instance
+import com.example.lifetracer.data.InstanceWithHistory
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.data.Task
 import com.example.lifetracer.data.TaskFilter
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
-class InstanceRepository(private val instanceDao: InstanceDao, private val taskDao: TaskDao) {
+class InstanceRepository(private val instanceDao: InstanceDao, private val taskDao: TaskDao, private val chartDataDao: ChartDataDao) {
 
     val allActiveInstancesWithTasks: LiveData<List<InstanceWithTask>> = instanceDao.getActiveInstancesWithTasks()
 
     val allTasksWithoutOpenInst: LiveData<List<Task>> = taskDao.getAllTasksWithoutInstance()
 
-    val instanceWithLowestPrio: LiveData<InstanceWithTask> = instanceDao.getLowestPriorityInstanceWithTask()
+    val instanceWithTaskAndLowestPrio: LiveData<InstanceWithTask> = instanceDao.getLowestPriorityInstanceWithTask()
+
+    val allActiveInstanceWithHistory: LiveData<List<InstanceWithHistory>> = allActiveInstancesWithTasks.map { instances ->
+        instances.map { instance ->
+            InstanceWithHistory(instance, getHistoryData(instance.instance.taskId))
+        }
+    }
+
 
     private val _currentFilter = MutableLiveData<TaskFilter>()
 
@@ -86,4 +99,33 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
             )
         insertInstance(instance)
     }
+
+    //------History
+
+    private val historyCache = mutableMapOf<Long, LiveData<List<ChartData>>>()
+
+    fun getHistoryData(taskId: Long): LiveData<List<ChartData>> {
+        historyCache[taskId]?.let {
+            // Return cached data if available
+            return it
+        }
+
+        // Data not in cache, fetch from database and update the cache
+        val historyData = chartDataDao.getChartDataForTask(taskId)
+        historyCache[taskId] = historyData
+        return historyData
+    }
+
+
+    fun updateChartData(taskId: Long, scope: CoroutineScope) {
+        scope.launch {
+            val aggregatedData = chartDataDao.getAggregatedDataForTask(taskId)
+            aggregatedData.forEach { data ->
+                chartDataDao.insertOrUpdate(data)
+            }
+        }
+    }
+
+
+
 }

@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.example.lifetracer.charts.ChartManager
 import com.example.lifetracer.data.InstanceWithHistory
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
@@ -63,6 +64,9 @@ class InstanceAdapter(
                      private val onFinishInstance: (InstanceWithTask) -> Unit) : RecyclerView.ViewHolder(binding.root) {
         fun bind(instanceWithHistory : InstanceWithHistory ) {
             binding.instanceWithTask = instanceWithHistory.instanceWithTask
+
+            val chartManager = ChartManager(binding.barChart) // Assuming barChart is in your item layout
+            chartManager.setupChart(instanceWithHistory.history)
 
             binding.buttonDeleteTask.setOnClickListener {
                 onDeleteInstance(instanceWithHistory.instanceWithTask )

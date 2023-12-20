@@ -7,12 +7,11 @@ import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.charts.ChartRepository
 
 class InstancesViewModelFactory(
-    private val instanceRepository: InstanceRepository,
-    private val chartRepository: ChartRepository
+    private val instanceRepository: InstanceRepository
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
         if (modelClass.isAssignableFrom(InstancesViewModel::class.java)) {
-            return InstancesViewModel(instanceRepository, chartRepository) as T
+            return InstancesViewModel(instanceRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -46,7 +46,8 @@ class SelectedInstanceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        chartManager = ChartManager(binding.barChart)
+      //  chartManager = ChartManager(binding.barChart)
+      //  chartManager.setupChart(instanceWithHistory.history)
       //  chartViewModel.chartData.observe(viewLifecycleOwner) { data ->
       //      chartManager.setupChart(data, "Instance Data")
       //  }

@@ -6,6 +6,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lifetracer.Utilities.getCurrentDate
+import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.viewModel.InstancesViewModelFactory
 import com.example.lifetracer.data.Task
@@ -21,10 +22,13 @@ class ManageTasksActivity : AppCompatActivity() {
     private lateinit var binding: ActivityManageTasksBinding
 
     private val viewModel: InstancesViewModel by viewModels {
-        InstancesViewModelFactory(InstanceRepository(
-            AppDatabase.getDatabase(applicationContext).instanceDao(),
-            AppDatabase.getDatabase(applicationContext).taskDao()
-        ))
+        InstancesViewModelFactory(
+            instanceRepository = InstanceRepository(
+                instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
+                taskDao = AppDatabase.getDatabase(applicationContext).taskDao(),
+                chartDataDao = AppDatabase.getDatabase(applicationContext).chartDataDao()
+            )
+        )
     }
     private lateinit var taskAdapter: TaskAdapter
 

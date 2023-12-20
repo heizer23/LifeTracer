@@ -28,7 +28,7 @@
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/buttonDeleteTask" />
+            app:layout_constraintEnd_toStartOf="@id/guideline1"/>
 
         <!-- Instance Date -->
         <TextView
@@ -40,7 +40,7 @@
             android:textStyle="italic"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textViewInstanceName"
-            app:layout_constraintEnd_toStartOf="@id/buttonDeleteTask" />
+            app:layout_constraintEnd_toStartOf="@id/guideline1"/>
 
         <!-- Instance Status -->
         <TextView
@@ -51,8 +51,18 @@
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textViewInstanceDate"
-            app:layout_constraintEnd_toStartOf="@id/buttonDeleteTask"
+            app:layout_constraintEnd_toStartOf="@id/guideline1"
             app:layout_constraintBottom_toBottomOf="parent" />
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/barChart"
+            android:layout_width="0dp"
+            android:layout_height="90dp"
+            app:layout_constraintTop_toTopOf="@id/textViewInstanceName"
+            app:layout_constraintBottom_toBottomOf="@id/textViewInstanceStatus"
+            app:layout_constraintStart_toStartOf="@id/guideline1"
+            app:layout_constraintEnd_toStartOf="@id/guideline2"/>
+
 
 
         <!-- Delete Button -->
@@ -76,6 +86,22 @@
             android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="parent" />
 
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.2" />
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginRight="56dp"
+            app:layout_constraintGuide_percent="0.87" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

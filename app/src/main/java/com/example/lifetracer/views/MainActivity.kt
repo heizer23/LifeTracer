@@ -23,9 +23,9 @@ class MainActivity : AppCompatActivity() {
         InstancesViewModelFactory(
             instanceRepository = InstanceRepository(
                 instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
-                taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
-            ),
-            chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDao())
+                taskDao = AppDatabase.getDatabase(applicationContext).taskDao(),
+                chartDataDao = AppDatabase.getDatabase(applicationContext).chartDataDao()
+            )
         )
     }
 
@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupViewModelObserver() {
-        viewModel.instanceWithHistory.observe(this) { instanceWithHistoryList ->
+        viewModel.allActiveInstanceWithHistory.observe(this) { instanceWithHistoryList ->
             instanceAdapter.submitList(instanceWithHistoryList)
         }
     }

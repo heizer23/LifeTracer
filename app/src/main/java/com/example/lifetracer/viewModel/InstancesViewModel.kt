@@ -18,24 +18,14 @@ import com.example.lifetracer.model.InstanceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import androidx.lifecycle.map
-import com.example.lifetracer.charts.ChartRepository
 
-class InstancesViewModel(private val instanceRepository: InstanceRepository, private val chartRepository: ChartRepository) : ViewModel() {
+class InstancesViewModel(private val instanceRepository: InstanceRepository) : ViewModel() {
 
     // Instances-----------------------------------------------------------------------------------
-    fun getAllInstances(): LiveData<List<InstanceWithTask>> {
-        return instanceRepository.allActiveInstancesWithTasks
-    }
+    val instanceWithLowestPrio: LiveData<InstanceWithTask> = instanceRepository.instanceWithTaskAndLowestPrio
 
-    val instanceWithLowestPrio: LiveData<InstanceWithTask> = instanceRepository.instanceWithLowestPrio
+    val allActiveInstanceWithHistory: LiveData<List<InstanceWithHistory>> = instanceRepository.allActiveInstanceWithHistory
 
-    val instanceWithHistory: LiveData<List<InstanceWithHistory>> = instanceRepository.allActiveInstancesWithTasks.map { instances ->
-        // Combine instances with their historical data
-        instances.map { instance ->
-            InstanceWithHistory(instance, chartRepository.getHistoryData(instance.instance.taskId))
-        }
-    }
     fun selectAndStartInstance(newInstanceWithTask: InstanceWithTask) {
 
         instanceWithLowestPrio.value?.let { instanceWithTask ->
@@ -121,7 +111,7 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
                 Log.e("ViewModel", "Error updating instance: ${e.message}")
             }
         }
-        chartRepository.updateChartData(instance.taskId, viewModelScope)
+        instanceRepository.updateChartData(instance.taskId, viewModelScope)
     }
 
     suspend fun deleteInstance(instance: Instance) {
@@ -146,10 +136,6 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
     suspend fun deleteTask(task: Task) {
         instanceRepository.deleteTask(task)
     }
-
-
-
-
 
     fun setTaskFilter(filter: TaskFilter) {
         instanceRepository.setFilter(filter)
