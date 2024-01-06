@@ -33,11 +33,7 @@ class InstanceAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ListItemInstanceBinding.inflate(LayoutInflater.from(parent.context), parent, false)
 
-        // Initialize ChartManager for this ViewHolder
-        val chartManager = ChartManager(binding.barChart)
-        chartManager.setupChart() // Do the one-time setup
-
-        return ViewHolder(binding, onDeleteInstance, onFinishInstance, chartManager)
+        return ViewHolder(binding, onDeleteInstance, onFinishInstance)
     }
 
     //Drag and Drop funtionality
@@ -70,15 +66,14 @@ class InstanceAdapter(
 
     class ViewHolder(private val binding: ListItemInstanceBinding,
                      private val onDeleteInstance: (InstanceWithTask) -> Unit,
-                     private val onFinishInstance: (InstanceWithTask) -> Unit,
-                     private val chartManager: ChartManager
+                     private val onFinishInstance: (InstanceWithTask) -> Unit
         ) : RecyclerView.ViewHolder(binding.root) {
         fun bind(instanceWithTask : InstanceWithTask, fetchChartData: suspend (Long) -> List<BarEntry>, scope: CoroutineScope) {
             binding.instanceWithTask = instanceWithTask
 
             scope.launch {
                 val barEntries = fetchChartData(instanceWithTask.instance.taskId)
-                chartManager.updateChartData(barEntries, "hu")
+                binding.weekChartView.setWeekData(barEntries)
             }
 
             binding.buttonDeleteTask.setOnClickListener {
