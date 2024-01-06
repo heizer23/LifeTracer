@@ -32,6 +32,10 @@ class ChartRepository(private val chartDataDao: ChartDataDao) {
 
     }
 
+    fun invalidateChartDataCache(taskId: Long) {
+        chartDataCache.remove(taskId) // Invalidate cache for the task
+    }
+
     fun updateChartData(taskId: Long, scope: CoroutineScope) {
         scope.launch {
             val aggregatedData = chartDataDao.getAggregatedDataForTask(taskId)

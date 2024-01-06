@@ -1,11 +1,13 @@
 package com.example.lifetracer.charts
 
+import android.graphics.Color
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.data.BarData
 import com.github.mikephil.charting.data.BarDataSet
 import com.github.mikephil.charting.data.BarEntry
 
 class ChartManager(private val chart: BarChart) {
+
     fun setupChart() {
         // Remove grid lines and axis labels
         chart.axisLeft.apply {
@@ -29,11 +31,19 @@ class ChartManager(private val chart: BarChart) {
 
     fun updateChartData(data: List<BarEntry>, label: String) {
         val dataSet = BarDataSet(data, label).apply {
+            val maxValue = data.maxOfOrNull { it.y } ?: 1f
             setDrawValues(false)
-            // Any customization specific to data can go here
+
+            val colors = data.map { barEntry ->
+                val proportion = barEntry.y / maxValue
+                RangeColor.fromProportion(proportion)
+            }
+            setColors(colors)
         }
 
         chart.data = BarData(dataSet)
         chart.invalidate() // Refresh the chart with new data
     }
+
+
 }

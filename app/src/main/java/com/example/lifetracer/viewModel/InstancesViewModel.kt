@@ -94,6 +94,8 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
         )
         updateInstance(updatedInstance)
 
+        // Invalidate cache for the task's chart data
+        chartRepository.invalidateChartDataCache(instanceWithTask.instance.taskId)
 
     }
 
