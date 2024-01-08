@@ -81,7 +81,7 @@
             android:layout_width="220dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:visibility="@{instanceWithTask.task.taskType == 1 || instanceWithTask.task.taskType == 3 ? View.VISIBLE : View.GONE}"
+            android:visibility="@{instanceWithTask.task.inputType == 1 || instanceWithTask.task.inputType == 3 ? View.VISIBLE : View.GONE}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewPause">
 
@@ -98,7 +98,7 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:visibility="@{instanceWithTask.task.taskType == 2 || instanceWithTask.task.taskType == 3 ? View.VISIBLE : View.GONE}"
+            android:visibility="@{instanceWithTask.task.inputType == 2 || instanceWithTask.task.inputType == 3 ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textViewPause">
 
@@ -139,6 +139,18 @@
             android:visibility="@{instanceWithTask == null? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/buttonStartPause" />
+
+        <ImageButton
+            android:id="@+id/buttonDetails"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/open_details"
+            android:visibility="@{instanceWithTask == null? View.GONE : View.VISIBLE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonFinish" />
+
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline1"

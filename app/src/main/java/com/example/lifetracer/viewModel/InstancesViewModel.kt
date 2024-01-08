@@ -6,7 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.Utilities.getCurrentTime
-import com.example.lifetracer.charts.ChartData
 import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.InstanceWithTask
@@ -70,7 +69,7 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
     }
 
     fun canFinishInstance(instanceWithTask: InstanceWithTask, inputQuality: String?, inputQuantity: String?): Boolean {
-        return when (instanceWithTask.task.taskType) {
+        return when (instanceWithTask.task.inputType) {
             1 -> !inputQuality.isNullOrEmpty()  // Task requires quality input
             2 -> !inputQuantity.isNullOrEmpty() // Task requires quantity input
             3 -> !inputQuality.isNullOrEmpty() && !inputQuantity.isNullOrEmpty() // Both inputs required
@@ -90,7 +89,7 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
             currentTime,
             inputQuality,
             inputQuantity,
-            instanceWithTask.task.taskType
+            instanceWithTask.task.inputType
         )
         updateInstance(updatedInstance)
 
@@ -131,6 +130,10 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
     // Tasks---------------------------------------------------------------------------------------
     fun getAllTasks(): LiveData<List<Task>> {
         return instanceRepository.filteredTasks
+    }
+
+    fun linkSubTask(task: Task, parentId: Int){
+
     }
 
     suspend fun addTask(task: Task) = withContext(Dispatchers.IO) {

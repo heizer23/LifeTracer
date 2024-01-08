@@ -23,7 +23,7 @@ interface TaskDao {
     fun delete(task: Task)
 
     @Query("""
-        SELECT * FROM tasks
+        SELECT * FROM tasks where task_id is NULL
     """)
     fun getAllTasks():  LiveData<List<Task>>
 
@@ -35,7 +35,7 @@ interface TaskDao {
             t.date_of_creation,
             t.regularity,
             t.fixed,
-            t.task_type
+            t.input_type
         FROM 
             tasks t
         LEFT JOIN 

@@ -27,6 +27,7 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
         }
     }
 
+
     private fun filterTasks(tasks: List<Task>, filter: TaskFilter?): List<Task> {
         filter ?: return tasks // Return all tasks if filter is null
 

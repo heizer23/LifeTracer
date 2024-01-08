@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.charts.ChartRepository
@@ -18,8 +19,11 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ManageTasksActivity : AppCompatActivity() {
+open class ManageTasksActivity : AppCompatActivity() {
     private lateinit var binding: ActivityManageTasksBinding
+
+    private var parentId: Int = -1  // -1 indicates normal mode; if this is a parentTask, this will be the id
+                                    // this controls onTaskActionExecution and the shown tasks
 
     private val viewModel: InstancesViewModel by viewModels {
         InstancesViewModelFactory(
@@ -41,7 +45,7 @@ class ManageTasksActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setupRecyclerView()
         observeTaskListChanges()
-        setupAddTaskButtonListener()
+        binding.buttonAddTask.setOnClickListener { handleAddTask() }
        // someFunctionToSetFilter()
     }
 
@@ -64,13 +68,18 @@ class ManageTasksActivity : AppCompatActivity() {
     }
     private fun setupRecyclerView() {
         taskAdapter = TaskAdapter(
+            lifecycleScope,
             tasks = emptyList(),
             onDeleteTask = { task ->
                 deleteTask(task)
             },
-            onCreateNewInstance = { task ->
-                onCreateNewInstance(task)
+            onTaskAction = { task ->
+                onTaskActionExecution(task)
+            },
+            fetchChartData = { taskId ->
+                viewModel.getChartData(taskId)
             }
+
         )
         binding.recyclerViewTasks.apply {
             layoutManager = LinearLayoutManager(this@ManageTasksActivity)
@@ -78,14 +87,21 @@ class ManageTasksActivity : AppCompatActivity() {
         }
     }
 
+    private fun onTaskActionExecution(task: Task) {
+        CoroutineScope(Dispatchers.IO).launch {
+            if (parentId == -1) {
+                viewModel.addInstance(task)
+            } else {
+                viewModel.linkSubTask(task, parentId)
+            }
+        }
+    }
+
+
     private fun observeTaskListChanges() {
         viewModel.getAllTasks().observe(this) { tasks ->
             taskAdapter.updateList(tasks)
         }
-    }
-
-    private fun setupAddTaskButtonListener() {
-        binding.buttonAddTask.setOnClickListener { handleAddTask() }
     }
 
     private fun handleAddTask() {
@@ -94,7 +110,6 @@ class ManageTasksActivity : AppCompatActivity() {
             addNewTask(task)
         }
     }
-
     private fun createTaskFromInput(): Task? {
         val name = binding.editTextTaskName.text.toString()
         val quality = binding.editTextTaskQuality.text.toString()
@@ -104,13 +119,11 @@ class ManageTasksActivity : AppCompatActivity() {
 
         return if (name.isNotEmpty()) {
             val dateOfCreation = getCurrentDate()
-            Task(0, name, quality, dateOfCreation, regularity, taskType, fixed)
+            Task(0, null,  name, quality, dateOfCreation, regularity, taskType, fixed)
         } else {
             null
         }
     }
-
-
     private fun addNewTask(task: Task) {
         CoroutineScope(Dispatchers.Main).launch {
             viewModel.addTask(task)
@@ -124,11 +137,7 @@ class ManageTasksActivity : AppCompatActivity() {
         }
     }
 
-    private fun onCreateNewInstance(task: Task) {
-        CoroutineScope(Dispatchers.IO).launch {
-           viewModel.addInstance(task)
-        }
-    }
+
 
     private fun updateTaskList() {
         viewModel.getAllTasks().observe(this) { tasks ->

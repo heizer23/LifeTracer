@@ -1,5 +1,6 @@
 package com.example.lifetracer.views
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -62,18 +63,27 @@ class SelectedInstanceFragment : Fragment() {
 
         binding.viewModel = viewModel // Check if viewModel is not null
         binding.lifecycleOwner = viewLifecycleOwner // Important for LiveData binding
-        binding.buttonFinish.setOnClickListener {
-        val qualityInput = binding.editTextQuality.text.toString()
-        val quantityInput = binding.editTextQuantity.text.toString()
 
-        val instanceWithTask = viewModel.instanceWithLowestPrio.value
-        if (instanceWithTask != null && viewModel.canFinishInstance(instanceWithTask, qualityInput, quantityInput)) {
-            viewModel.finishActiveInstance(qualityInput, quantityInput)
-        } else {
-            // Show error message
-            Toast.makeText(context, "Please fill in the required fields", Toast.LENGTH_SHORT).show()
+        binding.buttonFinish.setOnClickListener {
+            val qualityInput = binding.editTextQuality.text.toString()
+            val quantityInput = binding.editTextQuantity.text.toString()
+
+            val instanceWithTask = viewModel.instanceWithLowestPrio.value
+            if (instanceWithTask != null && viewModel.canFinishInstance(instanceWithTask, qualityInput, quantityInput)) {
+                viewModel.finishActiveInstance(qualityInput, quantityInput)
+            } else {
+                // Show error message
+                Toast.makeText(context, "Please fill in the required fields", Toast.LENGTH_SHORT).show()
+            }
         }
-    }
+
+        binding.buttonDetails.setOnClickListener {
+            val intent = Intent(context, InstanceDetailActivity::class.java)
+            intent.putExtra("INSTANCE_ID_EXTRA", 1L) // Replace 'instanceId' with the actual instance ID
+            startActivity(intent)
+        }
+
+
     }
 
 

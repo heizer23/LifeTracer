@@ -10,6 +10,9 @@ data class Task(
     @ColumnInfo(name = "task_id")
     val taskId: Long = 0,
 
+    @ColumnInfo(name = "task_type")
+    val taskType: Long? = null,
+
     @ColumnInfo(name = "name")
     val name: String,
 
@@ -22,8 +25,8 @@ data class Task(
     @ColumnInfo(name = "regularity")
     val regularity: Int,
 
-    @ColumnInfo(name = "task_type")
-    val taskType: Int,
+    @ColumnInfo(name = "input_type")
+    val inputType: Int,
 
     @ColumnInfo(name = "fixed")
     val fixed: Boolean
@@ -39,6 +42,7 @@ data class Task(
         const val TYPE_QUALITY = 1
         const val TYPE_QUANTITY = 2
         const val TYPE_BOTH = 3
+        const val TYPE_WORKOUT = 4
 
     }
 
