@@ -15,6 +15,8 @@ import com.example.lifetracer.data.TaskFilter
 import com.example.lifetracer.databinding.ActivityManageTasksBinding
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
+import com.example.lifetracer.viewModel.TaskViewModel
+import com.example.lifetracer.viewModel.TaskViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -25,8 +27,8 @@ open class ManageTasksActivity : AppCompatActivity() {
     private var parentId: Int = -1  // -1 indicates normal mode; if this is a parentTask, this will be the id
                                     // this controls onTaskActionExecution and the shown tasks
 
-    private val viewModel: InstancesViewModel by viewModels {
-        InstancesViewModelFactory(
+    private val viewModel: TaskViewModel by viewModels {
+        TaskViewModelFactory(
             instanceRepository = InstanceRepository(
                 instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
                 taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
