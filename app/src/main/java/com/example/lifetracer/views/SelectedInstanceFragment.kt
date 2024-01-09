@@ -78,8 +78,12 @@ class SelectedInstanceFragment : Fragment() {
         }
 
         binding.buttonDetails.setOnClickListener {
+            val instanceWithTask = viewModel.instanceWithLowestPrio.value
+
             val intent = Intent(context, InstanceDetailActivity::class.java)
-            intent.putExtra("INSTANCE_ID_EXTRA", 1L) // Replace 'instanceId' with the actual instance ID
+            if (instanceWithTask != null) {
+                intent.putExtra("INSTANCE_ID_EXTRA", instanceWithTask.instance.id)
+            } // Replace 'instanceId' with the actual instance ID
             startActivity(intent)
         }
 

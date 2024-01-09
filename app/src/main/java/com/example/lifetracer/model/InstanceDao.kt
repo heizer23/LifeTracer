@@ -30,7 +30,9 @@ interface InstanceDao {
     @Query("SELECT * FROM instances WHERE id = :instanceId")
     fun getInstanceById(instanceId: Long): Instance?
 
-
+    @Transaction
+    @Query("SELECT * FROM instances WHERE id = :instanceId")
+    suspend fun getInstanceWithTask(instanceId: Long): InstanceWithTask
 
 
     @Query("UPDATE instances SET priority = :priority WHERE id = :instanceId")

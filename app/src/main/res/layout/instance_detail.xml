@@ -4,6 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.lifetracer.viewModel.InstanceDetailViewModel" />
+    </data>
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,7 +21,7 @@
             android:id="@+id/taskNameTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Instance Name"
+            android:text="@{viewModel.currentInstance.task.name}"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent"

@@ -53,6 +53,10 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
         taskDao.delete(task)
     }
 
+    suspend fun getInstance(instanceId: Long): InstanceWithTask {
+        return instanceDao.getInstanceWithTask(instanceId)
+    }
+
     fun getTaskById(taskId: Long): LiveData<Task> = taskDao.getTaskById(taskId)
 
     // Instance-related operations

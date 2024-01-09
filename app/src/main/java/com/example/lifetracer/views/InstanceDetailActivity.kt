@@ -4,35 +4,23 @@ import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.databinding.InstanceDetailBinding
+import com.example.lifetracer.viewModel.InstanceDetailViewModel
+import com.example.lifetracer.viewModel.InstanceDetailViewModelFactory
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.viewModel.InstancesViewModelFactory
 
 class InstanceDetailActivity : AppCompatActivity() {
 
-      private lateinit var binding: InstanceDetailBinding
-
-    private val viewModel: InstancesViewModel by viewModels {
-        InstancesViewModelFactory(
-            instanceRepository = InstanceRepository(
-                instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
-                taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
-            ),
-            chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
-        )
-    }
-
+    private lateinit var binding: InstanceDetailBinding
+    private lateinit var viewModel: InstanceDetailViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = InstanceDetailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        // Enable the Up button
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // Get instance ID passed from previous activity
         val instanceId = intent.getLongExtra("INSTANCE_ID_EXTRA", -1)
@@ -41,6 +29,26 @@ class InstanceDetailActivity : AppCompatActivity() {
             finish()
             return
         }
+
+        // Initialize ViewModel here with the retrieved instanceId
+        viewModel = ViewModelProvider(this, InstanceDetailViewModelFactory(
+            instanceId,
+            instanceRepository = InstanceRepository(
+                instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
+                taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
+            ),
+            chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
+        )).get(InstanceDetailViewModel::class.java)
+
+        binding = InstanceDetailBinding.inflate(layoutInflater)
+
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
+
+        setContentView(binding.root)
+
+        // Enable the Up button
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // Fetch and display instance details
         fetchInstanceDetails(instanceId)
