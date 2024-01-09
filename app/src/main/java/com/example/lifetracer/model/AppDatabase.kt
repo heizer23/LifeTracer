@@ -8,8 +8,9 @@ import com.example.lifetracer.charts.ChartData
 import com.example.lifetracer.charts.ChartDataDao
 import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.Task
+import com.example.lifetracer.data.TaskRelation
 
-@Database(entities = [Task::class, Instance::class, ChartData::class], version = 1)
+@Database(entities = [Task::class, Instance::class, TaskRelation::class, ChartData::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun taskDao(): TaskDao

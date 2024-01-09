@@ -92,7 +92,9 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
         insertInstance(instance)
     }
 
+    fun linkSubTask(parentId: Long, subTaskId: Long) {
 
+    }
 
 
 }

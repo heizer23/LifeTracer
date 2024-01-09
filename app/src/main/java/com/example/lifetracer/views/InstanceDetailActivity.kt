@@ -1,11 +1,14 @@
 package com.example.lifetracer.views
 
+import TaskCreationFragment
 import android.os.Bundle
 import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.lifetracer.charts.ChartRepository
+import com.example.lifetracer.data.Task
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.databinding.InstanceDetailBinding
@@ -18,6 +21,7 @@ class InstanceDetailActivity : AppCompatActivity() {
 
     private lateinit var binding: InstanceDetailBinding
     private lateinit var viewModel: InstanceDetailViewModel
+    private var parentTaskId: Long = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +44,12 @@ class InstanceDetailActivity : AppCompatActivity() {
             chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
         )).get(InstanceDetailViewModel::class.java)
 
+        viewModel.currentInstance.observe(this, Observer { instanceWithTask ->
+            parentTaskId = instanceWithTask.task.taskId
+            // Now parentTaskId will be updated whenever currentInstance changes
+        })
+
+
         binding = InstanceDetailBinding.inflate(layoutInflater)
 
         binding.viewModel = viewModel
@@ -55,8 +65,17 @@ class InstanceDetailActivity : AppCompatActivity() {
 
         // Set up the add task button listener
         binding.addTaskButton.setOnClickListener {
-            // Implement logic to add a task
-            onAddTaskClicked(instanceId)
+
+            val taskCreationFragment = TaskCreationFragment.newInstance(parentTaskId).apply {
+                setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
+                    override fun onTaskCreated(subTask: Task) {
+                        // Handle the created subtask, linking it to the parent task
+                      //  subTask.parentTaskId = parentTaskId
+                        // Proceed with saving the subtask or whatever else needs to be done
+                    }
+                })
+            }
+            taskCreationFragment.show(supportFragmentManager, "TaskCreationFragment")
         }
     }
 

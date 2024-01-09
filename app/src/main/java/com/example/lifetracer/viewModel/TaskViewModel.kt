@@ -20,12 +20,14 @@ class TaskViewModel(private val instanceRepository: InstanceRepository, private 
     fun getAllTasks(): LiveData<List<Task>> {
         return instanceRepository.filteredTasks
     }
-    fun linkSubTask(task: Task, parentId: Int){
+    fun linkSubTask(parentId: Long, subTaskId: Long){
+        instanceRepository.linkSubTask(parentId, subTaskId)
     }
 
-    suspend fun addTask(task: Task) = withContext(Dispatchers.IO) {
-        val newTaskId = instanceRepository.insertTask(task)
+    suspend fun addTask(task: Task): Long = withContext(Dispatchers.IO) {
+        instanceRepository.insertTask(task)
     }
+
 
     suspend fun deleteTask(task: Task) {
         instanceRepository.deleteTask(task)

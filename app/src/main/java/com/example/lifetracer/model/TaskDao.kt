@@ -9,6 +9,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import com.example.lifetracer.data.Task
+import com.example.lifetracer.data.TaskRelation
 
 @Dao
 interface TaskDao {
@@ -48,8 +49,19 @@ interface TaskDao {
     """)
     fun getAllTasksWithoutInstance():  LiveData<List<Task>>
 
-
-
     @Query("SELECT * FROM tasks WHERE task_id = :taskId")
     fun getTaskById(taskId: Long): LiveData<Task>
+
+
+    // Subtasks
+
+    // Insert relationship
+    @Insert
+    suspend fun insertTaskRelation(taskRelation: TaskRelation)
+
+    // Query subtasks for a specific parent
+    @Query("SELECT * FROM tasks INNER JOIN task_relation ON tasks.task_id = task_relation.subtaskId WHERE task_relation.parentId = :parentId")
+    suspend fun getSubtasksForParent(parentId: Long): List<Task>
+
+
 }
