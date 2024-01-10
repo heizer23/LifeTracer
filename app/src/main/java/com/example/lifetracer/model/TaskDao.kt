@@ -60,8 +60,10 @@ interface TaskDao {
     suspend fun insertTaskRelation(taskRelation: TaskRelation)
 
     // Query subtasks for a specific parent
-    @Query("SELECT * FROM tasks INNER JOIN task_relation ON tasks.task_id = task_relation.subtaskId WHERE task_relation.parentId = :parentId")
+    @Query("SELECT tasks.* FROM tasks INNER JOIN task_relation ON tasks.task_id = task_relation.subtaskId WHERE task_relation.parentId = :parentId")
     suspend fun getSubtasksForParent(parentId: Long): List<Task>
+
+
 
 
 }

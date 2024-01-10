@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 open class ManageTasksActivity : AppCompatActivity() {
     private lateinit var binding: ActivityManageTasksBinding
 
-    private var parentId: Int = -1  // -1 indicates normal mode; if this is a parentTask, this will be the id
+    private var parentId: Long = -1L  // -1 indicates normal mode; if this is a parentTask, this will be the id
                                     // this controls onTaskActionExecution and the shown tasks
 
     private val viewModel: TaskViewModel by viewModels {
@@ -91,10 +91,10 @@ open class ManageTasksActivity : AppCompatActivity() {
 
     private fun onTaskActionExecution(task: Task) {
         CoroutineScope(Dispatchers.IO).launch {
-            if (parentId == -1) {
+            if (parentId == -1L) {
                 viewModel.addInstance(task)
             } else {
-                viewModel.linkSubTask(task, parentId)
+                viewModel.linkSubTask(task.taskId, parentId)
             }
         }
     }

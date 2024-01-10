@@ -1,5 +1,6 @@
 package com.example.lifetracer.model
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -7,6 +8,7 @@ import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.data.Task
 import com.example.lifetracer.data.TaskFilter
+import com.example.lifetracer.data.TaskRelation
 
 class InstanceRepository(private val instanceDao: InstanceDao, private val taskDao: TaskDao) {
 
@@ -92,8 +94,14 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
         insertInstance(instance)
     }
 
-    fun linkSubTask(parentId: Long, subTaskId: Long) {
-
+    suspend fun linkSubTask(parentId: Long, subTaskId: Long) {
+        try {
+            val taskRelation = TaskRelation(parentId, subTaskId)
+            taskDao.insertTaskRelation(taskRelation)
+        } catch (e: Exception) {
+            Log.e("InstanceRepository", "Error linking subtask: ${e.message}")
+            // Handle any exceptions, such as updating LiveData with error status or rethrowing the exception
+        }
     }
 
 

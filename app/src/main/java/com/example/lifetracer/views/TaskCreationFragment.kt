@@ -1,5 +1,6 @@
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +27,7 @@ class TaskCreationFragment : DialogFragment() {
         fun onTaskCreated(task: Task)
     }
 
-    private var parentTaskId: Long? = null
+    private var parentTaskId: Long = 0L
 
     private var listener: TaskCreationListener? = null
     private lateinit var binding: FragmentTaskCreationBinding
@@ -83,11 +84,7 @@ class TaskCreationFragment : DialogFragment() {
 
     private fun handleAddTask() {
         val subTask = createTaskFromInput()
-        val subTaskId = subTask?.taskId
-
-
-
-
+        addSubTask(subTask)
     }
 
     private fun createTaskFromInput(): Task? {
@@ -105,11 +102,15 @@ class TaskCreationFragment : DialogFragment() {
         }
     }
 
-    private fun addNewTask(task: Task) {
-
-        CoroutineScope(Dispatchers.Main).launch {
-            val newTaskId = viewModel.addTask(task)
-            viewModel.linkSubTask(parentTaskId, newTaskId)
+    private fun addSubTask(task: Task?) {
+        task?.let { nonNullTask ->
+            CoroutineScope(Dispatchers.Main).launch {
+                val newTaskId = viewModel.addTask(nonNullTask)
+                viewModel.linkSubTask(parentTaskId, newTaskId)
+            }
+        } ?: run {
+            // Handle the case where task is null if necessary
+            Log.e("addSubTask", "Task is null, cannot add subtask")
         }
     }
 

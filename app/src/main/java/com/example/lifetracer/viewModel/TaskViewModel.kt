@@ -20,7 +20,7 @@ class TaskViewModel(private val instanceRepository: InstanceRepository, private 
     fun getAllTasks(): LiveData<List<Task>> {
         return instanceRepository.filteredTasks
     }
-    fun linkSubTask(parentId: Long, subTaskId: Long){
+    suspend fun linkSubTask(parentId: Long, subTaskId: Long){
         instanceRepository.linkSubTask(parentId, subTaskId)
     }
 
