@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lifetracer.R
 import com.example.lifetracer.charts.ChartRepository
+import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ActivityMainBinding
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
@@ -82,7 +83,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupButtonClickListeners() {
         binding.buttonGoToManageTasks.setOnClickListener {
-            startActivity(Intent(this, ManageTasksActivity::class.java))
+            val taskCreationFragment = TaskCreationFragment.newInstance().apply {
+                setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
+                    override fun onInstanceCreated(subTask: InstanceWithTask) {
+                        // Handle the created subtask, linking it to the parent task
+                        //  subTask.parentTaskId = parentTaskId
+                        // Proceed with saving the subtask or whatever else needs to be done
+                    }
+                })
+            }
+            taskCreationFragment.show(supportFragmentManager, "TaskCreationFragment")
         }
     }
 

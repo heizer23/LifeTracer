@@ -111,4 +111,16 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
         instanceRepository.linkSubTask(parentId, subTaskId)
     }
 
+    fun addInstance(instance: InstanceWithTask) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                instanceRepository.insertInstance(instance)
+                // Optionally post success to LiveData or handle the result in some way
+            } catch (e: Exception) {
+                Log.e("InstancesViewModel", "Error adding instance: ${e.message}")
+                // Handle errors, e.g., post error to LiveData
+            }
+        }
+    }
+
 }

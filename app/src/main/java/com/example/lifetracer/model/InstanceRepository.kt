@@ -17,7 +17,7 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
     }
 
     // Instance-related operations
-    private suspend fun insertInstance(instance: InstanceWithTask) {
+    suspend fun insertInstance(instance: InstanceWithTask) {
         instanceDao.insert(instance)
     }
 

@@ -6,6 +6,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import com.example.lifetracer.R
+import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.databinding.FragmentTaskCreationBinding
 import com.example.lifetracer.viewModel.InstancesViewModel
@@ -43,11 +44,8 @@ class TaskCreationFragment : DialogFragment() {
     companion object {
         private const val ARG_PARENT_TASK_ID = "parentTaskId"
 
-        fun newInstance(parentTaskId: Long): TaskCreationFragment {
+        fun newInstance(): TaskCreationFragment {
             val fragment = TaskCreationFragment()
-            val args = Bundle()
-            args.putLong(ARG_PARENT_TASK_ID, parentTaskId)
-            fragment.arguments = args
             return fragment
         }
     }
@@ -68,17 +66,31 @@ class TaskCreationFragment : DialogFragment() {
         val newInstance = createInstanceFromInput()
         newInstance?.let {
             viewModel.viewModelScope.launch(Dispatchers.IO) {
-             //   viewModel.addInstance(it)
-                listener?.onInstanceCreated(it)
+                viewModel.addInstance(it)  // Add the instance to the database
+                launch(Dispatchers.Main) {
+                    listener?.onInstanceCreated(it)  // Notify the listener on the main thread
+                    dismiss()
+                }
             }
         }
     }
 
     private fun createInstanceFromInput(): InstanceWithTask? {
-        // Gather inputs from binding and construct an InstanceWithTask object
-        // ...
-        return null // Replace with actual implementation
+        val name = binding.editTextTaskName.text.toString()
+        val inputType = binding.editTextTaskType.text.toString().toIntOrNull() ?: 0 // Assuming this is what you meant by taskType
+        val regularity = binding.editTextTaskRegularity.text.toString().toIntOrNull() ?: 0
+
+        return if (name.isNotEmpty()) {
+            val dateOfCreation = getCurrentDate()
+            InstanceWithTask(
+                name = name,
+                dateOfCreation = dateOfCreation,
+                inputType = inputType,
+                regularity = regularity
+            )
+        } else {
+            null
+        }
     }
 
-    // Rest of the fragment code...
 }

@@ -62,7 +62,7 @@ class InstanceDetailActivity : AppCompatActivity() {
         // Set up the add task button listener
         binding.addTaskButton.setOnClickListener {
 
-            val taskCreationFragment = TaskCreationFragment.newInstance(parentTaskId).apply {
+            val taskCreationFragment = TaskCreationFragment.newInstance().apply {
                 setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
                     override fun onInstanceCreated(subTask: InstanceWithTask) {
                         // Handle the created subtask, linking it to the parent task
@@ -81,6 +81,9 @@ class InstanceDetailActivity : AppCompatActivity() {
         // Implement the logic to add a task to this instance
         // You might start another activity or show a dialog here
     }
+
+
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
