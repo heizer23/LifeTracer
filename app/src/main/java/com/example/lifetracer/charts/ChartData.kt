@@ -8,8 +8,7 @@ import androidx.room.PrimaryKey
 data class ChartData(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    @ColumnInfo(name = "task_id")
-    val taskId: Long,
+    val templateId: Long,
     val calendarWeek: Float, // Stored in "YYYY.WW" format
     val numberOfInstances: Float
 )

@@ -2,75 +2,30 @@ package com.example.lifetracer.model
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MediatorLiveData
-import androidx.lifecycle.MutableLiveData
-import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.InstanceWithTask
-import com.example.lifetracer.data.Task
-import com.example.lifetracer.data.TaskFilter
 import com.example.lifetracer.data.TaskRelation
 
-class InstanceRepository(private val instanceDao: InstanceDao, private val taskDao: TaskDao) {
+class InstanceRepository(private val instanceDao: InstanceDao) {
 
     val allActiveInstancesWithTasks: LiveData<List<InstanceWithTask>> = instanceDao.getActiveInstancesWithTasks()
 
-    val allTasksWithoutOpenInst: LiveData<List<Task>> = taskDao.getAllTasksWithoutInstance()
 
     val instanceWithTaskAndLowestPrio: LiveData<InstanceWithTask> = instanceDao.getLowestPriorityInstanceWithTask()
-
-    private val _currentFilter = MutableLiveData<TaskFilter>()
-
-    val filteredTasks: LiveData<List<Task>> = MediatorLiveData<List<Task>>().apply {
-        addSource(allTasksWithoutOpenInst) { tasks ->
-            value = filterTasks(tasks, _currentFilter.value)
-        }
-        addSource(_currentFilter) { filter ->
-            value = filterTasks(allTasksWithoutOpenInst.value ?: emptyList(), filter)
-        }
-    }
-
-
-    private fun filterTasks(tasks: List<Task>, filter: TaskFilter?): List<Task> {
-        filter ?: return tasks // Return all tasks if filter is null
-
-        return tasks.filter { task ->
-            val regularityMatch = filter.regularities.contains(task.regularity)
-          //  val instanceMatch = !filter.noInstances || !taskWithInfo.hasInstances
-            //  regularityMatch && instanceMatch
-            regularityMatch
-        }
-    }
-
-    fun setFilter(filter: TaskFilter) {
-        _currentFilter.value = filter
-    }
-
-    // Task-related operations
-    suspend fun insertTask(task: Task): Long = taskDao.insert(task)
-
-    suspend fun updateTask(task: Task) = taskDao.update(task)
-
-    suspend fun deleteTask(task: Task) {
-        instanceDao.deleteInstancesByTaskId(task.taskId)
-        taskDao.delete(task)
-    }
 
     suspend fun getInstance(instanceId: Long): InstanceWithTask {
         return instanceDao.getInstanceWithTask(instanceId)
     }
 
-    fun getTaskById(taskId: Long): LiveData<Task> = taskDao.getTaskById(taskId)
-
     // Instance-related operations
-    private suspend fun insertInstance(instance: Instance) {
+    private suspend fun insertInstance(instance: InstanceWithTask) {
         instanceDao.insert(instance)
     }
 
-    suspend fun updateInstance(instance: Instance) {
+    suspend fun updateInstance(instance: InstanceWithTask) {
         instanceDao.update(instance)
     }
 
-    suspend fun deleteInstance(instance: Instance) {
+    suspend fun deleteInstance(instance: InstanceWithTask) {
         instanceDao.delete(instance)
     }
 
@@ -78,26 +33,24 @@ class InstanceRepository(private val instanceDao: InstanceDao, private val taskD
         instanceDao.updatePrio(instanceId, priority)
     }
 
-    suspend fun addEmptyInstance(taskId: Long, date: String, time: String) {
-        val instance = Instance(
-            taskId = taskId,
+    suspend fun addEmptyInstance(name: String, inputType: Int, regularity: Int, date: String, time: String) {
+        val instance = InstanceWithTask(
+            name = name,
+            inputType = inputType,
+            regularity = regularity,
             date = date,
-            time = time,
-            duration = 0, // default value
-            totalPause = 0, // default value
-            quantity = 0.0, // default value
-            quality = "", // default value
-            comment = "", // default value
-            status = Instance.STATUS_PLANNED, // default value, using the constant from Instance class
-            priority = 0
-            )
+            time = time
+            // Other fields will use their default values
+        )
         insertInstance(instance)
     }
+
+
 
     suspend fun linkSubTask(parentId: Long, subTaskId: Long) {
         try {
             val taskRelation = TaskRelation(parentId, subTaskId)
-            taskDao.insertTaskRelation(taskRelation)
+            instanceDao.insertTaskRelation(taskRelation)
         } catch (e: Exception) {
             Log.e("InstanceRepository", "Error linking subtask: ${e.message}")
             // Handle any exceptions, such as updating LiveData with error status or rethrowing the exception

@@ -11,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.example.lifetracer.charts.ChartManager
-import com.example.lifetracer.data.Instance
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.FragmentSelectedInstanceBinding
@@ -82,7 +81,7 @@ class SelectedInstanceFragment : Fragment() {
 
             val intent = Intent(context, InstanceDetailActivity::class.java)
             if (instanceWithTask != null) {
-                intent.putExtra("INSTANCE_ID_EXTRA", instanceWithTask.instance.id)
+                intent.putExtra("INSTANCE_ID_EXTRA", instanceWithTask.id)
             } // Replace 'instanceId' with the actual instance ID
             startActivity(intent)
         }
@@ -97,23 +96,23 @@ class SelectedInstanceFragment : Fragment() {
             while (isActive) {
                 val instanceWithTask = viewModel.instanceWithLowestPrio.value
                 instanceWithTask?.let {
-                    updateUi(it.instance)
+                    updateUi(it)
                 }
                 delay(1000) // Update every second
             }
         }
     }
 
-    private fun updateUi(instance: Instance) {
+    private fun updateUi(instance: InstanceWithTask) {
         val currentTime = System.currentTimeMillis()
 
-        val duration = if (instance.status == Instance.STATUS_STARTED) {
+        val duration = if (instance.status == InstanceWithTask.STATUS_STARTED) {
             instance.duration + ((currentTime - (instance.activeStartTime ?: currentTime)) / 1000)
         } else {
             instance.duration
         }
 
-        val pauseTime = if (instance.status == Instance.STATUS_PAUSED) {
+        val pauseTime = if (instance.status == InstanceWithTask.STATUS_PAUSED) {
             instance.totalPause + ((currentTime - (instance.pauseStartTime ?: currentTime)) / 1000)
         } else {
             instance.totalPause
@@ -145,7 +144,7 @@ class SelectedInstanceFragment : Fragment() {
 
     // Update the selected instance details
     fun updateSelectedView(instanceWithTask: InstanceWithTask) {
-        binding.textViewInstanceStartTime.text = instanceWithTask.instance.time.toString()
+        binding.textViewInstanceStartTime.text = instanceWithTask.time.toString()
         // Update other views as needed
     }
 

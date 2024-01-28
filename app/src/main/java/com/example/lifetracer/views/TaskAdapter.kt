@@ -3,7 +3,7 @@ package com.example.lifetracer.views
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.example.lifetracer.data.Task
+import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemTaskBinding
 import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.CoroutineScope
@@ -11,9 +11,9 @@ import kotlinx.coroutines.launch
 
 class TaskAdapter(
     private val scope: CoroutineScope,
-    private var tasks: List<Task>,
-    private val onDeleteTask: (Task) -> Unit,
-    private val onTaskAction: (Task) -> Unit,
+    private var tasks: List<InstanceWithTask>,
+    private val onDeleteTask: (InstanceWithTask) -> Unit,
+    private val onTaskAction: (InstanceWithTask) -> Unit,
     private val fetchChartData: suspend (Long) -> List<BarEntry>
 ) : RecyclerView.Adapter<TaskAdapter.TaskViewHolder>() {
 
@@ -29,7 +29,7 @@ class TaskAdapter(
         holder.bind(task, fetchChartData, scope)
     }
 
-    fun updateList(newTasks: List<Task>) {
+    fun updateList(newTasks: List<InstanceWithTask>) {
         tasks = newTasks
         notifyDataSetChanged()
     }
@@ -50,12 +50,13 @@ class TaskAdapter(
             }
         }
 
-        fun bind(task: Task, fetchChartData: suspend (Long) -> List<BarEntry>, scope: CoroutineScope) {
-            binding.task = task
+        fun bind(task: InstanceWithTask, fetchChartData: suspend (Long) -> List<BarEntry>, scope: CoroutineScope) {
+            binding.instanceWithTask = task
 
             scope.launch {
-                val barEntries = fetchChartData(task.taskId)
-                binding.weekChartView.setWeekData(barEntries)
+                //todo Chart
+/*                val barEntries = fetchChartData(task.id)
+                binding.weekChartView.setWeekData(barEntries)*/
             }
             binding.executePendingBindings()
         }

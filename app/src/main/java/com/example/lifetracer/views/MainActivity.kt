@@ -24,7 +24,6 @@ class MainActivity : AppCompatActivity() {
         InstancesViewModelFactory(
             instanceRepository = InstanceRepository(
                 instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
-                taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
             ),
             chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
         )
@@ -52,7 +51,7 @@ class MainActivity : AppCompatActivity() {
             viewModel,
             onDeleteInstance = { instanceWithTask ->
                 viewModel.viewModelScope.launch {
-                    viewModel.deleteInstance(instanceWithTask.instance)
+                    viewModel.deleteInstance(instanceWithTask)
                 }
             },
             onFinishInstance = { instanceWithTask ->

@@ -7,9 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.Utilities.getCurrentTime
 import com.example.lifetracer.charts.ChartRepository
-import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.InstanceWithTask
-import com.example.lifetracer.data.Task
 import com.example.lifetracer.data.TaskFilter
 import com.example.lifetracer.data.finish
 import com.example.lifetracer.data.pause
@@ -32,15 +30,15 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
 
     fun selectAndStartInstance(newInstanceWithTask: InstanceWithTask) {
         instanceWithLowestPrio.value?.let { instanceWithTask ->
-            if (instanceWithTask.instance.status == Instance.STATUS_STARTED) {
-                pauseInstance(instanceWithTask.instance)
+            if (instanceWithTask.status == InstanceWithTask.STATUS_STARTED) {
+                pauseInstance(instanceWithTask)
             }
         }
-        val currentPriority = instanceWithLowestPrio.value?.instance?.priority ?: 0
+        val currentPriority = instanceWithLowestPrio.value?.priority ?: 0
         val newPriority = currentPriority - 1
 
         // Update the priority of the new instance
-        val updatedInstance = newInstanceWithTask.instance.copy(priority = newPriority)
+        val updatedInstance = newInstanceWithTask.copy(priority = newPriority)
         updateInstance(updatedInstance)
 
         // Start the new instance
@@ -49,16 +47,16 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
 
     fun toggleStartPauseInstance() {
         instanceWithLowestPrio.value?.let { instanceWithTask ->
-            if (instanceWithTask.instance.status == Instance.STATUS_STARTED) {
-                pauseInstance(instanceWithTask.instance)
+            if (instanceWithTask.status == InstanceWithTask.STATUS_STARTED) {
+                pauseInstance(instanceWithTask)
             } else {
-                startInstance(instanceWithTask.instance)
+                startInstance(instanceWithTask)
             }
         }
     }
 
     fun canFinishInstance(instanceWithTask: InstanceWithTask, inputQuality: String?, inputQuantity: String?): Boolean {
-        return when (instanceWithTask.task.inputType) {
+        return when (instanceWithTask.inputType) {
             1 -> !inputQuality.isNullOrEmpty()  // Task requires quality input
             2 -> !inputQuantity.isNullOrEmpty() // Task requires quantity input
             3 -> !inputQuality.isNullOrEmpty() && !inputQuantity.isNullOrEmpty() // Both inputs required
@@ -74,38 +72,43 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
 
     fun finishInstance(instanceWithTask: InstanceWithTask, inputQuality: String? = null, inputQuantity: String? = null) {
         val updatedInstance = instanceManager.finishInstance(instanceWithTask, inputQuality, inputQuantity, viewModelScope)
-        chartRepository.updateChartData(updatedInstance.taskId, viewModelScope)
+       // chartRepository.updateChartData(updatedInstance.taskId, viewModelScope)
         // Invalidate cache for the task's chart data
-        chartRepository.invalidateChartDataCache(instanceWithTask.instance.taskId)
+        //todo fix chart
+        // chartRepository.invalidateChartDataCache(instanceWithTask.taskId)
     }
 
     fun updateInstanceOrder(instances: List<InstanceWithTask>) {
         viewModelScope.launch {
             instances.forEachIndexed { index, instanceWithTask ->
-                instanceRepository.updatePrio(instanceWithTask.instance.id, index)
+                instanceRepository.updatePrio(instanceWithTask.id, index)
             }
         }
     }
 
-    fun deleteInstance(updatedInstance: Instance){
-        instanceManager.deleteInstance(updatedInstance, viewModelScope)
+    fun deleteInstance(updatedInstance: InstanceWithTask){
+
     }
 
-    private fun startInstance(updatedInstance: Instance){
+    private fun startInstance(updatedInstance: InstanceWithTask){
         instanceManager.startInstance(updatedInstance, viewModelScope)
     }
 
-    private fun updateInstance(updatedInstance: Instance){
+    private fun updateInstance(updatedInstance: InstanceWithTask){
         instanceManager.updateInstance(updatedInstance, viewModelScope)
     }
 
-    private fun pauseInstance(updatedInstance: Instance){
+    private fun pauseInstance(updatedInstance: InstanceWithTask){
         instanceManager.pauseInstance(updatedInstance, viewModelScope)
     }
 
 
     suspend fun getChartData(taskId: Long): List<BarEntry> {
         return chartRepository.getChartData(taskId)
+    }
+
+    suspend fun linkSubTask(parentId: Long, subTaskId: Long){
+        instanceRepository.linkSubTask(parentId, subTaskId)
     }
 
 }

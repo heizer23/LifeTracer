@@ -19,7 +19,6 @@ import java.util.Collections
 
 class InstanceAdapter(
     private val scope: CoroutineScope,
-    //todo Do I need the viewmodel here?
     private val viewModel: InstancesViewModel,
     private val onDeleteInstance: (InstanceWithTask) -> Unit,
     private val onFinishInstance: (InstanceWithTask) -> Unit,
@@ -72,8 +71,9 @@ class InstanceAdapter(
             binding.instanceWithTask = instanceWithTask
 
             scope.launch {
-                val barEntries = fetchChartData(instanceWithTask.instance.taskId)
-                binding.weekChartView.setWeekData(barEntries)
+                //todo make Graph work
+                // val barEntries = fetchChartData(instanceWithTask.instance.taskId)
+                // binding.weekChartView.setWeekData(barEntries)
             }
 
             binding.buttonDeleteTask.setOnClickListener {
@@ -91,7 +91,7 @@ class InstanceAdapter(
     class InstanceDiffCallback : DiffUtil.ItemCallback<InstanceWithTask>() {
         override fun areItemsTheSame(oldItem: InstanceWithTask, newItem: InstanceWithTask): Boolean {
             // Define logic to check if items are the same, usually based on unique IDs
-            return oldItem.instance.id == newItem.instance.id
+            return oldItem.id == newItem.id
         }
         override fun areContentsTheSame(oldItem: InstanceWithTask, newItem: InstanceWithTask): Boolean {
             // Define logic to check if the content of items is the same

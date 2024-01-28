@@ -7,28 +7,26 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.example.lifetracer.data.Instance
 import com.example.lifetracer.data.InstanceWithTask
+import com.example.lifetracer.data.TaskRelation
 
 @Dao
 interface InstanceDao {
     @Insert
-    fun insert(instance: Instance): Long
+    fun insert(instance: InstanceWithTask): Long
 
     @Update
-    fun update(instance: Instance)
+    fun update(instance: InstanceWithTask)
 
     @Delete
-    fun delete(instance: Instance)
+    fun delete(instance: InstanceWithTask)
 
-    @Query("DELETE FROM instances WHERE task_id = :taskId")
-    suspend fun deleteInstancesByTaskId(taskId: Long)
 
     @Query("SELECT * FROM instances")
-    fun getAllInstances(): LiveData<List<Instance>>
+    fun getAllInstances(): LiveData<List<InstanceWithTask>>
 
     @Query("SELECT * FROM instances WHERE id = :instanceId")
-    fun getInstanceById(instanceId: Long): Instance?
+    fun getInstanceById(instanceId: Long): InstanceWithTask?
 
     @Transaction
     @Query("SELECT * FROM instances WHERE id = :instanceId")
@@ -46,6 +44,14 @@ interface InstanceDao {
     @Transaction
     @Query("SELECT * FROM instances WHERE status != 99 ORDER BY priority LIMIT 1")
     fun getLowestPriorityInstanceWithTask(): LiveData<InstanceWithTask>
+
+    // Insert relationship
+    @Insert
+    suspend fun insertTaskRelation(taskRelation: TaskRelation)
+
+    // Query subtasks for a specific parent
+    @Query("SELECT instances.* FROM instances INNER JOIN task_relation ON instances.id = task_relation.subtaskId WHERE task_relation.parentId = :parentId")
+    suspend fun getSubtasksForParent(parentId: Long): List<InstanceWithTask>
 
 
 }

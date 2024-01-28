@@ -6,14 +6,12 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.lifetracer.charts.ChartData
 import com.example.lifetracer.charts.ChartDataDao
-import com.example.lifetracer.data.Instance
-import com.example.lifetracer.data.Task
+import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.data.TaskRelation
 
-@Database(entities = [Task::class, Instance::class, TaskRelation::class, ChartData::class], version = 1)
+@Database(entities = [InstanceWithTask::class, TaskRelation::class, ChartData::class], version = 1)
 abstract class AppDatabase : RoomDatabase() {
 
-    abstract fun taskDao(): TaskDao
     abstract fun instanceDao(): InstanceDao
     abstract fun chartDataDao(): ChartDataDao
 

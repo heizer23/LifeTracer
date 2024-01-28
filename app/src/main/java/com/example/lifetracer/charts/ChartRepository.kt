@@ -12,7 +12,6 @@ class ChartRepository(private val chartDataDao: ChartDataDao) {
 
     private val chartDataCache = mutableMapOf<Long, List<ChartData>>()
 
-    //todo List = Livedata?
     suspend fun getChartData(taskId: Long): List<BarEntry> {
         chartDataCache[taskId]?.let { cachedData ->
             // Return cached data if available

@@ -19,7 +19,7 @@
             android:id="@+id/taskNameTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.currentInstance.task.name}"
+            android:text="@{viewModel.currentInstance.name}"
             android:textSize="20sp"
             android:textStyle="bold"
             app:layout_constraintTop_toTopOf="parent"

@@ -10,13 +10,10 @@ import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.viewModel.InstancesViewModelFactory
-import com.example.lifetracer.data.Task
-import com.example.lifetracer.data.TaskFilter
+import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ActivityManageTasksBinding
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
-import com.example.lifetracer.viewModel.TaskViewModel
-import com.example.lifetracer.viewModel.TaskViewModelFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -24,20 +21,17 @@ import kotlinx.coroutines.launch
 open class ManageTasksActivity : AppCompatActivity() {
     private lateinit var binding: ActivityManageTasksBinding
 
-    private var parentId: Long = -1L  // -1 indicates normal mode; if this is a parentTask, this will be the id
-                                    // this controls onTaskActionExecution and the shown tasks
-
-    private val viewModel: TaskViewModel by viewModels {
-        TaskViewModelFactory(
+    private val viewModel: InstancesViewModel by viewModels {
+        InstancesViewModelFactory(
             instanceRepository = InstanceRepository(
                 instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
-                taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
             ),
             chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
         )
     }
 
-    private lateinit var taskAdapter: TaskAdapter
+
+    private lateinit var instanceAdapter: InstanceAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,105 +40,82 @@ open class ManageTasksActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         setupRecyclerView()
-        observeTaskListChanges()
-        binding.buttonAddTask.setOnClickListener { handleAddTask() }
-       // someFunctionToSetFilter()
+        observeInstanceListChanges()
+        binding.buttonAddTask.setOnClickListener { handleAddInstance() }
     }
-
-    private fun someFunctionToSetFilter() {
-        // Assuming you have determined the filter criteria
-        val filter = TaskFilter(regularities = listOf(1, 2, 3))
-        viewModel.setTaskFilter(filter)
-    }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {
-                // Handle the back button action
                 onBackPressed()
                 true
             }
             else -> super.onOptionsItemSelected(item)
         }
     }
+
     private fun setupRecyclerView() {
-        taskAdapter = TaskAdapter(
+        //todo adapter
+/*        instanceAdapter = InstanceAdapter(
             lifecycleScope,
-            tasks = emptyList(),
-            onDeleteTask = { task ->
-                deleteTask(task)
+            instance = emptyList(),
+            onDeleteInstance = { instance ->
+                deleteInstance(instance)
             },
-            onTaskAction = { task ->
-                onTaskActionExecution(task)
+            onInstanceAction = { instance ->
+                onInstanceActionExecution(instance)
             },
-            fetchChartData = { taskId ->
-                viewModel.getChartData(taskId)
+            fetchChartData = { instanceId ->
+                viewModel.getChartData(instanceId)
             }
-
         )
-        binding.recyclerViewTasks.apply {
+        binding.recyclerViewInstances.apply {
             layoutManager = LinearLayoutManager(this@ManageTasksActivity)
-            adapter = taskAdapter
-        }
+            adapter = instanceAdapter
+        }*/
     }
 
-    private fun onTaskActionExecution(task: Task) {
+    private fun onInstanceActionExecution(instance: InstanceWithTask) {
         CoroutineScope(Dispatchers.IO).launch {
-            if (parentId == -1L) {
-                viewModel.addInstance(task)
-            } else {
-                viewModel.linkSubTask(task.taskId, parentId)
-            }
+
         }
     }
 
+    private fun observeInstanceListChanges() {
+        //todo adapter
+/*        viewModel.getAllInstances().observe(this) { instances ->
+            instanceAdapter.updateList(instances)
+        }*/
+    }
 
-    private fun observeTaskListChanges() {
-        viewModel.getAllTasks().observe(this) { tasks ->
-            taskAdapter.updateList(tasks)
+    private fun handleAddInstance() {
+        val instance = createInstanceFromInput()
+        if (instance != null) {
+            addNewInstance(instance)
         }
     }
 
-    private fun handleAddTask() {
-        val task = createTaskFromInput()
-        if (task != null) {
-            addNewTask(task)
-        }
+    private fun createInstanceFromInput(): InstanceWithTask? {
+        // todo Gather input data and create an Instance object
+        return null
     }
-    private fun createTaskFromInput(): Task? {
-        val name = binding.editTextTaskName.text.toString()
-        val quality = binding.editTextTaskQuality.text.toString()
-        val regularity = binding.editTextTaskRegularity.text.toString().toIntOrNull() ?: 0
-        val taskType = binding.editTextTaskType.text.toString().toIntOrNull() ?: 0
-        val fixed = binding.checkBoxTaskFixed.isChecked
 
-        return if (name.isNotEmpty()) {
-            val dateOfCreation = getCurrentDate()
-            Task(0, null,  name, quality, dateOfCreation, regularity, taskType, fixed)
-        } else {
-            null
-        }
-    }
-    private fun addNewTask(task: Task) {
+    private fun addNewInstance(instance: InstanceWithTask) {
         CoroutineScope(Dispatchers.Main).launch {
-            viewModel.addTask(task)
-            updateTaskList()
+/*            viewModel.addInstance(instance)
+            updateInstanceList()*/
         }
     }
 
-    private fun deleteTask(task: Task) {
+    private fun deleteInstance(instance: InstanceWithTask) {
         CoroutineScope(Dispatchers.IO).launch {
-            viewModel.deleteTask(task)
+            viewModel.deleteInstance(instance)
         }
     }
 
-
-
-    private fun updateTaskList() {
-        viewModel.getAllTasks().observe(this) { tasks ->
-            taskAdapter.updateList(tasks)
-        }
+    private fun updateInstanceList() {
+/*        viewModel.getAllInstances().observe(this) { instances ->
+            instanceAdapter.updateList(instances)
+        }*/
     }
-
 }

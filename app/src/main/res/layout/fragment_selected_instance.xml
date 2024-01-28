@@ -26,7 +26,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
-            android:text="@{instanceWithTask.task.name}"
+            android:text="@{instanceWithTask.name}"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
@@ -81,7 +81,7 @@
             android:layout_width="220dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:visibility="@{instanceWithTask.task.inputType == 1 || instanceWithTask.task.inputType == 3 ? View.VISIBLE : View.GONE}"
+            android:visibility="@{instanceWithTask.inputType == 1 || instanceWithTask.inputType == 3 ? View.VISIBLE : View.GONE}"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewPause">
 
@@ -98,7 +98,7 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:visibility="@{instanceWithTask.task.inputType == 2 || instanceWithTask.task.inputType == 3 ? View.VISIBLE : View.GONE}"
+            android:visibility="@{instanceWithTask.inputType == 2 || instanceWithTask.inputType == 3 ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/textViewPause">
 
@@ -124,8 +124,8 @@
             android:layout_marginTop="16dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:onClick="@{() -> viewModel.toggleStartPauseInstance()}"
-            android:src="@{instanceWithTask.instance.status == 1 ? @drawable/pause_circle : @drawable/play_circle}"
-            android:visibility="@{instanceWithTask.instance.status == 0 ? View.GONE : View.VISIBLE}"
+            android:src="@{instanceWithTask.status == 1 ? @drawable/pause_circle : @drawable/play_circle}"
+            android:visibility="@{instanceWithTask.status == 0 ? View.GONE : View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 

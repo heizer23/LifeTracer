@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="task"
-            type="com.example.lifetracer.data.Task" />
+            name="InstanceWithTask"
+            type="com.example.lifetracer.data.InstanceWithTask" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -22,7 +22,7 @@
             android:id="@+id/textViewTaskName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{task.name}"
+            android:text="@{InstanceWithTask.name}"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/buttonDeleteTask"
@@ -33,7 +33,7 @@
             android:layout_width="0dp"
             android:layout_height="90dp"
             app:layout_constraintTop_toTopOf="@id/textViewTaskName"
-            app:layout_constraintBottom_toBottomOf="@id/textViewFixed"
+            app:layout_constraintBottom_toBottomOf="@id/textViewTaskName"
             app:layout_constraintStart_toStartOf="@id/guideline1"
             app:layout_constraintEnd_toStartOf="@id/guideline2"/>
 

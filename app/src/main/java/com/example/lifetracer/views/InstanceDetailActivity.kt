@@ -3,19 +3,16 @@ package com.example.lifetracer.views
 import TaskCreationFragment
 import android.os.Bundle
 import android.view.MenuItem
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.lifetracer.charts.ChartRepository
-import com.example.lifetracer.data.Task
+import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.databinding.InstanceDetailBinding
 import com.example.lifetracer.viewModel.InstanceDetailViewModel
 import com.example.lifetracer.viewModel.InstanceDetailViewModelFactory
-import com.example.lifetracer.viewModel.InstancesViewModel
-import com.example.lifetracer.viewModel.InstancesViewModelFactory
 
 class InstanceDetailActivity : AppCompatActivity() {
 
@@ -39,13 +36,12 @@ class InstanceDetailActivity : AppCompatActivity() {
             instanceId,
             instanceRepository = InstanceRepository(
                 instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
-                taskDao = AppDatabase.getDatabase(applicationContext).taskDao()
             ),
             chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
         )).get(InstanceDetailViewModel::class.java)
 
         viewModel.currentInstance.observe(this, Observer { instanceWithTask ->
-            parentTaskId = instanceWithTask.task.taskId
+            parentTaskId = instanceWithTask.id
             // Now parentTaskId will be updated whenever currentInstance changes
         })
 
@@ -68,7 +64,7 @@ class InstanceDetailActivity : AppCompatActivity() {
 
             val taskCreationFragment = TaskCreationFragment.newInstance(parentTaskId).apply {
                 setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
-                    override fun onTaskCreated(subTask: Task) {
+                    override fun onInstanceCreated(subTask: InstanceWithTask) {
                         // Handle the created subtask, linking it to the parent task
                       //  subTask.parentTaskId = parentTaskId
                         // Proceed with saving the subtask or whatever else needs to be done
