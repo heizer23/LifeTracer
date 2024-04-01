@@ -1,4 +1,4 @@
-<!-- task_item.xml -->
+<!-- list_item_instance.xml -->
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
@@ -15,71 +15,67 @@
         android:paddingTop="8dp"
         android:paddingBottom="8dp"
         android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+        android:paddingRight="16dp"
+        android:background="?attr/selectableItemBackground">
 
-        <!-- Task Name -->
+        <!-- Instance Name -->
         <TextView
-            android:id="@+id/textViewTaskName"
+            android:id="@+id/textViewInstanceName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:text="@{instanceWithTask.name}"
+            android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/buttonDeleteTask"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/guideline1"/>
 
-
-        <!-- Date of Creation -->
+        <!-- Instance Date -->
         <TextView
-            android:id="@+id/textViewDateOfCreation"
+            android:id="@+id/textViewInstanceDate"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{instanceWithTask.dateOfCreation}"
+            android:text="@{instanceWithTask.date}"
+            android:textSize="16sp"
+            android:textStyle="italic"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/buttonDeleteTask"
-            app:layout_constraintTop_toBottomOf="@id/textViewTaskName" />
+            app:layout_constraintTop_toBottomOf="@id/textViewInstanceName"
+            app:layout_constraintEnd_toStartOf="@id/guideline1"/>
 
-        <!-- Regularity -->
+        <!-- Instance Status -->
         <TextView
-            android:id="@+id/textViewRegularity"
+            android:id="@+id/textViewInstanceStatus"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{String.valueOf(instanceWithTask.regularity)}"
+            android:text="@{String.valueOf(instanceWithTask.status)}"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/buttonDeleteTask"
-            app:layout_constraintTop_toBottomOf="@id/textViewDateOfCreation" />
-
+            app:layout_constraintTop_toBottomOf="@id/textViewInstanceDate"
+            app:layout_constraintEnd_toStartOf="@id/guideline1"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <com.example.lifetracer.views.WeekChartView
             android:id="@+id/weekChartView"
             android:layout_width="0dp"
             android:layout_height="90dp"
-            app:layout_constraintTop_toTopOf="@id/textViewTaskName"
-            app:layout_constraintBottom_toBottomOf="@id/textViewRegularity"
+            app:layout_constraintTop_toTopOf="@id/textViewInstanceName"
+            app:layout_constraintBottom_toBottomOf="@id/textViewInstanceStatus"
             app:layout_constraintStart_toStartOf="@id/guideline1"
             app:layout_constraintEnd_toStartOf="@id/guideline2"/>
 
 
-        <!-- Delete Button -->
-        <ImageButton
-            android:id="@+id/buttonDeleteTask"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/delete"
-            app:layout_constraintTop_toBottomOf="@id/textViewTaskName"
-            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Add Instance Button -->
+        <!-- Copy Button -->
         <ImageButton
-            android:id="@+id/buttonAddInstance"
+            android:id="@+id/buttonCopy"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/add"
-            app:layout_constraintTop_toBottomOf="@id/buttonDeleteTask"
-            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
+
+
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline1"
