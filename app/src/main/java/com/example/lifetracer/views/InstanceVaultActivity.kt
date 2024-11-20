@@ -1,5 +1,10 @@
+package com.example.lifetracer.views
+
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
+import android.widget.Button
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -11,7 +16,8 @@ import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.viewModel.InstancesViewModelFactory
-import com.example.lifetracer.views.VaultAdapter
+import kotlinx.coroutines.launch
+import com.example.lifetracer.data.InstanceWithTask
 
 class InstanceVaultActivity : AppCompatActivity() {
 
@@ -32,6 +38,25 @@ class InstanceVaultActivity : AppCompatActivity() {
 
         setupRecyclerView()
         loadInstances()
+
+        // Enable the Up button
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        findViewById<Button>(R.id.buttonGoToManageTasks).setOnClickListener {
+            val taskCreationFragment = TaskCreationFragment.newInstance().apply {
+                setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
+                    override fun onInstanceCreated(subTask: InstanceWithTask) {
+                        lifecycleScope.launch {
+                            viewModel.addInstance(subTask)
+                            Toast.makeText(applicationContext, "Instance added successfully", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                })
+            }
+            taskCreationFragment.show(supportFragmentManager, "TaskCreationFragment")
+        }
+
+
     }
 
 
@@ -43,18 +68,28 @@ class InstanceVaultActivity : AppCompatActivity() {
         // and has a method to handle the selection/start of an instance.
 
         // Initialize your VaultAdapter with necessary dependencies.
-        adapter = VaultAdapter(lifecycleScope, viewModel, { instance ->
-            // This is where you handle the copying of an instance.
-            // You might want to show a confirmation dialog, then duplicate the instance and save/update it.
-            // For simplicity, let's just log the copy action here.
-            Log.d("VaultAdapter", "Copying instance: ${instance.name}")
-        }) // Passing a reference to the fetchChartData function
+        adapter = VaultAdapter(
+            lifecycleScope,
+            viewModel,
+            onMoveTaskFromVault = { instance ->
+                lifecycleScope.launch {
+                    viewModel.moveTaskFromVaultToMain(instance)
+                    Toast.makeText(applicationContext, "Instance copied successfully", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onDeleteInstance = { instance -> // Handle delete action
+                lifecycleScope.launch {
+                    viewModel.deleteInstance(instance)
+                    Toast.makeText(applicationContext, "Instance deleted successfully", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
 
         recyclerView.adapter = adapter
 
         // Fetch instances and submit them to the adapter.
         // This is a simplified approach. You'd typically observe a LiveData<List<InstanceWithTask>> from your ViewModel.
-        viewModel.allActiveInstanceWithTask.observe(this) { instances ->
+        viewModel.allVaultedInstance.observe(this) { instances ->
             adapter.submitList(instances)
         }
     }
@@ -66,4 +101,16 @@ class InstanceVaultActivity : AppCompatActivity() {
        // val instances = listOf<InstanceWithTask>() // Get your list of instances here
        // adapter.updateData(instances)
     }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                // Respond to the action bar's Up/Home button
+                onBackPressedDispatcher.onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
 }

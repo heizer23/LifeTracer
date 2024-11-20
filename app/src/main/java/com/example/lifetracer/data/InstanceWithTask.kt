@@ -41,8 +41,15 @@ data class InstanceWithTask(
         const val STATUS_PLANNED = 0
         const val STATUS_STARTED = 1
         const val STATUS_PAUSED = 2
+        const val STATUS_VAULTED = 98
         const val STATUS_FINISHED = 99
+
+        object Regularity {
+            const val SINGLE = 0 // Task is non-recurring
+            const val REGULAR = 1 // Task is recurring
+        }
     }
+
 }
 
 // Extension function for Instance class

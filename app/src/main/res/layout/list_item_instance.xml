@@ -63,7 +63,17 @@
             app:layout_constraintStart_toStartOf="@id/guideline1"
             app:layout_constraintEnd_toStartOf="@id/guideline2"/>
 
+        <!-- Add Finish Button -->
+        <ImageButton
+            android:id="@+id/buttonFinishInstance"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/done"
+            app:layout_constraintTop_toTopOf="parent"
 
+
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Delete Button -->
         <ImageButton
@@ -72,17 +82,7 @@
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/delete"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Add Finish Button -->
-        <ImageButton
-            android:id="@+id/buttonFinishInstance"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/done"
-            app:layout_constraintTop_toBottomOf="@id/buttonDeleteTask"
+            app:layout_constraintTop_toBottomOf="@id/buttonFinishInstance"
             android:layout_marginTop="8dp"
             app:layout_constraintEnd_toEndOf="parent" />
 
@@ -92,7 +92,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.2" />
+            app:layout_constraintGuide_percent="0.75" />
 
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/guideline2"

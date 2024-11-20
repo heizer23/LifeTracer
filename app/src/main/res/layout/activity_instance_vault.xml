@@ -9,4 +9,12 @@
         android:id="@+id/vaultRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
+    <Button
+        android:id="@+id/buttonGoToManageTasks"
+        android:layout_width="90dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:text="Add" />
 </RelativeLayout>

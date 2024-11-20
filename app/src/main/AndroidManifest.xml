@@ -25,12 +25,18 @@
 
         <activity
             android:name=".views.InstanceVaultActivity"
-            android:label="Instance Details"
+            android:label="Instance Vault"
             android:theme="@style/AppTheme">
         </activity>
 
         <activity
             android:name=".views.InstanceDetailActivity"
+            android:label="Instance Details"
+            android:theme="@style/AppTheme">
+        </activity>
+
+        <activity
+            android:name=".views.FinishedInstancesActivity"
             android:label="Instance Details"
             android:theme="@style/AppTheme">
         </activity>

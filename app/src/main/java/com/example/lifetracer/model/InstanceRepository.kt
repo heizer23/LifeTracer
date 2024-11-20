@@ -2,12 +2,17 @@ package com.example.lifetracer.model
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.data.TaskRelation
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class InstanceRepository(private val instanceDao: InstanceDao) {
 
     val allActiveInstancesWithTasks: LiveData<List<InstanceWithTask>> = instanceDao.getActiveInstancesWithTasks()
+
+    val allVaultedTasks: LiveData<List<InstanceWithTask>> = instanceDao.getVaultedTasks()
 
 
     val instanceWithTaskAndLowestPrio: LiveData<InstanceWithTask> = instanceDao.getLowestPriorityInstanceWithTask()
@@ -17,9 +22,21 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
     }
 
     // Instance-related operations
-    suspend fun insertInstance(instance: InstanceWithTask) {
-        instanceDao.insert(instance)
+    suspend fun insertInstance(instance: InstanceWithTask): Long {
+        return instanceDao.insert(instance)
     }
+
+    suspend fun copyInstance(instance: InstanceWithTask) {
+        withContext(Dispatchers.IO) {
+            val newInstance = instance.copy(
+                id = 0, // Reset the ID to create a new record
+                dateOfCreation = getCurrentDate(), // Set the current date
+                status = InstanceWithTask.STATUS_PLANNED // Set status to 0 (STATUS_PLANNED)
+            )
+            instanceDao.insert(newInstance)  // Insert the new instance into the database
+        }
+    }
+
 
     suspend fun updateInstance(instance: InstanceWithTask) {
         instanceDao.update(instance)
@@ -44,6 +61,30 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
         )
         insertInstance(instance)
     }
+
+    fun getFinishedInstancesForDay(date: String): LiveData<List<InstanceWithTask>> {
+        return instanceDao.getFinishedInstancesForDay(InstanceWithTask.STATUS_FINISHED, date)
+    }
+
+    suspend fun moveTaskFromVaultToMain(instance: InstanceWithTask) {
+        withContext(Dispatchers.IO) {
+            if (instance.regularity == InstanceWithTask.Companion.Regularity.SINGLE) {
+                // Singular task: Update status to 0 (planned)
+                val updatedInstance = instance.copy(status = InstanceWithTask.STATUS_PLANNED)
+                updateInstance(updatedInstance)
+            } else if (instance.regularity == InstanceWithTask.Companion.Regularity.REGULAR) {
+                // Regular task: Copy the task with a new ID and status 0
+                val newInstance = instance.copy(
+                    id = 0, // Auto-generate a new ID
+                    dateOfCreation = getCurrentDate(),
+                    status = InstanceWithTask.STATUS_PLANNED
+                )
+                insertInstance(newInstance)
+            }
+        }
+    }
+
+
 
 
 

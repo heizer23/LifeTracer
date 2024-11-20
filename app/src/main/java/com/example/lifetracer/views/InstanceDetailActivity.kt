@@ -89,7 +89,7 @@ class InstanceDetailActivity : AppCompatActivity() {
         return when (item.itemId) {
             android.R.id.home -> {
                 // Respond to the action bar's Up/Home button
-                onBackPressed()
+                onBackPressedDispatcher.onBackPressed()
                 true
             }
             else -> super.onOptionsItemSelected(item)

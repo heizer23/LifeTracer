@@ -34,7 +34,16 @@
             android:layout_width="90dp"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
             android:text="Add" />
+
+        <Button
+            android:id="@+id/buttonViewFinishedTasks"
+            android:layout_width="90dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:text="Review" />
 
         <Button
             android:id="@+id/buttonGoToInstanceVault"

@@ -28,6 +28,8 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
 
     val allActiveInstanceWithTask: LiveData<List<InstanceWithTask>> = instanceRepository.allActiveInstancesWithTasks
 
+    val allVaultedInstance: LiveData<List<InstanceWithTask>> = instanceRepository.allVaultedTasks
+
     fun selectAndStartInstance(newInstanceWithTask: InstanceWithTask) {
         instanceWithLowestPrio.value?.let { instanceWithTask ->
             if (instanceWithTask.status == InstanceWithTask.STATUS_STARTED) {
@@ -70,6 +72,12 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
         }
     }
 
+    fun copyInstance(instance: InstanceWithTask) {
+        viewModelScope.launch {
+            instanceRepository.copyInstance(instance)
+        }
+    }
+
     fun finishInstance(instanceWithTask: InstanceWithTask, inputQuality: String? = null, inputQuantity: String? = null) {
         val updatedInstance = instanceManager.finishInstance(instanceWithTask, inputQuality, inputQuantity, viewModelScope)
        // chartRepository.updateChartData(updatedInstance.taskId, viewModelScope)
@@ -86,8 +94,14 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
         }
     }
 
-    fun deleteInstance(updatedInstance: InstanceWithTask){
-
+    fun deleteInstance(instanceWithTask: InstanceWithTask) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                instanceRepository.deleteInstance(instanceWithTask)
+            } catch (e: Exception) {
+                Log.e("InstancesViewModel", "Error deleting instance: ${e.message}")
+            }
+        }
     }
 
     private fun startInstance(updatedInstance: InstanceWithTask){
@@ -111,10 +125,24 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
         instanceRepository.linkSubTask(parentId, subTaskId)
     }
 
+    fun moveTaskFromVaultToMain(instance: InstanceWithTask) {
+        viewModelScope.launch {
+            try {
+                instanceRepository.moveTaskFromVaultToMain(instance)
+            } catch (e: Exception) {
+                Log.e("InstancesViewModel", "Error moving task: ${e.message}")
+            }
+        }
+    }
+
     fun addInstance(instance: InstanceWithTask) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                instanceRepository.insertInstance(instance)
+                val insertedId = instanceRepository.insertInstance(instance)
+                val updatedInstance = instance.copy(id = insertedId, templateId = insertedId)
+                instanceRepository.updateInstance(updatedInstance)
+
+
                 // Optionally post success to LiveData or handle the result in some way
             } catch (e: Exception) {
                 Log.e("InstancesViewModel", "Error adding instance: ${e.message}")
@@ -122,5 +150,10 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
             }
         }
     }
+
+    fun getFinishedInstancesForDay(date: String): LiveData<List<InstanceWithTask>> {
+        return instanceRepository.getFinishedInstancesForDay(date)
+    }
+
 
 }

@@ -66,7 +66,8 @@ class TaskCreationFragment : DialogFragment() {
         val newInstance = createInstanceFromInput()
         newInstance?.let {
             viewModel.viewModelScope.launch(Dispatchers.IO) {
-                viewModel.addInstance(it)  // Add the instance to the database
+              //  viewModel.addInstance(it)  // Add the instance to the database
+
                 launch(Dispatchers.Main) {
                     listener?.onInstanceCreated(it)  // Notify the listener on the main thread
                     dismiss()
@@ -86,7 +87,9 @@ class TaskCreationFragment : DialogFragment() {
                 name = name,
                 dateOfCreation = dateOfCreation,
                 inputType = inputType,
-                regularity = regularity
+                regularity = regularity,
+                templateId = 0L,
+                status = 98
             )
         } else {
             null

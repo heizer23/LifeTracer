@@ -38,12 +38,22 @@ interface InstanceDao {
 
     // Define a query to retrieve instances along with their associated tasks
     @Transaction
-    @Query("SELECT * FROM instances WHERE status != 99 order by priority")
+    @Query("SELECT * FROM instances WHERE status != 99 AND status != 98 ORDER BY priority")
     fun getActiveInstancesWithTasks(): LiveData<List<InstanceWithTask>>
+
+    @Transaction
+    @Query("SELECT * FROM instances WHERE status != 99 AND status = 98 ORDER BY priority")
+    fun getVaultedTasks(): LiveData<List<InstanceWithTask>>
 
     @Transaction
     @Query("SELECT * FROM instances WHERE status != 99 ORDER BY priority LIMIT 1")
     fun getLowestPriorityInstanceWithTask(): LiveData<InstanceWithTask>
+
+    // Reporting
+    @Query("SELECT * FROM instances WHERE status = :finishedStatus AND date = :currentDate")
+    fun getFinishedInstancesForDay(finishedStatus: Int, currentDate: String): LiveData<List<InstanceWithTask>>
+
+
 
     // Insert relationship
     @Insert

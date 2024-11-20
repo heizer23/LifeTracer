@@ -94,6 +94,18 @@ class MainActivity : AppCompatActivity() {
             }
             taskCreationFragment.show(supportFragmentManager, "TaskCreationFragment")
         }
+
+        // Setting up the OnClickListener for the "Vault" button
+        binding.buttonGoToInstanceVault.setOnClickListener {
+            val intent = Intent(this, InstanceVaultActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.buttonViewFinishedTasks.setOnClickListener {
+            val intent = Intent(this, FinishedInstancesActivity::class.java)
+            startActivity(intent)
+        }
+
     }
 
     private fun attachSelectedInstanceFragment() {
