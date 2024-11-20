@@ -60,10 +60,6 @@ class VaultAdapter(
                 // binding.weekChartView.setWeekData(barEntries)
             }
 
-            binding.buttonCopy.setOnClickListener {
-                onMoveTaskFromVault(instanceWithTask )
-            }
-
             binding.buttonDeleteTask.setOnClickListener { // Add delete button functionality
                 onDeleteInstance(instanceWithTask)
             }

@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -7,58 +6,74 @@
         android:layout_height="wrap_content"
         tools:context=".views.TaskCreationFragment">
 
+        <!-- Task Name -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/taskNameInputLayout1"
-            style="@style/MyTextInputLayout">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Task Name">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextTaskName"
-                style="@style/MyTextInputEditText"
-                android:hint="Task Name" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Task Quality -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/taskNameInputLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@id/taskNameInputLayout1"
-            style="@style/MyTextInputLayout">
+            android:hint="Quality">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextTaskQuality"
-                style="@style/MyTextInputEditText"
-                android:hint="Quality" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Task Regularity -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/taskNameInputLayout3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@id/taskNameInputLayout2"
-            style="@style/MyTextInputLayout">
+            android:hint="Regularity">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextTaskRegularity"
-                style="@style/MyTextInputEditText"
-                android:hint="Regularity" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Task Type -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/taskNameInputLayout4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_below="@id/taskNameInputLayout3"
-            style="@style/MyTextInputLayout">
+            android:hint="Type">
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextTaskType"
-                style="@style/MyTextInputEditText"
-                android:hint="Type" />
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <!-- Fixed CheckBox -->
         <CheckBox
             android:id="@+id/checkBoxTaskFixed"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Fixed"
             android:layout_below="@id/taskNameInputLayout4"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginTop="16dp" />
 
+        <!-- Add Task Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonAddTask"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:text="Add Task"
             android:layout_below="@id/checkBoxTaskFixed"
-            style="@style/CustomMaterialButton" />
+            android:layout_marginTop="16dp" />
 
     </RelativeLayout>
 </layout>

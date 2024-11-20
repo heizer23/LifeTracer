@@ -13,16 +13,16 @@ data class InstanceWithTask(
 
     val templateId: Long = id,
 
-    val name: String, // Default empty string
+    val name: String = "", // Default empty string
 
     @ColumnInfo(name = "date_of_creation")
     val dateOfCreation: String = "", // Default empty string
 
     @ColumnInfo(name = "input_type")
-    val inputType: Int, // Default to an invalid value or a specific default
+    val inputType: Int = -1, // Default to an invalid value or a specific default
 
     @ColumnInfo(name = "regularity")
-    val regularity: Int, // Default to an invalid value or a specific default
+    val regularity: Int = 0, // Default to an invalid value or a specific default
 
     val date: String = "", // Default empty string
     val time: String = "", // Default empty string

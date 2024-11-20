@@ -39,8 +39,11 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
 
 
     suspend fun updateInstance(instance: InstanceWithTask) {
-        instanceDao.update(instance)
+        withContext(Dispatchers.IO) {
+            instanceDao.update(instance)
+        }
     }
+
 
     suspend fun deleteInstance(instance: InstanceWithTask) {
         instanceDao.delete(instance)

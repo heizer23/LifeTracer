@@ -18,6 +18,19 @@
         android:paddingRight="16dp"
         android:background="?attr/selectableItemBackground">
 
+        <!-- Regularity TextView -->
+        <TextView
+            android:id="@+id/textViewRegularity"
+            android:layout_width="16dp"
+            android:layout_height="wrap_content"
+
+            android:text="@{instanceWithTask.regularity == 0 ? `S` : `R`}"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/textViewInstanceName"
+            android:layout_marginEnd="8dp" />
+
         <!-- Instance Name -->
         <TextView
             android:id="@+id/textViewInstanceName"
@@ -26,81 +39,22 @@
             android:text="@{instanceWithTask.name}"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/guideline1"/>
+            app:layout_constraintEnd_toStartOf="@+id/buttonDeleteTask"
 
-        <!-- Instance Date -->
-        <TextView
-            android:id="@+id/textViewInstanceDate"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@{instanceWithTask.date}"
-            android:textSize="16sp"
-            android:textStyle="italic"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textViewInstanceName"
-            app:layout_constraintEnd_toStartOf="@id/guideline1"/>
+            app:layout_constraintStart_toEndOf="@+id/textViewRegularity"
+            app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Instance Status -->
-        <TextView
-            android:id="@+id/textViewInstanceStatus"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@{String.valueOf(instanceWithTask.status)}"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textViewInstanceDate"
-            app:layout_constraintEnd_toStartOf="@id/guideline1"
-            app:layout_constraintBottom_toBottomOf="parent" />
-
-        <com.example.lifetracer.views.WeekChartView
-            android:id="@+id/weekChartView"
-            android:layout_width="0dp"
-            android:layout_height="90dp"
-            app:layout_constraintTop_toTopOf="@id/textViewInstanceName"
-            app:layout_constraintBottom_toBottomOf="@id/textViewInstanceStatus"
-            app:layout_constraintStart_toStartOf="@id/guideline1"
-            app:layout_constraintEnd_toStartOf="@id/guideline2"/>
-
-
-
-        <!-- Copy Button -->
-        <ImageButton
-            android:id="@+id/buttonCopy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/add"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Delete Button -->
+
         <ImageButton
             android:id="@+id/buttonDeleteTask"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/delete"
-            app:layout_constraintTop_toBottomOf="@id/buttonCopy"
-            android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toEndOf="parent" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5" />
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline2"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginRight="56dp"
-            app:layout_constraintGuide_percent="0.87" />
+            tools:layout_editor_absoluteY="0dp" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

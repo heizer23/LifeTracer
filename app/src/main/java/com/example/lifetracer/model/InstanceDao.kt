@@ -41,9 +41,21 @@ interface InstanceDao {
     @Query("SELECT * FROM instances WHERE status != 99 AND status != 98 ORDER BY priority")
     fun getActiveInstancesWithTasks(): LiveData<List<InstanceWithTask>>
 
-    @Transaction
-    @Query("SELECT * FROM instances WHERE status != 99 AND status = 98 ORDER BY priority")
-    fun getVaultedTasks(): LiveData<List<InstanceWithTask>>
+    @Query("""
+    SELECT * FROM instances 
+    WHERE status = :vaultStatus 
+      AND id NOT IN (
+          SELECT templateId 
+          FROM instances 
+          WHERE status NOT IN (:vaultStatus, :finishedStatus)
+      )
+    ORDER BY regularity ASC, date_of_creation ASC
+""")
+    fun getVaultedTasks(
+        vaultStatus: Int = InstanceWithTask.STATUS_VAULTED,
+        finishedStatus: Int = InstanceWithTask.STATUS_FINISHED
+    ): LiveData<List<InstanceWithTask>>
+
 
     @Transaction
     @Query("SELECT * FROM instances WHERE status != 99 ORDER BY priority LIMIT 1")
