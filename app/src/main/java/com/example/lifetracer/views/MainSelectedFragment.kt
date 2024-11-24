@@ -1,5 +1,6 @@
 package com.example.lifetracer.views
 
+import ActivitySubTask
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -76,7 +77,7 @@ class MainSelectedFragment : Fragment() {
         binding.buttonDetails.setOnClickListener {
             val instanceWithTask = viewModel.instanceWithLowestPrio.value
 
-            val intent = Intent(context, DetailActivity::class.java)
+            val intent = Intent(context, ActivitySubTask::class.java)
             if (instanceWithTask != null) {
                 intent.putExtra("INSTANCE_ID_EXTRA", instanceWithTask.id)
             } // Replace 'instanceId' with the actual instance ID

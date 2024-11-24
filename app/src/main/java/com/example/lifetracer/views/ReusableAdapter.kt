@@ -15,10 +15,11 @@ import kotlinx.coroutines.launch
 import java.util.Collections
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemMainBinding
+import com.example.lifetracer.viewModel.InterfacerViewModelAdapter
 
 class ReusableAdapter(
     private val scope: CoroutineScope,
-    private val viewModel: InstancesViewModel,
+    private val viewModel: InterfacerViewModelAdapter,
     val onDeleteInstance: (InstanceWithTask) -> Unit,
     val onRestoreOrFinishInstance: (InstanceWithTask) -> Unit,
     private val useVaultLayout: Boolean = false // Flag to decide layout

@@ -69,28 +69,6 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
         return instanceDao.getFinishedInstancesForDay(InstanceWithTask.STATUS_FINISHED, date)
     }
 
-    suspend fun moveTaskFromVaultToMain(instance: InstanceWithTask) {
-        withContext(Dispatchers.IO) {
-            if (instance.regularity == InstanceWithTask.Companion.Regularity.SINGLE) {
-                // Singular task: Update status to 0 (planned)
-                val updatedInstance = instance.copy(status = InstanceWithTask.STATUS_PLANNED)
-                updateInstance(updatedInstance)
-            } else if (instance.regularity == InstanceWithTask.Companion.Regularity.REGULAR) {
-                // Regular task: Copy the task with a new ID and status 0
-                val newInstance = instance.copy(
-                    id = 0, // Auto-generate a new ID
-                    dateOfCreation = getCurrentDate(),
-                    status = InstanceWithTask.STATUS_PLANNED
-                )
-                insertInstance(newInstance)
-            }
-        }
-    }
-
-
-
-
-
     suspend fun linkSubTask(parentId: Long, subTaskId: Long) {
         try {
             val taskRelation = TaskRelation(parentId, subTaskId)
@@ -99,6 +77,11 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
             Log.e("InstanceRepository", "Error linking subtask: ${e.message}")
             // Handle any exceptions, such as updating LiveData with error status or rethrowing the exception
         }
+    }
+
+
+    suspend fun getSubtasksForParent(parentId: Long): List<InstanceWithTask> {
+        return instanceDao.getSubtasksForParent(parentId)
     }
 
 

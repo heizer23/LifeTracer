@@ -1,20 +1,19 @@
 package com.example.lifetracer.viewModel
 
+import SubTaskViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.model.InstanceRepository
 
-class InstanceDetailViewModelFactory(
+class SubTaskViewModelFactory(
     private val instanceId: Long,
     private val instanceRepository: InstanceRepository,
-    private val chartRepository: ChartRepository
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(InstanceDetailViewModel::class.java)) {
-            return InstanceDetailViewModel(instanceId, instanceRepository, chartRepository) as T
+            return SubTaskViewModel(instanceId, instanceRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }

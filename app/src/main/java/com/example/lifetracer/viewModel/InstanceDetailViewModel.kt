@@ -6,12 +6,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lifetracer.charts.ChartRepository
-import com.example.lifetracer.model.InstanceRepository
-import kotlinx.coroutines.launch
 import com.example.lifetracer.data.InstanceWithTask
+import com.example.lifetracer.model.InstanceRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
 
 class InstanceDetailViewModel(
     private val instanceId: Long,
@@ -20,7 +19,7 @@ class InstanceDetailViewModel(
 ) : ViewModel() {
 
     private val _instance = MutableLiveData<InstanceWithTask>()
-    val instance: LiveData<InstanceWithTask> = _instance
+    val instance: LiveData<InstanceWithTask> get() = _instance
 
     // Editable fields
     val name = MutableLiveData<String>()
@@ -34,20 +33,24 @@ class InstanceDetailViewModel(
         fetchInstanceDetails()
     }
 
-
-
     private fun fetchInstanceDetails() {
-        viewModelScope.launch {
-            val instanceDetails = instanceRepository.getInstance(instanceId)
-            _instance.postValue(instanceDetails)
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val instanceDetails = instanceRepository.getInstance(instanceId)
+                withContext(Dispatchers.Main) {
+                    _instance.value = instanceDetails
 
-            // Populate editable fields
-            name.postValue(instanceDetails.name)
-            inputType.postValue(instanceDetails.inputType)
-            quantity.postValue(instanceDetails.quantity)
-            quality.postValue(instanceDetails.quality)
-            comment.postValue(instanceDetails.comment)
-            regularity.postValue(instanceDetails.regularity)
+                    // Populate editable fields
+                    name.value = instanceDetails.name
+                    inputType.value = instanceDetails.inputType
+                    quantity.value = instanceDetails.quantity
+                    quality.value = instanceDetails.quality
+                    comment.value = instanceDetails.comment
+                    regularity.value = instanceDetails.regularity
+                }
+            } catch (e: Exception) {
+                Log.e("InstanceDetailViewModel", "Error fetching instance details: ${e.message}")
+            }
         }
     }
 
@@ -65,44 +68,25 @@ class InstanceDetailViewModel(
             return
         }
 
-        // Validate inputs and use defaults if necessary
-        val validName = newName.ifEmpty { currentInstance.name }
-        val validInputType = if (newInputType >= 0) newInputType else currentInstance.inputType
-        val validQuantity = if (newQuantity >= 0) newQuantity else currentInstance.quantity
-        val validQuality = newQuality.ifEmpty { currentInstance.quality }
-        val validComment = newComment.ifEmpty { currentInstance.comment }
-        val validRegularity = if (newRegularity in 0..1) newRegularity else currentInstance.regularity
-
-        // Create the updated instance
+        // Validate and update fields
         val updatedInstance = currentInstance.copy(
-            name = validName,
-            inputType = validInputType,
-            quantity = validQuantity,
-            quality = validQuality,
-            comment = validComment,
-            regularity = validRegularity
+            name = newName.ifEmpty { currentInstance.name },
+            inputType = if (newInputType >= 0) newInputType else currentInstance.inputType,
+            quantity = if (newQuantity >= 0) newQuantity else currentInstance.quantity,
+            quality = newQuality.ifEmpty { currentInstance.quality },
+            comment = newComment.ifEmpty { currentInstance.comment },
+            regularity = if (newRegularity in 0..1) newRegularity else currentInstance.regularity
         )
 
-        // Verify the updatedInstance before posting it
-        if (updatedInstance.name.isNotEmpty() &&
-            updatedInstance.inputType >= 0 &&
-            updatedInstance.regularity in 0..1
-        ) {
-            // Update the LiveData
-            _instance.postValue(updatedInstance)
-            viewModelScope.launch {
-                try {
-                    withContext(Dispatchers.IO) {
-                        instanceRepository.updateInstance(updatedInstance)
-                    }
-                    _instance.postValue(updatedInstance) // Update LiveData
-                } catch (e: Exception) {
-                    Log.e("InstanceDetailViewModel", "Failed to update instance: ${e.message}")
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                instanceRepository.updateInstance(updatedInstance)
+                withContext(Dispatchers.Main) {
+                    _instance.value = updatedInstance
                 }
+            } catch (e: Exception) {
+                Log.e("InstanceDetailViewModel", "Failed to update instance: ${e.message}")
             }
-        } else {
-            Log.e("InstanceDetailViewModel", "Validation failed for updated instance.")
         }
     }
-
 }

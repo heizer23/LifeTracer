@@ -2,6 +2,7 @@ package com.example.lifetracer.viewModel
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lifetracer.Utilities.getCurrentDate
@@ -22,7 +23,7 @@ import kotlinx.coroutines.withContext
 class InstancesViewModel(
     private val instanceRepository: InstanceRepository,
     private val chartRepository: ChartRepository
-) : ViewModel() {
+) : ViewModel(), InterfacerViewModelAdapter {
 
     private val instanceManager = InstanceManager(instanceRepository)
 
@@ -33,7 +34,10 @@ class InstancesViewModel(
 
     val allVaultedInstance: LiveData<List<InstanceWithTask>> = instanceRepository.allVaultedTasks
 
-    fun selectAndStartInstance(newInstanceWithTask: InstanceWithTask) {
+    private val _subtasks = MutableLiveData<List<InstanceWithTask>>()
+    val subtasks: LiveData<List<InstanceWithTask>> get() = _subtasks
+
+    override fun selectAndStartInstance(newInstanceWithTask: InstanceWithTask) {
         instanceWithLowestPrio.value?.let { instanceWithTask ->
             if (instanceWithTask.status == InstanceWithTask.STATUS_STARTED) {
                 pauseInstance(instanceWithTask)
@@ -89,7 +93,7 @@ class InstancesViewModel(
         // chartRepository.invalidateChartDataCache(instanceWithTask.taskId)
     }
 
-    fun updateInstanceOrder(instances: List<InstanceWithTask>) {
+    override fun updateInstanceOrder(instances: List<InstanceWithTask>) {
         viewModelScope.launch {
             instances.forEachIndexed { index, instanceWithTask ->
                 instanceRepository.updatePrio(instanceWithTask.id, index)
@@ -97,7 +101,7 @@ class InstancesViewModel(
         }
     }
 
-    fun deleteInstance(instanceWithTask: InstanceWithTask) {
+    override fun deleteInstance(instanceWithTask: InstanceWithTask) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 instanceRepository.deleteInstance(instanceWithTask)
@@ -111,7 +115,7 @@ class InstancesViewModel(
         instanceManager.startInstance(updatedInstance, viewModelScope)
     }
 
-    private fun updateInstance(updatedInstance: InstanceWithTask){
+    override fun updateInstance(updatedInstance: InstanceWithTask){
         instanceManager.updateInstance(updatedInstance, viewModelScope)
     }
 
@@ -170,6 +174,24 @@ class InstancesViewModel(
     fun getFinishedInstancesForDay(date: String): LiveData<List<InstanceWithTask>> {
         return instanceRepository.getFinishedInstancesForDay(date)
     }
+
+    // Load subtasks for the given parent task
+    fun loadSubtasks(parentId: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val fetchedSubtasks = instanceRepository.getSubtasksForParent(parentId)
+            _subtasks.postValue(fetchedSubtasks)
+        }
+    }
+
+    // Add a new subtask and link it to the parent
+    fun addSubtask(parentId: Long, newSubtask: InstanceWithTask) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val subTaskId = instanceRepository.insertInstance(newSubtask)
+            instanceRepository.linkSubTask(parentId, subTaskId)
+            loadSubtasks(parentId) // Reload subtasks after adding
+        }
+    }
+
 
 
 }

@@ -41,6 +41,7 @@
             >
         </activity>
 
+        <activity android:name=".views.ActivitySubTask" />
     </application>
 
 </manifest>

@@ -1,0 +1,42 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="instanceWithTask"
+            type="com.example.lifetracer.data.InstanceWithTask" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Main Task Name -->
+        <TextView
+            android:id="@+id/mainTaskName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:text="Main Task Name" />
+
+        <!-- RecyclerView for Subtasks -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/subtaskRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:scrollbars="vertical" />
+
+        <!-- Add Subtask Button -->
+        <Button
+            android:id="@+id/addSubtaskButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Add Subtask" />
+    </LinearLayout>
+
+</layout>
