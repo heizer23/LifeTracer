@@ -14,16 +14,13 @@ import com.example.lifetracer.charts.ChartManager
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.FragmentSelectedInstanceBinding
-import com.github.mikephil.charting.data.BarData
-import com.github.mikephil.charting.data.BarDataSet
-import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.time.Duration
 
-class SelectedInstanceFragment : Fragment() {
+class MainSelectedFragment : Fragment() {
     private lateinit var binding: FragmentSelectedInstanceBinding
     private val viewModel: InstancesViewModel by activityViewModels()
 
@@ -79,7 +76,7 @@ class SelectedInstanceFragment : Fragment() {
         binding.buttonDetails.setOnClickListener {
             val instanceWithTask = viewModel.instanceWithLowestPrio.value
 
-            val intent = Intent(context, InstanceDetailActivity::class.java)
+            val intent = Intent(context, DetailActivity::class.java)
             if (instanceWithTask != null) {
                 intent.putExtra("INSTANCE_ID_EXTRA", instanceWithTask.id)
             } // Replace 'instanceId' with the actual instance ID

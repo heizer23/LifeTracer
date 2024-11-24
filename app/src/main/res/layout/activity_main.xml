@@ -12,7 +12,7 @@
         android:paddingBottom="16dp"
         tools:context=".views.MainActivity">
 
-        <!-- FrameLayout to host com.example.lifetracer.fragments.SelectedInstanceFragment (top of the screen) -->
+        <!-- FrameLayout to host com.example.lifetracer.fragments.MainSelectedFragment (top of the screen) -->
         <FrameLayout
             android:id="@+id/selectedInstanceContainer"
             android:layout_width="match_parent"

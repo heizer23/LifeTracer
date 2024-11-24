@@ -4,4 +4,7 @@
     <string name="pause">Pause</string>
     <string name="quantity_hint">Quantity</string>
     <string name="quality_hint">Quality</string>
+    <string name="delete_task">Delete</string>
+
+
 </resources>

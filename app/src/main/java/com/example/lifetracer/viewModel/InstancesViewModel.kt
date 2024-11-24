@@ -19,7 +19,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class InstancesViewModel(private val instanceRepository: InstanceRepository, private val chartRepository: ChartRepository) : ViewModel() {
+class InstancesViewModel(
+    private val instanceRepository: InstanceRepository,
+    private val chartRepository: ChartRepository
+) : ViewModel() {
 
     private val instanceManager = InstanceManager(instanceRepository)
 
@@ -125,15 +128,28 @@ class InstancesViewModel(private val instanceRepository: InstanceRepository, pri
         instanceRepository.linkSubTask(parentId, subTaskId)
     }
 
-    fun moveTaskFromVaultToMain(instance: InstanceWithTask) {
-        viewModelScope.launch {
+    fun moveTaskToMain(instance: InstanceWithTask, isFromReview: Boolean) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
-                instanceRepository.moveTaskFromVaultToMain(instance)
+                if (isFromReview || instance.regularity == InstanceWithTask.Companion.Regularity.SINGLE) {
+                    // Just update the status to planned
+                    val updatedInstance = instance.copy(status = InstanceWithTask.STATUS_PLANNED)
+                    updateInstance(updatedInstance)
+                } else if (instance.regularity == InstanceWithTask.Companion.Regularity.REGULAR) {
+                    // Create a new instance and insert directly
+                    val newInstance = instance.copy(
+                        id = 0, // Auto-generate a new ID
+                        dateOfCreation = getCurrentDate(),
+                        status = InstanceWithTask.STATUS_PLANNED
+                    )
+                    instanceRepository.insertInstance(newInstance)
+                }
             } catch (e: Exception) {
-                Log.e("InstancesViewModel", "Error moving task: ${e.message}")
+                Log.e("InstancesViewModel", "Error moving task to main: ${e.message}")
             }
         }
     }
+
 
     fun addInstance(instance: InstanceWithTask) {
         viewModelScope.launch(Dispatchers.IO) {

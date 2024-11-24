@@ -10,7 +10,7 @@ import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.viewModel.InstanceDetailViewModel
 import com.example.lifetracer.viewModel.InstanceDetailViewModelFactory
 
-class InstanceDetailActivity : AppCompatActivity() {
+class DetailActivity : AppCompatActivity() {
 
     private lateinit var binding: InstanceDetailBinding
     private lateinit var viewModel: InstanceDetailViewModel

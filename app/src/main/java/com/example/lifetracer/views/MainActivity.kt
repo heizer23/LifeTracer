@@ -2,11 +2,13 @@ package com.example.lifetracer.views
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.R
 import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.data.InstanceWithTask
@@ -30,91 +32,75 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private lateinit var instanceAdapter: InstanceAdapter
-    private var selectedInstanceFragment: SelectedInstanceFragment? = null
+    private lateinit var reusableAdapter: ReusableAdapter
+    private var mainSelectedFragment: MainSelectedFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        setupInstanceAdapter()
+        reusableAdapter = ReusableAdapter(
+            scope = lifecycleScope,
+            viewModel = viewModel,
+            onDeleteInstance = { instance -> viewModel.deleteInstance(instance) },
+            onRestoreOrFinishInstance = { instance -> viewModel.finishInstance(instance) },
+            useVaultLayout = false
+        )
+
         setupRecyclerView()
-        setupItemTouchHelper(binding.recyclerViewInstances, instanceAdapter)
+        ReusableAdapterUtil.attachItemTouchHelper(binding.recyclerViewInstances, reusableAdapter)
         setupViewModelObserver()
         setupButtonClickListeners()
         attachSelectedInstanceFragment()
     }
 
-    private fun setupInstanceAdapter() {
-        instanceAdapter = InstanceAdapter(
-            lifecycleScope,
-            viewModel,
-            onDeleteInstance = { instanceWithTask ->
-                viewModel.viewModelScope.launch {
-                    viewModel.deleteInstance(instanceWithTask)
-                }
-            },
-            onFinishInstance = { instanceWithTask ->
-                viewModel.finishInstance(instanceWithTask)
-            },
-            fetchChartData = { taskId ->
-                viewModel.getChartData(taskId)
-            }
-        )
-    }
-
     private fun setupRecyclerView() {
         binding.recyclerViewInstances.apply {
             layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = instanceAdapter
+            adapter = reusableAdapter
         }
 
-        instanceAdapter.onItemClickListener = { instance ->
-            selectedInstanceFragment?.updateSelectedView(instance)
-        }
+
     }
 
     private fun setupViewModelObserver() {
         viewModel.allActiveInstanceWithTask.observe(this) { instanceWithHistoryList ->
-            instanceAdapter.submitList(instanceWithHistoryList)
+            reusableAdapter.submitList(instanceWithHistoryList)
         }
     }
 
-    private fun setupButtonClickListeners() {
+       private fun setupButtonClickListeners() {
         binding.buttonGoToManageTasks.setOnClickListener {
             val taskCreationFragment = TaskCreationFragment.newInstance().apply {
                 setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
                     override fun onInstanceCreated(subTask: InstanceWithTask) {
-                        // Handle the created subtask, linking it to the parent task
-                        //  subTask.parentTaskId = parentTaskId
-                        // Proceed with saving the subtask or whatever else needs to be done
+                        lifecycleScope.launch {
+                            viewModel.addInstance(subTask)
+                        }
                     }
                 })
             }
             taskCreationFragment.show(supportFragmentManager, "TaskCreationFragment")
         }
 
-        // Setting up the OnClickListener for the "Vault" button
         binding.buttonGoToInstanceVault.setOnClickListener {
-            val intent = Intent(this, InstanceVaultActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, VaultActivity::class.java))
         }
 
         binding.buttonViewFinishedTasks.setOnClickListener {
-            val intent = Intent(this, FinishedInstancesActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, ReviewActivity::class.java))
         }
-
     }
 
     private fun attachSelectedInstanceFragment() {
-        selectedInstanceFragment = supportFragmentManager.findFragmentById(R.id.selectedInstanceContainer) as? SelectedInstanceFragment
-        if (selectedInstanceFragment == null) {
-            selectedInstanceFragment = SelectedInstanceFragment()
-            supportFragmentManager.beginTransaction()
-                .replace(R.id.selectedInstanceContainer, selectedInstanceFragment!!)
-                .commit()
-        }
+        mainSelectedFragment = supportFragmentManager.findFragmentById(R.id.selectedInstanceContainer) as? MainSelectedFragment
+            ?: MainSelectedFragment().also {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.selectedInstanceContainer, it)
+                    .commit()
+                mainSelectedFragment = it
+            }
     }
 }
