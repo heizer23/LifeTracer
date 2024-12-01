@@ -1,6 +1,8 @@
 package com.example.lifetracer.views
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.Toast
@@ -35,7 +37,7 @@ class VaultActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_instance_vault)
-
+        Log.d("DoubleCreation", "ValutActivity onCreate called")
         // Initialize RecyclerView and Adapter
         val recyclerView = findViewById<RecyclerView>(R.id.vaultRecyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -45,6 +47,12 @@ class VaultActivity : AppCompatActivity() {
             viewModel = viewModel,
             onDeleteInstance = { instance -> viewModel.deleteInstance(instance) },
             onRestoreOrFinishInstance = { instance -> viewModel.moveTaskToMain(instance, false) },
+            onCircleClick = { instance ->
+                // Navigate to ActivitySubTask
+                val intent = Intent(this, ActivitySubTask::class.java)
+                intent.putExtra("PARENT_TASK_ID", instance.id) // Pass the parent task ID
+                startActivity(intent)
+            },
             useVaultLayout = true
         )
 
@@ -65,7 +73,8 @@ class VaultActivity : AppCompatActivity() {
                 setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
                     override fun onInstanceCreated(subTask: InstanceWithTask) {
                         lifecycleScope.launch {
-                            viewModel.addInstance(subTask)
+                            Log.d("DoubleCreation", "VaultActivity onInstanceCreated")
+                            viewModel.addInstance(subTask) // Directly add the instance
                             Toast.makeText(applicationContext, "Instance added successfully", Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -73,6 +82,7 @@ class VaultActivity : AppCompatActivity() {
             }
             taskCreationFragment.show(supportFragmentManager, "TaskCreationFragment")
         }
+
     }
 
     private fun loadInstances() {

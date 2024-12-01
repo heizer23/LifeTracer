@@ -12,7 +12,7 @@ class SubTaskViewModelFactory(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(InstanceDetailViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(SubTaskViewModel::class.java)) {
             return SubTaskViewModel(instanceId, instanceRepository) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")

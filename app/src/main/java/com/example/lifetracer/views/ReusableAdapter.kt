@@ -6,7 +6,6 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.databinding.ListItemVaultBinding
-import com.example.lifetracer.viewModel.InstancesViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -22,6 +21,7 @@ class ReusableAdapter(
     private val viewModel: InterfacerViewModelAdapter,
     val onDeleteInstance: (InstanceWithTask) -> Unit,
     val onRestoreOrFinishInstance: (InstanceWithTask) -> Unit,
+    private val onCircleClick: (InstanceWithTask) -> Unit,
     private val useVaultLayout: Boolean = false // Flag to decide layout
 ) : ListAdapter<InstanceWithTask, ReusableAdapter.ViewHolder>(InstanceDiffCallback()),
     CoroutineScope by CoroutineScope(Dispatchers.Main) {
@@ -31,10 +31,10 @@ class ReusableAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return if (useVaultLayout) {
             val binding = ListItemVaultBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            ViewHolder(vaultBinding = binding, onDeleteInstance = onDeleteInstance, onRestoreOrFinishInstance = onRestoreOrFinishInstance)
+            ViewHolder(ListItemVaultBinding = binding, onDeleteInstance = onDeleteInstance, onRestoreOrFinishInstance = onRestoreOrFinishInstance,  onCircleClick = onCircleClick)
         } else {
             val binding = ListItemMainBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-            ViewHolder(instanceBinding = binding, onDeleteInstance = onDeleteInstance, onRestoreOrFinishInstance = onRestoreOrFinishInstance)
+            ViewHolder(listItemMainBinding = binding, onDeleteInstance = onDeleteInstance, onRestoreOrFinishInstance = onRestoreOrFinishInstance,  onCircleClick = onCircleClick)
         }
     }
 
@@ -66,17 +66,21 @@ class ReusableAdapter(
     }
 
     class ViewHolder(
-        private val vaultBinding: ListItemVaultBinding? = null,
-        private val instanceBinding: ListItemMainBinding? = null,
+        private val ListItemVaultBinding: ListItemVaultBinding? = null,
+        private val listItemMainBinding: ListItemMainBinding? = null,
         private val onDeleteInstance: (InstanceWithTask) -> Unit,
         private val onRestoreOrFinishInstance: (InstanceWithTask) -> Unit,
-    ) : RecyclerView.ViewHolder(vaultBinding?.root ?: instanceBinding?.root!!) {
+        private val onCircleClick: (InstanceWithTask) -> Unit
+    ) : RecyclerView.ViewHolder(ListItemVaultBinding?.root ?: listItemMainBinding?.root!!) {
         fun bind(instanceWithTask: InstanceWithTask, scope: CoroutineScope) {
-            vaultBinding?.let { binding ->
+            ListItemVaultBinding?.let { binding ->
                 binding.instanceWithTask = instanceWithTask
+                binding.viewTypeCircle.setOnClickListener { // Circle click listener
+                    onCircleClick(instanceWithTask)
+                }
                 binding.executePendingBindings()
             }
-            instanceBinding?.let { binding ->
+            listItemMainBinding?.let { binding ->
                 binding.instanceWithTask = instanceWithTask
                 scope.launch {
                     // Fetch and display chart data if needed

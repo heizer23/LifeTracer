@@ -3,6 +3,7 @@ import androidx.lifecycle.*
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.viewModel.InterfacerViewModelAdapter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class SubTaskViewModel(
@@ -32,7 +33,7 @@ class SubTaskViewModel(
 
     // Add a new subtask and link it to the parent task
     fun addSubtask(parentId: Long, subtask: InstanceWithTask) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 val subtaskId = instanceRepository.insertInstance(subtask)
                 instanceRepository.linkSubTask(parentId, subtaskId)

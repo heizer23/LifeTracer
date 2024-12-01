@@ -22,27 +22,26 @@ interface InstanceDao {
     fun delete(instance: InstanceWithTask)
 
 
-    @Query("SELECT * FROM instances")
-    fun getAllInstances(): LiveData<List<InstanceWithTask>>
-
-    @Query("SELECT * FROM instances WHERE id = :instanceId")
-    fun getInstanceById(instanceId: Long): InstanceWithTask?
-
     @Transaction
     @Query("SELECT * FROM instances WHERE id = :instanceId")
-    suspend fun getInstanceWithTask(instanceId: Long): InstanceWithTask
+    suspend fun getInstanceById(instanceId: Long): InstanceWithTask
 
 
     @Query("UPDATE instances SET priority = :priority WHERE id = :instanceId")
     suspend fun updatePrio(instanceId: Long, priority: Int)
 
-    // Define a query to retrieve instances along with their associated tasks
-    @Transaction
-    @Query("SELECT * FROM instances WHERE status != 99 AND status != 98 ORDER BY priority")
-    fun getActiveInstancesWithTasks(): LiveData<List<InstanceWithTask>>
 
+
+    // Fill Listviews----------------------------------------------------------------------------
+
+    // Main View
+    @Transaction
+    @Query("SELECT * FROM main_tasks WHERE status != 99 AND status != 98 ORDER BY priority")
+    fun getActiveInstances(): LiveData<List<InstanceWithTask>>
+
+    //Vault View
     @Query("""
-    SELECT * FROM instances 
+    SELECT * FROM main_tasks 
     WHERE status = :vaultStatus 
       AND id NOT IN (
           SELECT templateId 
@@ -56,14 +55,15 @@ interface InstanceDao {
         finishedStatus: Int = InstanceWithTask.STATUS_FINISHED
     ): LiveData<List<InstanceWithTask>>
 
+    // Review View
+    @Query("SELECT * FROM main_tasks WHERE status = :finishedStatus AND date = :currentDate")
+    fun getFinishedInstancesForDay(finishedStatus: Int, currentDate: String): LiveData<List<InstanceWithTask>>
 
     @Transaction
-    @Query("SELECT * FROM instances WHERE status != 99 ORDER BY priority LIMIT 1")
-    fun getLowestPriorityInstanceWithTask(): LiveData<InstanceWithTask>
+    @Query("SELECT * FROM main_tasks WHERE status != 99 ORDER BY priority LIMIT 1")
+    fun getLowestPriorityInstance(): LiveData<InstanceWithTask>
 
-    // Reporting
-    @Query("SELECT * FROM instances WHERE status = :finishedStatus AND date = :currentDate")
-    fun getFinishedInstancesForDay(finishedStatus: Int, currentDate: String): LiveData<List<InstanceWithTask>>
+
 
 
 

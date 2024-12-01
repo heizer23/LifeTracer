@@ -1,5 +1,6 @@
 package com.example.lifetracer.views
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -37,9 +38,17 @@ class ReviewActivity : AppCompatActivity() {
             scope = lifecycleScope,
             viewModel = viewModel,
             onDeleteInstance = { instance -> viewModel.deleteInstance(instance) },
-            onRestoreOrFinishInstance = { instance -> viewModel.moveTaskToMain(instance, true) },
-            useVaultLayout = true
+            onRestoreOrFinishInstance = { instance -> viewModel.moveTaskToMain(instance, false) }, // Adjust if necessary
+            onCircleClick = { instance ->
+                // Navigate to ActivitySubTask
+                val intent = Intent(this, ActivitySubTask::class.java).apply {
+                    putExtra("PARENT_TASK_ID", instance.id) // Pass the parent task ID
+                }
+                startActivity(intent)
+            },
+            useVaultLayout = true // Reusing the Vault layout for review
         )
+
 
         recyclerView.adapter = adapter
 

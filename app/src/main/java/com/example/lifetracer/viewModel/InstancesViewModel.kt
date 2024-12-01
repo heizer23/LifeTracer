@@ -146,7 +146,7 @@ class InstancesViewModel(
                         dateOfCreation = getCurrentDate(),
                         status = InstanceWithTask.STATUS_PLANNED
                     )
-                    instanceRepository.insertInstance(newInstance)
+                    instanceRepository.copyTaskWithSubtasks(instance.id, newInstance)
                 }
             } catch (e: Exception) {
                 Log.e("InstancesViewModel", "Error moving task to main: ${e.message}")
@@ -155,9 +155,13 @@ class InstancesViewModel(
     }
 
 
+
+
     fun addInstance(instance: InstanceWithTask) {
+
         viewModelScope.launch(Dispatchers.IO) {
-            try {
+            try { //
+                Log.d("DoubleCreation", "InstancesViewModel addInstance")
                 val insertedId = instanceRepository.insertInstance(instance)
                 val updatedInstance = instance.copy(id = insertedId, templateId = insertedId)
                 instanceRepository.updateInstance(updatedInstance)

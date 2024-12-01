@@ -50,24 +50,6 @@ class InstanceDaoTest {
         }
     }
 
-    @Test
-    @Throws(Exception::class)
-    fun getAllInstances() {
-        val instance1 = Instance(0, 1, "2.2.2023", "13:00:13", 0, 1, 0, "comment", "huhu", 0)
-        val instance2 = Instance(0, 2, "2.3.2023", "01:00:13", 0, 1, 0, "comment", "huhu", 0)
-
-        // Insert the instances into the database
-        runBlocking {
-            instanceDao.insert(instance1)
-            instanceDao.insert(instance2)
-        }
-
-        val allInstances = LiveDataTestUtil.getValue(instanceDao.getAllInstances())
-
-        // Check if the emitted list is not empty and contains the inserted instances
-        assert(allInstances.isNotEmpty())
-        assertEquals(2, allInstances[1].id)
-    }
 
     @Test
     @Throws(Exception::class)
@@ -91,7 +73,7 @@ class InstanceDaoTest {
             instanceDao.insert(instance2)
         }
 
-        val allInstancesWithTask = LiveDataTestUtil.getValue(instanceDao.getActiveInstancesWithTasks())
+        val allInstancesWithTask = LiveDataTestUtil.getValue(instanceDao.getActiveInstances())
 
         // Check if the emitted list is not empty and contains the inserted instances
         assert(allInstancesWithTask.isNotEmpty())

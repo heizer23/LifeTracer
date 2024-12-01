@@ -1,5 +1,6 @@
 import android.app.Dialog
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.DialogFragment
 import androidx.databinding.DataBindingUtil
@@ -36,16 +37,20 @@ class TaskCreationFragment : DialogFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            parentTaskId = it.getLong(ARG_PARENT_TASK_ID, -1)
-        }
+        Log.d("TaskCreationFragment", "onCreate called")
+        parentTaskId = arguments?.getLong(ARG_PARENT_TASK_ID, -1L) ?: -1L
     }
+
 
     companion object {
         private const val ARG_PARENT_TASK_ID = "parentTaskId"
 
-        fun newInstance(): TaskCreationFragment {
+        // Factory method to create a new instance of TaskCreationFragment with parentTaskId
+        fun newInstance(parentTaskId: Long = -1L): TaskCreationFragment {
             val fragment = TaskCreationFragment()
+            val args = Bundle()
+            args.putLong(ARG_PARENT_TASK_ID, parentTaskId) // Pass the parentTaskId as an argument
+            fragment.arguments = args
             return fragment
         }
     }
@@ -62,23 +67,29 @@ class TaskCreationFragment : DialogFragment() {
         this.listener = listener
     }
 
-    private fun handleAddInstance() {
-        val newInstance = createInstanceFromInput()
-        newInstance?.let {
-            viewModel.viewModelScope.launch(Dispatchers.IO) {
-              //  viewModel.addInstance(it)  // Add the instance to the database
+    private var isProcessing = false // Prevent double processing
 
-                launch(Dispatchers.Main) {
-                    listener?.onInstanceCreated(it)  // Notify the listener on the main thread
-                    dismiss()
-                }
+    private fun handleAddInstance() {
+        if (isProcessing) return // Skip if already processing
+        isProcessing = true
+
+        val newInstance = createInstanceFromInput()
+        newInstance?.let { instance ->
+            viewModel.viewModelScope.launch(Dispatchers.Main) {
+                Log.d("DoubleCreation", "TaskCreation: handleAddInstance")
+                listener?.onInstanceCreated(instance) // Notify the listener
+                dismiss() // Close the fragment
+                isProcessing = false // Reset flag
             }
+        } ?: run {
+            isProcessing = false // Reset flag if no instance was created
         }
     }
 
+
     private fun createInstanceFromInput(): InstanceWithTask? {
         val name = binding.editTextTaskName.text.toString()
-        val inputType = binding.editTextTaskType.text.toString().toIntOrNull() ?: 0 // Assuming this is what you meant by taskType
+        val inputType = binding.editTextTaskType.text.toString().toIntOrNull() ?: 0
         val regularity = binding.editTextTaskRegularity.text.toString().toIntOrNull() ?: 0
 
         return if (name.isNotEmpty()) {
@@ -95,5 +106,4 @@ class TaskCreationFragment : DialogFragment() {
             null
         }
     }
-
 }

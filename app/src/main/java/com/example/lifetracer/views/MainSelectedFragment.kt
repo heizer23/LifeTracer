@@ -1,6 +1,5 @@
 package com.example.lifetracer.views
 
-import ActivitySubTask
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -79,9 +78,11 @@ class MainSelectedFragment : Fragment() {
 
             val intent = Intent(context, ActivitySubTask::class.java)
             if (instanceWithTask != null) {
-                intent.putExtra("INSTANCE_ID_EXTRA", instanceWithTask.id)
+
+                val parentTaskId = instanceWithTask?.id ?: 0L // Pass the correct ID here
+                intent.putExtra("PARENT_TASK_ID", parentTaskId)
+                startActivity(intent)
             } // Replace 'instanceId' with the actual instance ID
-            startActivity(intent)
         }
 
 

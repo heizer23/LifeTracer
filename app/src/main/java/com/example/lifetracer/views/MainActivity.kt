@@ -46,6 +46,13 @@ class MainActivity : AppCompatActivity() {
             viewModel = viewModel,
             onDeleteInstance = { instance -> viewModel.deleteInstance(instance) },
             onRestoreOrFinishInstance = { instance -> viewModel.finishInstance(instance) },
+            onCircleClick = { instance ->
+                // Handle circle click - open subtask view
+                val intent = Intent(this, ActivitySubTask::class.java).apply {
+                    putExtra("PARENT_TASK_ID", instance.id)
+                }
+                startActivity(intent)
+            },
             useVaultLayout = false
         )
 
