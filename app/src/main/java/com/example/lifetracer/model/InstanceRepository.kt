@@ -2,6 +2,8 @@ package com.example.lifetracer.model
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.data.TaskRelation
@@ -17,16 +19,27 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
 
     val instanceWithTaskAndLowestPrio: LiveData<InstanceWithTask> = instanceDao.getLowestPriorityInstance()
 
-    var parentId = 12L
-    val subTaskWithLowestPrio: LiveData<InstanceWithTask> = instanceDao.getLowestPrioritySubTask(parentId)
+    private val _parentId = MutableLiveData<Long>() // Observable parentId
+    val parentId: LiveData<Long> get() = _parentId
 
+    val subTaskWithLowestPrio = MediatorLiveData<InstanceWithTask>().apply {
+        addSource(_parentId) { newParentId ->
+            val liveData = instanceDao.getLowestPrioritySubTask(newParentId)
+            addSource(liveData) { value ->
+                this.value = value
+                removeSource(liveData) // Clean up after fetching the data
+            }
+        }
+    }
+
+    fun seteParentId(paId: Long) {
+        _parentId.value = paId // Dynamically update parentId
+    }
     suspend fun getInstance(instanceId: Long): InstanceWithTask {
         return instanceDao.getInstanceById(instanceId)
     }
 
-    fun seteParentId(paId: Long){
-        parentId = paId
-    }
+
 
     // Instance-related operations
     suspend fun insertInstance(instance: InstanceWithTask): Long {
