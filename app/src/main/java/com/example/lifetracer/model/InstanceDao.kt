@@ -60,9 +60,20 @@ interface InstanceDao {
     fun getFinishedInstancesForDay(finishedStatus: Int, currentDate: String): LiveData<List<InstanceWithTask>>
 
     @Transaction
-    @Query("SELECT * FROM main_tasks WHERE status != 99 ORDER BY priority LIMIT 1")
+    @Query("SELECT * FROM main_tasks WHERE status < 98 ORDER BY priority LIMIT 1")
     fun getLowestPriorityInstance(): LiveData<InstanceWithTask>
 
+    @Transaction
+    @Query("""
+    SELECT t.*
+    FROM instances t
+    LEFT JOIN main_tasks m ON t.id = m.id
+    INNER JOIN task_relation tr ON t.id = tr.subtaskId
+    WHERE m.id IS NULL AND tr.parentId = :parentId
+    ORDER BY t.priority
+    LIMIT 1
+""")
+    fun getLowestPrioritySubTask(parentId: Long): LiveData<InstanceWithTask>
 
 
 

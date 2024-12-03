@@ -23,6 +23,12 @@
             android:textStyle="bold"
             android:text="Main Task Name" />
 
+        <!-- Fragment container for MainSelectedFragment -->
+        <FrameLayout
+            android:id="@+id/subtaskFragmentContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
         <!-- RecyclerView for Subtasks -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/subtaskRecyclerView"

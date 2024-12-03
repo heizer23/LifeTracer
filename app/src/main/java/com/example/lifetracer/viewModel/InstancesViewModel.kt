@@ -2,6 +2,7 @@ package com.example.lifetracer.viewModel
 
 import android.util.Log
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,11 +15,13 @@ import com.example.lifetracer.data.finish
 import com.example.lifetracer.data.pause
 import com.example.lifetracer.data.start
 import com.example.lifetracer.model.InstanceRepository
+import com.example.lifetracer.views.MainSelectedFragment
 import com.github.mikephil.charting.data.BarEntry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
 
 class InstancesViewModel(
     private val instanceRepository: InstanceRepository,
@@ -27,8 +30,47 @@ class InstancesViewModel(
 
     private val instanceManager = InstanceManager(instanceRepository)
 
-    // Instances-----------------------------------------------------------------------------------
-    val instanceWithLowestPrio: LiveData<InstanceWithTask> = instanceRepository.instanceWithTaskAndLowestPrio
+    private val _selectedMode = MutableLiveData<Mode>().apply { value = Mode.INSTANCES }
+
+    private val _instanceWithLowestPrio = MediatorLiveData<InstanceWithTask>()
+
+    val instanceWithLowestPrio: LiveData<InstanceWithTask> = _instanceWithLowestPrio
+
+    init {
+        _selectedMode.observeForever { mode ->
+            _instanceWithLowestPrio.apply {
+                // Clear existing sources to avoid redundancy
+                this.removeSource(instanceRepository.instanceWithTaskAndLowestPrio)
+                this.removeSource(instanceRepository.subTaskWithLowestPrio)
+
+                // Add the appropriate source based on the mode
+                when (mode) {
+                    Mode.INSTANCES -> addSource(instanceRepository.instanceWithTaskAndLowestPrio) {
+                        value = it
+                    }
+                    Mode.SUBTASKS -> addSource(instanceRepository.subTaskWithLowestPrio) {
+                        value = it
+                    }
+                }
+            }
+        }
+    }
+
+
+    enum class Mode {
+        INSTANCES,
+        SUBTASKS
+    }
+
+    fun setModeAndParentId(paId: Long){
+        if (paId<0){
+            _selectedMode.value = Mode.INSTANCES
+        }else{
+            _selectedMode.value = Mode.SUBTASKS
+            instanceRepository.seteParentId(paId)
+        }
+
+    }
 
     val allActiveInstanceWithTask: LiveData<List<InstanceWithTask>> = instanceRepository.allActiveInstancesWithTasks
 
@@ -36,6 +78,9 @@ class InstancesViewModel(
 
     private val _subtasks = MutableLiveData<List<InstanceWithTask>>()
     val subtasks: LiveData<List<InstanceWithTask>> get() = _subtasks
+
+
+
 
     override fun selectAndStartInstance(newInstanceWithTask: InstanceWithTask) {
         instanceWithLowestPrio.value?.let { instanceWithTask ->

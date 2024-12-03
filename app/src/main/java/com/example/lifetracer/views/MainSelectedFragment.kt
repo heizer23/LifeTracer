@@ -24,71 +24,87 @@ class MainSelectedFragment : Fragment() {
     private lateinit var binding: FragmentSelectedInstanceBinding
     private val viewModel: InstancesViewModel by activityViewModels()
 
-    private lateinit var chartManager: ChartManager
+    enum class Mode {
+        INSTANCES, SUBTASKS
+    }
 
+    private var mode: Mode = Mode.INSTANCES // Default to instances
+    private var parentTaskId: Long? = null
+
+    private lateinit var chartManager: ChartManager
 
     // Job is for updating duration and pause
     private var uiUpdateJob: Job? = null
+
+    companion object {
+        private const val ARG_MODE = "MODE"
+        private const val ARG_PARENT_TASK_ID = "PARENT_TASK_ID"
+
+        fun newInstance(mode: Mode, parentTaskId: Long? = null): MainSelectedFragment {
+            val fragment = MainSelectedFragment()
+            val args = Bundle().apply {
+                putSerializable(ARG_MODE, mode)
+                parentTaskId?.let { putLong(ARG_PARENT_TASK_ID, it) }
+            }
+            fragment.arguments = args
+            return fragment
+        }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        arguments?.let {
+            mode = it.getSerializable(ARG_MODE) as Mode
+            parentTaskId = it.getLong(ARG_PARENT_TASK_ID, -1L).takeIf { id -> id != -1L }
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
         binding = FragmentSelectedInstanceBinding.inflate(inflater, container, false)
-        val view = binding.root
-
-        return view
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-      //  chartManager = ChartManager(binding.barChart)
-      //  chartManager.setupChart(instanceWithHistory.history)
-      //  chartViewModel.chartData.observe(viewLifecycleOwner) { data ->
-      //      chartManager.setupChart(data, "Instance Data")
-      //  }
+        when (mode) {
+            Mode.INSTANCES -> {
+                viewModel.setModeAndParentId(-1)
 
+            }
+            Mode.SUBTASKS -> {
+                parentTaskId?.let { id ->
+                    viewModel.setModeAndParentId(id)
+                }
+            }
+        }
 
-        viewModel.instanceWithLowestPrio.observe(viewLifecycleOwner, Observer { instanceWithTask ->
+        viewModel.instanceWithLowestPrio.observe(viewLifecycleOwner) { instanceWithTask ->
             instanceWithTask?.let {
                 updateSelectedView(it)
                 binding.instanceWithTask = it
             }
-        })
+        }
 
-        binding.viewModel = viewModel // Check if viewModel is not null
-        binding.lifecycleOwner = viewLifecycleOwner // Important for LiveData binding
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = viewLifecycleOwner
 
         binding.buttonFinish.setOnClickListener {
             val qualityInput = binding.editTextQuality.text.toString()
             val quantityInput = binding.editTextQuantity.text.toString()
 
-            val instanceWithTask = viewModel.instanceWithLowestPrio.value
-            if (instanceWithTask != null && viewModel.canFinishInstance(instanceWithTask, qualityInput, quantityInput)) {
+            val currentTask = viewModel.instanceWithLowestPrio.value
+
+            if (currentTask != null && viewModel.canFinishInstance(currentTask, qualityInput, quantityInput)) {
                 viewModel.finishActiveInstance(qualityInput, quantityInput)
             } else {
-                // Show error message
                 Toast.makeText(context, "Please fill in the required fields", Toast.LENGTH_SHORT).show()
             }
         }
-
-        binding.buttonDetails.setOnClickListener {
-            val instanceWithTask = viewModel.instanceWithLowestPrio.value
-
-            val intent = Intent(context, ActivitySubTask::class.java)
-            if (instanceWithTask != null) {
-
-                val parentTaskId = instanceWithTask?.id ?: 0L // Pass the correct ID here
-                intent.putExtra("PARENT_TASK_ID", parentTaskId)
-                startActivity(intent)
-            } // Replace 'instanceId' with the actual instance ID
-        }
-
-
     }
-
-
 
     private fun startUiUpdater() {
         uiUpdateJob = viewLifecycleOwner.lifecycleScope.launch {
@@ -142,12 +158,9 @@ class MainSelectedFragment : Fragment() {
     }
 
     // Update the selected instance details
-    fun updateSelectedView(instanceWithTask: InstanceWithTask) {
+    private fun updateSelectedView(instanceWithTask: InstanceWithTask) {
         binding.textViewInstanceStartTime.text = instanceWithTask.time.toString()
         // Update other views as needed
     }
-
-
-
 }
 

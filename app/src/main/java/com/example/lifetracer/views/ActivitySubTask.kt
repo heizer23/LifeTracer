@@ -9,20 +9,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.lifetracer.R
 import com.example.lifetracer.Utilities.getCurrentDate
+import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.SubtaskActivityBinding
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
+import com.example.lifetracer.viewModel.InstancesViewModel
+import com.example.lifetracer.viewModel.InstancesViewModelFactory
 import com.example.lifetracer.viewModel.SubTaskViewModelFactory
 import com.example.lifetracer.views.ReusableAdapter
 
 class ActivitySubTask : AppCompatActivity() {
 
     private lateinit var binding: SubtaskActivityBinding
-    private lateinit var viewModel: SubTaskViewModel
+    private lateinit var subTaskViewModel: SubTaskViewModel
+    private lateinit var instancesViewModel: InstancesViewModel
     private lateinit var adapter: ReusableAdapter
-    private var parentTaskId: Long = 0L // Retrieved from Intent
+    private var parentTaskId: Long = 0L
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,16 +46,26 @@ class ActivitySubTask : AppCompatActivity() {
         // Initialize ViewModel
         val database = AppDatabase.getDatabase(applicationContext)
         val instanceRepository = InstanceRepository(database.instanceDao())
-        viewModel = ViewModelProvider(
+
+        subTaskViewModel = ViewModelProvider(
             this,
             SubTaskViewModelFactory(parentTaskId, instanceRepository)
         )[SubTaskViewModel::class.java]
+
+        // Initialize InstancesViewModel
+        val chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
+        val instancesFactory = InstancesViewModelFactory(instanceRepository, chartRepository)
+        instancesViewModel = ViewModelProvider(this, instancesFactory)[InstancesViewModel::class.java]
+
+
+        // Attach the MainSelectedFragment for the lowest-priority subtask
+        attachSelectedSubTaskFragment()
 
         // Set up RecyclerView
         setupRecyclerView()
 
         // Observe subtasks LiveData
-        viewModel.subtasks.observe(this) { subtasks ->
+        subTaskViewModel.subtasks.observe(this) { subtasks ->
             adapter.submitList(subtasks)
         }
 
@@ -60,16 +75,25 @@ class ActivitySubTask : AppCompatActivity() {
         }
     }
 
+    private fun attachSelectedSubTaskFragment() {
+        val subTaskFragment = supportFragmentManager.findFragmentById(R.id.subtaskFragmentContainer) as? MainSelectedFragment
+            ?: MainSelectedFragment.newInstance(MainSelectedFragment.Mode.SUBTASKS, parentTaskId).also {
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.subtaskFragmentContainer, it)
+                    .commit()
+            }
+    }
+
     private fun setupRecyclerView() {
         adapter = ReusableAdapter(
             scope = lifecycleScope,
-            viewModel = viewModel,
+            viewModel = subTaskViewModel,
             onDeleteInstance = { subtask ->
-                viewModel.deleteInstance(subtask)
+                subTaskViewModel.deleteInstance(subtask)
                 Toast.makeText(this, "Subtask deleted!", Toast.LENGTH_SHORT).show()
             },
             onRestoreOrFinishInstance = { subtask ->
-                viewModel.updateInstance(subtask.copy(status = InstanceWithTask.STATUS_PLANNED))
+                subTaskViewModel.updateInstance(subtask.copy(status = InstanceWithTask.STATUS_PLANNED))
                 Toast.makeText(this, "Subtask moved back to planned!", Toast.LENGTH_SHORT).show()
             },
             onCircleClick = { instance ->
@@ -85,12 +109,13 @@ class ActivitySubTask : AppCompatActivity() {
         binding.subtaskRecyclerView.adapter = adapter
     }
 
+
     private fun showTaskCreationFragment() {
         val taskCreationFragment = TaskCreationFragment.newInstance(parentTaskId).apply {
             setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
                 override fun onInstanceCreated(instanceWithTask: InstanceWithTask) {
                     // Add the new subtask to the database via the ViewModel
-                    viewModel.addSubtask(parentTaskId, instanceWithTask)
+                    subTaskViewModel.addSubtask(parentTaskId, instanceWithTask)
                     Toast.makeText(this@ActivitySubTask, "Subtask added!", Toast.LENGTH_SHORT).show()
                 }
             })

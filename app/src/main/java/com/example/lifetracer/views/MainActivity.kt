@@ -103,11 +103,12 @@ class MainActivity : AppCompatActivity() {
 
     private fun attachSelectedInstanceFragment() {
         mainSelectedFragment = supportFragmentManager.findFragmentById(R.id.selectedInstanceContainer) as? MainSelectedFragment
-            ?: MainSelectedFragment().also {
+            ?: MainSelectedFragment.newInstance(MainSelectedFragment.Mode.INSTANCES, -1).also {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.selectedInstanceContainer, it)
                     .commit()
                 mainSelectedFragment = it
             }
     }
+
 }

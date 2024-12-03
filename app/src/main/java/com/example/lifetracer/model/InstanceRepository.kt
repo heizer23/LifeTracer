@@ -17,8 +17,15 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
 
     val instanceWithTaskAndLowestPrio: LiveData<InstanceWithTask> = instanceDao.getLowestPriorityInstance()
 
+    var parentId = 12L
+    val subTaskWithLowestPrio: LiveData<InstanceWithTask> = instanceDao.getLowestPrioritySubTask(parentId)
+
     suspend fun getInstance(instanceId: Long): InstanceWithTask {
         return instanceDao.getInstanceById(instanceId)
+    }
+
+    fun seteParentId(paId: Long){
+        parentId = paId
     }
 
     // Instance-related operations
