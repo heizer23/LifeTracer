@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lifetracer.R
+import com.example.lifetracer.Utilities.Mode
 import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.data.InstanceWithTask
@@ -77,7 +78,7 @@ class ActivitySubTask : AppCompatActivity() {
 
     private fun attachSelectedSubTaskFragment() {
         val subTaskFragment = supportFragmentManager.findFragmentById(R.id.subtaskFragmentContainer) as? MainSelectedFragment
-            ?: MainSelectedFragment.newInstance(MainSelectedFragment.Mode.SUBTASKS, parentTaskId).also {
+            ?: MainSelectedFragment.newInstance(Mode.SUBTASKS, parentTaskId).also {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.subtaskFragmentContainer, it)
                     .commit()

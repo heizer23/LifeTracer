@@ -8,12 +8,18 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import com.example.lifetracer.Utilities.Mode
 import com.example.lifetracer.charts.ChartManager
 import com.example.lifetracer.viewModel.InstancesViewModel
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.FragmentSelectedInstanceBinding
+import com.example.lifetracer.model.AppDatabase
+import com.example.lifetracer.model.InstanceRepository
+import com.example.lifetracer.viewModel.SelectedInstanceViewModel
+import com.example.lifetracer.viewModel.SelectedInstanceViewModelFactory
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -22,16 +28,12 @@ import java.time.Duration
 
 class MainSelectedFragment : Fragment() {
     private lateinit var binding: FragmentSelectedInstanceBinding
-    private val viewModel: InstancesViewModel by activityViewModels()
-
-    enum class Mode {
-        INSTANCES, SUBTASKS
+    private val viewModel: SelectedInstanceViewModel by viewModels {
+        SelectedInstanceViewModelFactory(InstanceRepository(AppDatabase.getDatabase(requireContext()).instanceDao()))
     }
 
-    private var mode: Mode = Mode.INSTANCES // Default to instances
+    private var mode: Mode = Mode.INSTANCES
     private var parentTaskId: Long? = null
-
-    private lateinit var chartManager: ChartManager
 
     // Job is for updating duration and pause
     private var uiUpdateJob: Job? = null
@@ -70,16 +72,8 @@ class MainSelectedFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        when (mode) {
-            Mode.INSTANCES -> {
-                viewModel.setModeAndParentId(-1)
-
-            }
-            Mode.SUBTASKS -> {
-                parentTaskId?.let { id ->
-                    viewModel.setModeAndParentId(id)
-                }
-            }
+        parentTaskId?.let {
+            viewModel.setModeAndParentId(mode, it)
         }
 
         viewModel.instanceWithLowestPrio.observe(viewLifecycleOwner) { instanceWithTask ->

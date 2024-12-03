@@ -8,7 +8,7 @@
             type="com.example.lifetracer.data.InstanceWithTask" />
         <variable
             name="viewModel"
-            type="com.example.lifetracer.viewModel.InstancesViewModel" />
+            type="com.example.lifetracer.viewModel.SelectedInstanceViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

@@ -22,6 +22,12 @@ import androidx.databinding.InverseBindingListener
         return currentTime.format(Date())
     }
 
+
+enum class Mode {
+    INSTANCES,
+    SUBTASKS
+}
+
 object BindingAdapters {
 
     @JvmStatic

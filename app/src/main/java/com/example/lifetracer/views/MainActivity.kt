@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.R
+import com.example.lifetracer.Utilities.Mode
 import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ActivityMainBinding
@@ -103,7 +104,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun attachSelectedInstanceFragment() {
         mainSelectedFragment = supportFragmentManager.findFragmentById(R.id.selectedInstanceContainer) as? MainSelectedFragment
-            ?: MainSelectedFragment.newInstance(MainSelectedFragment.Mode.INSTANCES, -1).also {
+            ?: MainSelectedFragment.newInstance(Mode.INSTANCES, -1).also {
                 supportFragmentManager.beginTransaction()
                     .replace(R.id.selectedInstanceContainer, it)
                     .commit()
