@@ -112,7 +112,9 @@ class MainSelectedFragment : Fragment() {
         }
     }
 
-    private fun updateUi(instance: InstanceWithTask) {
+
+
+    fun updateUi(instance: InstanceWithTask) {
         val currentTime = System.currentTimeMillis()
 
         val duration = if (instance.status == InstanceWithTask.STATUS_STARTED) {

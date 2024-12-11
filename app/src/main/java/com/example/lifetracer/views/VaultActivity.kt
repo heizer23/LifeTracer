@@ -1,96 +1,52 @@
 package com.example.lifetracer.views
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
-import android.widget.Button
-import android.widget.Toast
-import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.R
-import com.example.lifetracer.charts.ChartRepository
-import com.example.lifetracer.model.AppDatabase
-import com.example.lifetracer.model.InstanceRepository
-import com.example.lifetracer.viewModel.InstancesViewModel
-import com.example.lifetracer.viewModel.InstancesViewModelFactory
-import kotlinx.coroutines.launch
 import com.example.lifetracer.data.InstanceWithTask
+import com.example.lifetracer.databinding.ActivityInstanceVaultBinding
+import kotlinx.coroutines.launch
 
-class VaultActivity : AppCompatActivity() {
+class VaultActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelectedListener {
 
-    private lateinit var adapter: ReusableAdapter
-
-    private val viewModel: InstancesViewModel by viewModels {
-        InstancesViewModelFactory(
-            instanceRepository = InstanceRepository(
-                instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
-            ),
-            chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
-        )
-    }
+    private lateinit var binding: ActivityInstanceVaultBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_instance_vault)
-        Log.d("DoubleCreation", "ValutActivity onCreate called")
-        // Initialize RecyclerView and Adapter
-        val recyclerView = findViewById<RecyclerView>(R.id.vaultRecyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(this)
 
-        adapter = ReusableAdapter(
-            scope = lifecycleScope,
-            viewModel = viewModel,
-            onDeleteInstance = { instance -> viewModel.deleteInstance(instance) },
-            onRestoreOrFinishInstance = { instance -> viewModel.moveTaskToMain(instance, false) },
-            onCircleClick = { instance ->
-                // Navigate to ActivitySubTask
-                val intent = Intent(this, ActivitySubTask::class.java)
-                intent.putExtra("PARENT_TASK_ID", instance.id) // Pass the parent task ID
-                startActivity(intent)
-            },
-            useVaultLayout = true
-        )
+        // Initialize binding
+        binding = ActivityInstanceVaultBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        recyclerView.adapter = adapter
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.recyclerViewContainer, RecyclerViewFragment())
+                .replace(R.id.detailViewContainer, MainSelectedFragment())
+                .commitNow()
+        }
 
-        // Set up ItemTouchHelper for drag-and-swipe functionality
-        ReusableAdapterUtil.attachItemTouchHelper(recyclerView, adapter)
-
-        // Load instances
-        loadInstances()
-
-        // Enable the Up button
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // Button listener for managing tasks
-        findViewById<Button>(R.id.buttonGoToManageTasks).setOnClickListener {
+        binding.buttonAddInstance.setOnClickListener {
             val taskCreationFragment = TaskCreationFragment.newInstance().apply {
                 setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
                     override fun onInstanceCreated(subTask: InstanceWithTask) {
                         lifecycleScope.launch {
-                            Log.d("DoubleCreation", "VaultActivity onInstanceCreated")
-                            viewModel.addInstance(subTask) // Directly add the instance
-                            Toast.makeText(applicationContext, "Instance added successfully", Toast.LENGTH_SHORT).show()
+                            viewModel.addInstance(subTask)
                         }
                     }
                 })
             }
             taskCreationFragment.show(supportFragmentManager, "TaskCreationFragment")
-        }
-
+    }
     }
 
-    private fun loadInstances() {
-        viewModel.allVaultedInstance.observe(this) { instances ->
-            adapter.submitList(instances) // This updates the adapter's list
-        }
+    override fun onInstanceSelected(instance: InstanceWithTask) {
+        val detailFragment = supportFragmentManager.findFragmentById(R.id.detailViewContainer) as? MainSelectedFragment
+        detailFragment?.updateUi(instance)
     }
-
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {

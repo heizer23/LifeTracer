@@ -23,31 +23,12 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".views.VaultActivity"
-            android:label="Instance Vault"
-            >
-        </activity>
+        <activity android:name=".views.ReviewActivity"></activity>
+        <activity android:name=".views.VaultActivity"></activity>
+        <activity android:name=".views.TestActivity"></activity>
+        <activity android:name=".views.DetailActivity"></activity>
+        <activity android:name=".views.ActivitySubTask"></activity>
 
-        <activity
-            android:name=".views.DetailActivity"
-            android:label="Instance Details"
-            >
-        </activity>
-
-        <activity
-            android:name=".views.ReviewActivity"
-            android:label="Instance Details"
-            >
-        </activity>
-
-        <activity
-            android:name=".views.TestActivity"
-            android:label="Instance Details"
-            >
-        </activity>
-
-        <activity android:name=".views.ActivitySubTask" />
     </application>
 
 </manifest>

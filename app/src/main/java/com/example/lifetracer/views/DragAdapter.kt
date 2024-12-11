@@ -12,14 +12,17 @@ import java.util.Collections
 
 class DragAdapter(
     private val scope: CoroutineScope,
-    private val onDragEnd: (List<InstanceWithTask>) -> Unit
+    private val onDragEnd: (List<InstanceWithTask>) -> Unit,
+    val onDeleteInstance: (InstanceWithTask) -> Unit,
+    val onRestoreOrFinishInstance: (InstanceWithTask) -> Unit,
+    val onCircleClick: (InstanceWithTask) -> Unit
 ) : RecyclerView.Adapter<DragAdapter.ViewHolder>() {
 
     private val mutableCurrentList = mutableListOf<InstanceWithTask>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ListItemVaultBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return ViewHolder(binding)
+        return ViewHolder(binding, onCircleClick)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -33,6 +36,10 @@ class DragAdapter(
         mutableCurrentList.clear()
         mutableCurrentList.addAll(newData)
         notifyDataSetChanged()
+    }
+
+    fun getItemAt(position: Int): InstanceWithTask {
+        return mutableCurrentList[position]
     }
 
     fun onItemMove(fromPosition: Int, toPosition: Int) {
@@ -61,11 +68,18 @@ class DragAdapter(
     }
 
     class ViewHolder(
-        private val binding: ListItemVaultBinding
+        private val binding: ListItemVaultBinding,
+        private val onCircleClick: (InstanceWithTask) -> Unit // Callback passed to the ViewHolder
     ) : RecyclerView.ViewHolder(binding.root) {
 
         fun bind(instanceWithTask: InstanceWithTask) {
             binding.instanceWithTask = instanceWithTask
+
+            // Set click listener for the circle
+            binding.viewTypeCircle.setOnClickListener {
+                onCircleClick(instanceWithTask)
+            }
+
             binding.executePendingBindings()
         }
     }

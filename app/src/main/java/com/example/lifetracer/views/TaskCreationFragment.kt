@@ -28,7 +28,7 @@ class TaskCreationFragment : DialogFragment() {
     private var listener: TaskCreationListener? = null
     private lateinit var binding: FragmentTaskCreationBinding
 
-    private val viewModel: InstancesViewModel by viewModels {
+    val viewModel: InstancesViewModel by viewModels {
         InstancesViewModelFactory(
             instanceRepository = InstanceRepository(AppDatabase.getDatabase(requireContext()).instanceDao()),
             chartRepository = ChartRepository(AppDatabase.getDatabase(requireContext()).chartDataDao())

@@ -1,5 +1,6 @@
 package com.example.lifetracer.views
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
@@ -19,7 +20,7 @@ class TestActivity : AppCompatActivity() {
 
     private lateinit var adapter: DragAdapter
 
-    private val viewModel: ListViewModel by viewModels {
+    private val listViewModel: ListViewModel by viewModels {
         ListViewModelFactory(
             instanceRepository = InstanceRepository(
                 instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
@@ -38,9 +39,14 @@ class TestActivity : AppCompatActivity() {
 
         adapter = DragAdapter(
             scope = lifecycleScope,
-            onDragEnd = { updatedList ->
-                viewModel.updatePriorities(updatedList) // Update priorities via ViewModel
-            }
+            onDragEnd = { updatedList ->listViewModel.updatePriorities(updatedList)},
+            onDeleteInstance = { instance -> listViewModel.deleteInstance(instance) },
+            onRestoreOrFinishInstance = { instance -> listViewModel.moveTaskToMain(instance, false) },
+            onCircleClick = { instance ->
+                val intent = Intent(this, ActivitySubTask::class.java)
+                intent.putExtra("PARENT_TASK_ID", instance.id) // Pass the parent task ID
+                startActivity(intent)
+            },
         )
 
         recyclerView.adapter = adapter
@@ -53,7 +59,7 @@ class TestActivity : AppCompatActivity() {
     }
 
     private fun loadInstances() {
-        viewModel.instances.observe(this) { instances ->
+        listViewModel.instances.observe(this) { instances ->
             lifecycleScope.launch {
                 adapter.setData(instances) // Use setData to populate the adapter
             }
