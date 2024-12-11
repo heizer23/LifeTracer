@@ -56,7 +56,7 @@
                 android:id="@+id/textViewDateOfCreation"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{`Date: ` + instanceWithTask.dateOfCreation}"
+                android:text="@{String.valueOf(instanceWithTask.priority)}"
                 android:textSize="14sp"
                 android:textColor="?attr/colorOnSurfaceVariant"
                 app:layout_constraintStart_toStartOf="parent"

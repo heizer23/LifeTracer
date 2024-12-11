@@ -100,6 +100,12 @@ class MainActivity : AppCompatActivity() {
         binding.buttonViewFinishedTasks.setOnClickListener {
             startActivity(Intent(this, ReviewActivity::class.java))
         }
+
+           binding.buttonGoToTest.setOnClickListener {
+               startActivity(Intent(this, TestActivity::class.java))
+           }
+
+
     }
 
     private fun attachSelectedInstanceFragment() {

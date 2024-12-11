@@ -41,6 +41,12 @@
             >
         </activity>
 
+        <activity
+            android:name=".views.TestActivity"
+            android:label="Instance Details"
+            >
+        </activity>
+
         <activity android:name=".views.ActivitySubTask" />
     </application>
 
