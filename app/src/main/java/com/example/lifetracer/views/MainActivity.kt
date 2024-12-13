@@ -2,83 +2,56 @@ package com.example.lifetracer.views
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.WindowManager
+import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.lifetracer.R
-import com.example.lifetracer.Utilities.Mode
-import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ActivityMainBinding
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
-import com.example.lifetracer.viewModel.InstancesViewModel
-import com.example.lifetracer.viewModel.InstancesViewModelFactory
+import com.example.lifetracer.viewModel.ListViewModel
+import com.example.lifetracer.viewModel.ListViewModelFactory
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val viewModel: InstancesViewModel by viewModels {
-        InstancesViewModelFactory(
+    private val listViewModel: ListViewModel by viewModels {
+        ListViewModelFactory(
             instanceRepository = InstanceRepository(
-                instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao(),
-            ),
-            chartRepository = ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
+                instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao()
+            )
         )
     }
-
-    private lateinit var reusableAdapter: ReusableAdapter
-    private var mainSelectedFragment: MainSelectedFragment? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Use the binding class for the updated layout
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        reusableAdapter = ReusableAdapter(
-            scope = lifecycleScope,
-            viewModel = viewModel,
-            onDeleteInstance = { instance -> viewModel.deleteInstance(instance) },
-            onRestoreOrFinishInstance = { instance -> viewModel.finishInstance(instance) },
-            onCircleClick = { instance ->
-                // Handle circle click - open subtask view
-                val intent = Intent(this, ActivitySubTask::class.java).apply {
-                    putExtra("PARENT_TASK_ID", instance.id)
-                }
-                startActivity(intent)
-            },
-            useVaultLayout = false
-        )
+        // Set the data source to "main"
+        listViewModel.selectDataSource("main")
 
-        setupRecyclerView()
-        ReusableAdapterUtil.attachItemTouchHelper(binding.recyclerViewInstances, reusableAdapter)
-        setupViewModelObserver()
-        setupButtonClickListeners()
-        attachSelectedInstanceFragment()
-    }
-
-    private fun setupRecyclerView() {
-        binding.recyclerViewInstances.apply {
-            layoutManager = LinearLayoutManager(this@MainActivity)
-            adapter = reusableAdapter
+        // Add fragments if not already added
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.recyclerViewFragmentContainer, RecyclerViewFragment())
+                .replace(R.id.selectedInstanceContainer, MainSelectedFragment())
+                .commitNow()
         }
 
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+        setupButtonListeners()
     }
 
-    private fun setupViewModelObserver() {
-        viewModel.allActiveInstanceWithTask.observe(this) { instanceWithHistoryList ->
-            reusableAdapter.submitList(instanceWithHistoryList)
-        }
-    }
-
-       private fun setupButtonClickListeners() {
-        binding.buttonGoToManageTasks.setOnClickListener {
+    private fun setupButtonListeners() {
+        binding.buttonAddInstance.setOnClickListener {
             val taskCreationFragment = TaskCreationFragment.newInstance().apply {
                 setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
                     override fun onInstanceCreated(subTask: InstanceWithTask) {
@@ -91,29 +64,32 @@ class MainActivity : AppCompatActivity() {
             taskCreationFragment.show(supportFragmentManager, "TaskCreationFragment")
         }
 
-        binding.buttonGoToInstanceVault.setOnClickListener {
-            startActivity(Intent(this, VaultActivity::class.java))
-        }
-
         binding.buttonViewFinishedTasks.setOnClickListener {
             startActivity(Intent(this, ReviewActivity::class.java))
         }
 
-           binding.buttonGoToTest.setOnClickListener {
-               startActivity(Intent(this, TestActivity::class.java))
-           }
+        binding.buttonGoToInstanceVault.setOnClickListener {
+            startActivity(Intent(this, VaultActivity::class.java))
+        }
 
-
+        binding.buttonGoToTest.setOnClickListener {
+            startActivity(Intent(this, TestActivity::class.java))
+        }
     }
 
-    private fun attachSelectedInstanceFragment() {
-        mainSelectedFragment = supportFragmentManager.findFragmentById(R.id.selectedInstanceContainer) as? MainSelectedFragment
-            ?: MainSelectedFragment.newInstance(Mode.INSTANCES, -1).also {
-                supportFragmentManager.beginTransaction()
-                    .replace(R.id.selectedInstanceContainer, it)
-                    .commit()
-                mainSelectedFragment = it
+    override fun onInstanceSelected(instance: InstanceWithTask) {
+        // Update selected instance in the detail fragment
+        val detailFragment = supportFragmentManager.findFragmentById(R.id.selectedInstanceContainer) as? MainSelectedFragment
+        detailFragment?.updateUi(instance)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+                true
             }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
-
 }

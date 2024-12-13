@@ -19,14 +19,17 @@ class ListViewModel(private val instanceRepository: InstanceRepository) : ViewMo
         when (keyword) {
             "vault" -> {
                 _instances.addSource(instanceRepository.getVaultedTasks()) { data ->
-                    Log.d("ListViewModel", "Vault tasks: $data")
+                    _instances.value = data
+                }
+            }
+            "main" -> {
+                _instances.addSource(instanceRepository.allActiveInstancesWithTasks) { data ->
                     _instances.value = data
                 }
             }
             "review" -> {
                 if (currentDate == null) throw IllegalArgumentException("Current date is required for review.")
                 _instances.addSource(instanceRepository.getFinishedInstancesForDay(currentDate)) { data ->
-                    Log.d("Checker ListViewModel", "Review tasks: $data")
                     _instances.value = data
                 }
             }

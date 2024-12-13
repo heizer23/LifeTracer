@@ -12,31 +12,31 @@
         android:paddingBottom="16dp"
         tools:context=".views.MainActivity">
 
-        <!-- FrameLayout to host com.example.lifetracer.fragments.MainSelectedFragment (top of the screen) -->
+        <!-- FrameLayout to host MainSelectedFragment -->
         <FrameLayout
             android:id="@+id/selectedInstanceContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="visible" />
 
-        <!-- RecyclerView for instances (below the FrameLayout and above the button) -->
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclerViewInstances"
+        <!-- FrameLayout for RecyclerViewFragment -->
+        <FrameLayout
+            android:id="@+id/recyclerViewFragmentContainer"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_below="@+id/selectedInstanceContainer"
-            android:layout_above="@+id/buttonGoToManageTasks"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+            android:layout_below="@id/selectedInstanceContainer"
+            android:layout_above="@id/buttonAddInstance" />
 
-        <!-- Button to go to ManageTasksActivity (at the bottom) -->
+        <!-- Button to go to ManageTasksActivity -->
         <Button
-            android:id="@+id/buttonGoToManageTasks"
+            android:id="@+id/buttonAddInstance"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
             android:text="Add" />
 
+        <!-- Button to view finished tasks -->
         <Button
             android:id="@+id/buttonViewFinishedTasks"
             android:layout_width="100dp"
@@ -45,6 +45,7 @@
             android:layout_centerHorizontal="true"
             android:text="Review" />
 
+        <!-- Button to go to instance vault -->
         <Button
             android:id="@+id/buttonGoToInstanceVault"
             android:layout_width="100dp"
@@ -53,11 +54,12 @@
             android:layout_alignParentStart="true"
             android:text="Vault" />
 
+        <!-- Button for test activity -->
         <Button
             android:id="@+id/buttonGoToTest"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_above="@+id/buttonGoToInstanceVault"
+            android:layout_above="@id/buttonGoToInstanceVault"
             android:layout_alignParentStart="true"
             android:text="Test" />
 
