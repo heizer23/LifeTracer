@@ -10,9 +10,30 @@ import kotlinx.coroutines.launch
 
 class ListViewModel(private val instanceRepository: InstanceRepository) : ViewModel() {
 
-    // LiveData for the list of instances
-    private val _instances = MutableLiveData<List<InstanceWithTask>>()
-    val instances: LiveData<List<InstanceWithTask>> = instanceRepository.allVaultedTasks
+    private val _instances = MediatorLiveData<List<InstanceWithTask>>()
+    val instances: LiveData<List<InstanceWithTask>> get() = _instances
+
+    // Dynamically sets the source LiveData
+    fun selectDataSource(keyword: String, currentDate: String? = null) {
+        Log.d("Checker ListViewModel", "Review tasks: $keyword")
+        when (keyword) {
+            "vault" -> {
+                _instances.addSource(instanceRepository.getVaultedTasks()) { data ->
+                    Log.d("ListViewModel", "Vault tasks: $data")
+                    _instances.value = data
+                }
+            }
+            "review" -> {
+                if (currentDate == null) throw IllegalArgumentException("Current date is required for review.")
+                _instances.addSource(instanceRepository.getFinishedInstancesForDay(currentDate)) { data ->
+                    Log.d("Checker ListViewModel", "Review tasks: $data")
+                    _instances.value = data
+                }
+            }
+            else -> throw IllegalArgumentException("Invalid keyword: $keyword")
+        }
+    }
+
 
     // Flag to indicate if dragging is in progress
     private val _isDragging = MutableLiveData(false)

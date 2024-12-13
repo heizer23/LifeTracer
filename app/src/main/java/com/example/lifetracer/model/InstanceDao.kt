@@ -48,7 +48,7 @@ interface InstanceDao {
           FROM instances 
           WHERE status NOT IN (:vaultStatus, :finishedStatus)
       )
-    ORDER BY regularity ASC, date_of_creation ASC
+    ORDER BY  priority
 """)
     fun getVaultedTasks(
         vaultStatus: Int = InstanceWithTask.STATUS_VAULTED,
@@ -56,7 +56,7 @@ interface InstanceDao {
     ): LiveData<List<InstanceWithTask>>
 
     // Review View
-    @Query("SELECT * FROM main_tasks WHERE status = :finishedStatus AND date = :currentDate")
+    @Query("SELECT * FROM main_tasks WHERE status = :finishedStatus AND date = :currentDate ORDER BY  priority")
     fun getFinishedInstancesForDay(finishedStatus: Int, currentDate: String): LiveData<List<InstanceWithTask>>
 
     @Transaction

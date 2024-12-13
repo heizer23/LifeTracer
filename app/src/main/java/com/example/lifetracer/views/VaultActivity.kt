@@ -2,19 +2,34 @@ package com.example.lifetracer.views
 
 import android.os.Bundle
 import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.lifetracer.R
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ActivityInstanceVaultBinding
+import com.example.lifetracer.model.AppDatabase
+import com.example.lifetracer.model.InstanceRepository
+import com.example.lifetracer.viewModel.ListViewModel
+import com.example.lifetracer.viewModel.ListViewModelFactory
 import kotlinx.coroutines.launch
 
 class VaultActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelectedListener {
 
     private lateinit var binding: ActivityInstanceVaultBinding
 
+    private val listViewModel: ListViewModel by viewModels {
+        ListViewModelFactory(
+            instanceRepository = InstanceRepository(
+                instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao()
+            )
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        listViewModel.selectDataSource("vault")
 
         // Initialize binding
         binding = ActivityInstanceVaultBinding.inflate(layoutInflater)

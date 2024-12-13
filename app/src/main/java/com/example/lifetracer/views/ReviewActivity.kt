@@ -1,67 +1,65 @@
 package com.example.lifetracer.views
 
-import android.content.Intent
 import android.os.Bundle
+import android.view.MenuItem
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.R
-import com.example.lifetracer.Utilities.getCurrentDate
-import com.example.lifetracer.charts.ChartRepository
+import com.example.lifetracer.data.InstanceWithTask
+import com.example.lifetracer.databinding.ActivityFinishedInstancesBinding
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
-import com.example.lifetracer.viewModel.InstancesViewModel
-import com.example.lifetracer.viewModel.InstancesViewModelFactory
+import com.example.lifetracer.viewModel.ListViewModel
+import com.example.lifetracer.viewModel.ListViewModelFactory
 
-class ReviewActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: InstancesViewModel
-    private lateinit var adapter: ReusableAdapter
+class ReviewActivity: AppCompatActivity(), RecyclerViewFragment.OnInstanceSelectedListener {
+
+    private lateinit var binding: ActivityFinishedInstancesBinding
+
+    private val listViewModel: ListViewModel by viewModels {
+        ListViewModelFactory(
+            instanceRepository = InstanceRepository(
+                instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao()
+            )
+        )
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_finished_instances) // This must come first
 
-        val recyclerView = findViewById<RecyclerView>(R.id.recyclerViewFinishedInstances)
-        recyclerView.layoutManager = LinearLayoutManager(this)
-
-        // Initialize the ViewModel
-        viewModel = ViewModelProvider(this, InstancesViewModelFactory(
-            InstanceRepository(AppDatabase.getDatabase(applicationContext).instanceDao()),
-            ChartRepository(AppDatabase.getDatabase(applicationContext).chartDataDao())
-        )).get(InstancesViewModel::class.java)
-
-        val currentDate = getCurrentDate()
-        adapter = ReusableAdapter(
-            scope = lifecycleScope,
-            viewModel = viewModel,
-            onDeleteInstance = { instance -> viewModel.deleteInstance(instance) },
-            onRestoreOrFinishInstance = { instance -> viewModel.moveTaskToMain(instance, false) }, // Adjust if necessary
-            onCircleClick = { instance ->
-                // Navigate to ActivitySubTask
-                val intent = Intent(this, ActivitySubTask::class.java).apply {
-                    putExtra("PARENT_TASK_ID", instance.id) // Pass the parent task ID
-                }
-                startActivity(intent)
-            },
-            useVaultLayout = true // Reusing the Vault layout for review
-        )
+        val currentDate = "2024-12-11" // Replace with dynamic date logic
+        listViewModel.selectDataSource("review", currentDate)
 
 
-        recyclerView.adapter = adapter
 
-        // Set up ItemTouchHelper for drag-and-swipe functionality
-        ReusableAdapterUtil.attachItemTouchHelper(recyclerView, adapter)
+        // Initialize binding
+        binding = ActivityFinishedInstancesBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        // Enable the Up button
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.recyclerViewContainer, RecyclerViewFragment())
+                .replace(R.id.detailViewContainer, MainSelectedFragment())
+                .commitNow()
+        }
+
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        // Observe the LiveData for finished instances
-        viewModel.getFinishedInstancesForDay(currentDate).observe(this) { finishedInstances ->
-            adapter.submitList(finishedInstances)
-        }
     }
 
+    override fun onInstanceSelected(instance: InstanceWithTask) {
+        val detailFragment = supportFragmentManager.findFragmentById(R.id.detailViewContainer) as? MainSelectedFragment
+        detailFragment?.updateUi(instance)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> {
+                onBackPressedDispatcher.onBackPressed()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
 }

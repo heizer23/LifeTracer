@@ -1,10 +1,13 @@
 package com.example.lifetracer.views
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemVaultBinding
+import com.example.lifetracer.viewModel.InterfacerViewModelAdapter
+import com.example.lifetracer.viewModel.ListViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -59,6 +62,7 @@ class DragAdapter(
         // Update priorities in the mutable list
         for (i in mutableCurrentList.indices) {
             mutableCurrentList[i] = mutableCurrentList[i].copy(priority = i)
+            Log.d("Checker DragAdapter", "Updated priority: ${mutableCurrentList[i]}")
         }
 
         // Notify via the onDragEnd callback

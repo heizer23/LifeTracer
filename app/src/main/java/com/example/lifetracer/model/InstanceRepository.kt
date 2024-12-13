@@ -32,6 +32,20 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
         }
     }
 
+
+
+    fun getVaultedTasks(): LiveData<List<InstanceWithTask>> {
+        return instanceDao.getVaultedTasks()
+    }
+
+    fun getFinishedInstancesForDay(currentDate: String): LiveData<List<InstanceWithTask>> {
+        return instanceDao.getFinishedInstancesForDay(
+            finishedStatus = InstanceWithTask.STATUS_FINISHED,
+            currentDate = currentDate
+        )
+    }
+
+
     fun seteParentId(paId: Long) {
         _parentId.value = paId // Dynamically update parentId
     }
@@ -43,7 +57,6 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
 
     // Instance-related operations
     suspend fun insertInstance(instance: InstanceWithTask): Long {
-        Log.d("DoubleCreation", "InstancesRepo insertInstance")
         return instanceDao.insert(instance)
     }
 
@@ -110,9 +123,6 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
         instanceDao.updatePrio(instanceId, priority)
     }
 
-    fun getFinishedInstancesForDay(date: String): LiveData<List<InstanceWithTask>> {
-        return instanceDao.getFinishedInstancesForDay(InstanceWithTask.STATUS_FINISHED, date)
-    }
 
 
 

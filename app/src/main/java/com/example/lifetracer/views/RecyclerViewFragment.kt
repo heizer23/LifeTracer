@@ -8,17 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.R
 import com.example.lifetracer.data.InstanceWithTask
-import com.example.lifetracer.model.AppDatabase
-import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.viewModel.ListViewModel
-import com.example.lifetracer.viewModel.ListViewModelFactory
 import kotlinx.coroutines.launch
 
 class RecyclerViewFragment : Fragment() {
@@ -26,13 +23,7 @@ class RecyclerViewFragment : Fragment() {
     private lateinit var adapter: DragAdapter
     private lateinit var recyclerView: RecyclerView
 
-    private val listViewModel: ListViewModel by viewModels {
-        ListViewModelFactory(
-            instanceRepository = InstanceRepository(
-                instanceDao = AppDatabase.getDatabase(requireContext()).instanceDao(),
-            )
-        )
-    }
+    private val listViewModel: ListViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,11 +64,13 @@ class RecyclerViewFragment : Fragment() {
 
     private fun loadInstances() {
         listViewModel.instances.observe(viewLifecycleOwner) { instances ->
+            Log.d("Checker RecyclerViewFragment", "Observed instances: ${instances.size}")
             lifecycleScope.launch {
                 adapter.setData(instances)
             }
         }
     }
+
 
     private fun setupItemTouchHelper() {
         val itemTouchHelperCallback = object : ItemTouchHelper.Callback() {
