@@ -35,9 +35,8 @@ class ListViewModel(private val instanceRepository: InstanceRepository) : ViewMo
             }
             "sub" -> {
                 context?.let { parentId ->
-                    viewModelScope.launch {
-                        val data = instanceRepository.getSubtasksForParent(parentId.toLong())
-                        _instances.postValue(data.value)
+                    _instances.addSource(instanceRepository.getSubtasksForParent(parentId.toLong())) { data ->
+                        _instances.value = data // ?: emptyList() // Use emptyList for null values
                     }
                 } ?: throw IllegalArgumentException("Parent ID is required for 'sub'")
             }

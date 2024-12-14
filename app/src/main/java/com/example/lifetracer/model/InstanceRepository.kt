@@ -36,7 +36,7 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
         return instanceDao.getVaultedTasks()
     }
 
-    suspend fun getSubtasksForParent(parentId: Long): LiveData<List<InstanceWithTask>> {
+    fun getSubtasksForParent(parentId: Long): LiveData<List<InstanceWithTask>> {
         return instanceDao.getSubtasksForParent(parentId) // This should return LiveData
     }
 

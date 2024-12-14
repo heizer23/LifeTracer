@@ -36,7 +36,9 @@ class ActivitySubTask : AppCompatActivity(), RecyclerViewFragment.OnInstanceSele
             return
         }
 
-        listViewModel.selectDataSource("sub", context = parentId.toString())
+        val currentDate = "2024-12-11"
+
+        listViewModel.selectDataSource("sub", parentId.toString())
 
         // Initialize binding
         binding = ActivityInstanceVaultBinding.inflate(layoutInflater)
