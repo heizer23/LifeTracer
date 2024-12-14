@@ -224,22 +224,7 @@ class InstancesViewModel(
         return instanceRepository.getFinishedInstancesForDay(date)
     }
 
-    // Load subtasks for the given parent task
-    fun loadSubtasks(parentId: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val fetchedSubtasks = instanceRepository.getSubtasksForParent(parentId)
-            _subtasks.postValue(fetchedSubtasks)
-        }
-    }
 
-    // Add a new subtask and link it to the parent
-    fun addSubtask(parentId: Long, newSubtask: InstanceWithTask) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val subTaskId = instanceRepository.insertInstance(newSubtask)
-            instanceRepository.linkSubTask(parentId, subTaskId)
-            loadSubtasks(parentId) // Reload subtasks after adding
-        }
-    }
 
 
 

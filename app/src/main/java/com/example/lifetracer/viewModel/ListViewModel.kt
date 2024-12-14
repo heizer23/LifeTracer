@@ -14,8 +14,7 @@ class ListViewModel(private val instanceRepository: InstanceRepository) : ViewMo
     val instances: LiveData<List<InstanceWithTask>> get() = _instances
 
     // Dynamically sets the source LiveData
-    fun selectDataSource(keyword: String, currentDate: String? = null) {
-        Log.d("Checker ListViewModel", "Review tasks: $keyword")
+    fun selectDataSource(keyword: String, context: String? = null) {
         when (keyword) {
             "vault" -> {
                 _instances.addSource(instanceRepository.getVaultedTasks()) { data ->
@@ -28,10 +27,19 @@ class ListViewModel(private val instanceRepository: InstanceRepository) : ViewMo
                 }
             }
             "review" -> {
-                if (currentDate == null) throw IllegalArgumentException("Current date is required for review.")
-                _instances.addSource(instanceRepository.getFinishedInstancesForDay(currentDate)) { data ->
-                    _instances.value = data
-                }
+                context?.let { date ->
+                    _instances.addSource(instanceRepository.getFinishedInstancesForDay(date)) { data ->
+                        _instances.value = data
+                    }
+                } ?: throw IllegalArgumentException("Current date is required for review.")
+            }
+            "sub" -> {
+                context?.let { parentId ->
+                    viewModelScope.launch {
+                        val data = instanceRepository.getSubtasksForParent(parentId.toLong())
+                        _instances.postValue(data.value)
+                    }
+                } ?: throw IllegalArgumentException("Parent ID is required for 'sub'")
             }
             else -> throw IllegalArgumentException("Invalid keyword: $keyword")
         }

@@ -32,10 +32,12 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
         }
     }
 
-
-
     fun getVaultedTasks(): LiveData<List<InstanceWithTask>> {
         return instanceDao.getVaultedTasks()
+    }
+
+    suspend fun getSubtasksForParent(parentId: Long): LiveData<List<InstanceWithTask>> {
+        return instanceDao.getSubtasksForParent(parentId) // This should return LiveData
     }
 
     fun getFinishedInstancesForDay(currentDate: String): LiveData<List<InstanceWithTask>> {
@@ -64,23 +66,28 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
         // Insert the new parent instance and get its ID
         val newParentId = instanceDao.insert(newParentInstance)
 
-        // Fetch original subtasks for the given parent
-        val originalSubtasks = instanceDao.getSubtasksForParent(originalParentId)
+        // Fetch original subtasks for the given parent (value from LiveData)
+        val originalSubtasks = instanceDao.getSubtasksForParent(originalParentId).value
 
-        // Copy each subtask, set the new parent ID, and insert them
-        val newSubtaskIds = mutableListOf<Long>()
-        for (originalSubtask in originalSubtasks) {
-            val newSubtask = originalSubtask.copy(
-                id = 0, // New ID will be auto-generated
-                templateId = newParentId
-            )
-            val newSubtaskId = instanceDao.insert(newSubtask)
-            newSubtaskIds.add(newSubtaskId)
-        }
+        // Ensure originalSubtasks is not null
+        if (originalSubtasks != null) {
+            // Copy each subtask, set the new parent ID, and insert them
+            val newSubtaskIds = mutableListOf<Long>()
+            for (originalSubtask in originalSubtasks) {
+                val newSubtask = originalSubtask.copy(
+                    id = 0, // New ID will be auto-generated
+                    templateId = newParentId
+                )
+                val newSubtaskId = instanceDao.insert(newSubtask)
+                newSubtaskIds.add(newSubtaskId)
+            }
 
-        // Link the new subtasks to the new parent in task_relation
-        for (newSubtaskId in newSubtaskIds) {
-            instanceDao.insertTaskRelation(TaskRelation(newParentId, newSubtaskId))
+            // Link the new subtasks to the new parent in task_relation
+            for (newSubtaskId in newSubtaskIds) {
+                instanceDao.insertTaskRelation(TaskRelation(newParentId, newSubtaskId))
+            }
+        } else {
+            Log.e("InstanceRepository", "No subtasks found for parentId: $originalParentId")
         }
     }
 
@@ -127,9 +134,7 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
 
 
 
-    suspend fun getSubtasksForParent(parentId: Long): List<InstanceWithTask> {
-        return instanceDao.getSubtasksForParent(parentId)
-    }
+
 
 
 }

@@ -84,7 +84,7 @@ interface InstanceDao {
 
     // Query subtasks for a specific parent
     @Query("SELECT instances.* FROM instances INNER JOIN task_relation ON instances.id = task_relation.subtaskId WHERE task_relation.parentId = :parentId")
-    suspend fun getSubtasksForParent(parentId: Long): List<InstanceWithTask>
+    fun getSubtasksForParent(parentId: Long): LiveData<List<InstanceWithTask>>
 
 
 }
