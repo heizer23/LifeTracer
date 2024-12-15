@@ -18,6 +18,7 @@ class ActivitySubTask : AppCompatActivity(), RecyclerViewFragment.OnInstanceSele
 
     private lateinit var binding: ActivityInstanceVaultBinding
     private var parentId: Long = -1L // Default invalid value
+    val creationContext = "sub"
 
     private val listViewModel: ListViewModel by viewModels {
         ListViewModelFactory(
@@ -36,9 +37,7 @@ class ActivitySubTask : AppCompatActivity(), RecyclerViewFragment.OnInstanceSele
             return
         }
 
-        val currentDate = "2024-12-11"
-
-        listViewModel.selectDataSource("sub", parentId.toString())
+        listViewModel.selectDataSource(creationContext, parentId.toString())
 
         // Initialize binding
         binding = ActivityInstanceVaultBinding.inflate(layoutInflater)
@@ -54,11 +53,11 @@ class ActivitySubTask : AppCompatActivity(), RecyclerViewFragment.OnInstanceSele
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.buttonAddInstance.setOnClickListener {
-            val taskCreationFragment = TaskCreationFragment.newInstance().apply {
+            val taskCreationFragment = TaskCreationFragment.newInstance(context = creationContext).apply {
                 setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
                     override fun onInstanceCreated(subTask: InstanceWithTask) {
                         lifecycleScope.launch {
-                            viewModel.addInstance(subTask)
+                            taskCreationViewModel.addInstance(subTask, parentId = parentId)
                         }
                     }
                 })
@@ -67,10 +66,6 @@ class ActivitySubTask : AppCompatActivity(), RecyclerViewFragment.OnInstanceSele
         }
     }
 
-    override fun onInstanceSelected(instance: InstanceWithTask) {
-        val detailFragment = supportFragmentManager.findFragmentById(R.id.detailViewContainer) as? MainSelectedFragment
-        detailFragment?.updateUi(instance)
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
@@ -80,5 +75,9 @@ class ActivitySubTask : AppCompatActivity(), RecyclerViewFragment.OnInstanceSele
             }
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onInstanceSelected(instance: InstanceWithTask) {
+        TODO("Not yet implemented")
     }
 }

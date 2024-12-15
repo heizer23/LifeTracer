@@ -49,8 +49,6 @@ class ReviewActivity: AppCompatActivity(), RecyclerViewFragment.OnInstanceSelect
     }
 
     override fun onInstanceSelected(instance: InstanceWithTask) {
-        val detailFragment = supportFragmentManager.findFragmentById(R.id.detailViewContainer) as? MainSelectedFragment
-        detailFragment?.updateUi(instance)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

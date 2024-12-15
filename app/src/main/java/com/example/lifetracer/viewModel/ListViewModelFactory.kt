@@ -7,7 +7,7 @@ import com.example.lifetracer.model.InstanceRepository
 
 class ListViewModelFactory(private val instanceRepository: InstanceRepository) : ViewModelProvider.Factory {
 
-    override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ListViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return ListViewModel(instanceRepository) as T

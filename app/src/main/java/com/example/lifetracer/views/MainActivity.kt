@@ -13,19 +13,35 @@ import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.viewModel.ListViewModel
 import com.example.lifetracer.viewModel.ListViewModelFactory
+import com.example.lifetracer.viewModel.SelectedInstanceViewModel
+import com.example.lifetracer.viewModel.SelectedInstanceViewModelFactory
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelectedListener {
 
     private lateinit var binding: ActivityMainBinding
 
+    // This is controlling the viewmodel and creationFragement
+    val creationContext = "main"
+
+
     private val listViewModel: ListViewModel by viewModels {
         ListViewModelFactory(
             instanceRepository = InstanceRepository(
-                instanceDao = AppDatabase.getDatabase(applicationContext).instanceDao()
+                instanceDao = AppDatabase.getDatabase(this).instanceDao()
             )
         )
     }
+
+    private val selectedInstanceViewModel: SelectedInstanceViewModel by viewModels {
+        SelectedInstanceViewModelFactory(
+            instanceRepository = InstanceRepository(
+                instanceDao = AppDatabase.getDatabase(this).instanceDao()
+            )
+        )
+    }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +51,7 @@ class MainActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelecte
         setContentView(binding.root)
 
         // Set the data source to "main"
-        listViewModel.selectDataSource("main")
+        listViewModel.selectDataSource(creationContext)
 
         // Add fragments if not already added
         if (savedInstanceState == null) {
@@ -52,11 +68,11 @@ class MainActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelecte
 
     private fun setupButtonListeners() {
         binding.buttonAddInstance.setOnClickListener {
-            val taskCreationFragment = TaskCreationFragment.newInstance().apply {
+            val taskCreationFragment = TaskCreationFragment.newInstance(context = creationContext).apply {
                 setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
                     override fun onInstanceCreated(subTask: InstanceWithTask) {
                         lifecycleScope.launch {
-                            viewModel.addInstance(subTask)
+                            taskCreationViewModel.addInstance(subTask)
                         }
                     }
                 })
@@ -76,13 +92,9 @@ class MainActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelecte
             startActivity(Intent(this, TestActivity::class.java))
         }
     }
-
     override fun onInstanceSelected(instance: InstanceWithTask) {
-        // Update selected instance in the detail fragment
-        val detailFragment = supportFragmentManager.findFragmentById(R.id.selectedInstanceContainer) as? MainSelectedFragment
-        detailFragment?.updateUi(instance)
+        TODO("Not yet implemented")
     }
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> {

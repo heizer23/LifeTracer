@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,14 +40,15 @@ class TestActivity : AppCompatActivity() {
 
         adapter = DragAdapter(
             scope = lifecycleScope,
-            onDragEnd = { updatedList ->listViewModel.updatePriorities(updatedList)},
+            onDragEnd = { updatedList -> listViewModel.updatePriorities(updatedList) },
             onDeleteInstance = { instance -> listViewModel.deleteInstance(instance) },
             onRestoreOrFinishInstance = { instance -> listViewModel.moveTaskToMain(instance, false) },
             onCircleClick = { instance ->
-                val intent = Intent(this, ActivitySubTask::class.java)
-                intent.putExtra("PARENT_TASK_ID", instance.id) // Pass the parent task ID
-                startActivity(intent)
+
             },
+            onItemClick = { instance ->
+
+            }
         )
 
         recyclerView.adapter = adapter

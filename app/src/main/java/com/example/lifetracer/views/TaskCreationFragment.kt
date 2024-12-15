@@ -1,6 +1,5 @@
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import androidx.fragment.app.DialogFragment
 import androidx.databinding.DataBindingUtil
@@ -8,13 +7,12 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.viewModelScope
 import com.example.lifetracer.R
 import com.example.lifetracer.Utilities.getCurrentDate
-import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.databinding.FragmentTaskCreationBinding
-import com.example.lifetracer.viewModel.InstancesViewModel
-import com.example.lifetracer.viewModel.InstancesViewModelFactory
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.data.InstanceWithTask
+import com.example.lifetracer.viewModel.TaskCreationViewModel
+import com.example.lifetracer.viewModel.TaskCreationViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -24,32 +22,29 @@ class TaskCreationFragment : DialogFragment() {
         fun onInstanceCreated(instanceWithTask: InstanceWithTask)
     }
 
-    private var parentTaskId: Long = 0L
     private var listener: TaskCreationListener? = null
+    private var creationContext: String = "main" // Default context is "main"
     private lateinit var binding: FragmentTaskCreationBinding
 
-    val viewModel: InstancesViewModel by viewModels {
-        InstancesViewModelFactory(
+    val taskCreationViewModel: TaskCreationViewModel by viewModels {
+        TaskCreationViewModelFactory(
             instanceRepository = InstanceRepository(AppDatabase.getDatabase(requireContext()).instanceDao()),
-            chartRepository = ChartRepository(AppDatabase.getDatabase(requireContext()).chartDataDao())
         )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d("TaskCreationFragment", "onCreate called")
-        parentTaskId = arguments?.getLong(ARG_PARENT_TASK_ID, -1L) ?: -1L
+        creationContext = arguments?.getString(ARG_CONTEXT, "main") ?: "main"
     }
 
-
     companion object {
-        private const val ARG_PARENT_TASK_ID = "parentTaskId"
+        private const val ARG_CONTEXT = "creationContext"
 
-        // Factory method to create a new instance of TaskCreationFragment with parentTaskId
-        fun newInstance(parentTaskId: Long = -1L): TaskCreationFragment {
+        // Factory method to create a new instance of TaskCreationFragment with context and parentTaskId
+        fun newInstance(context: String = "main"): TaskCreationFragment {
             val fragment = TaskCreationFragment()
             val args = Bundle()
-            args.putLong(ARG_PARENT_TASK_ID, parentTaskId) // Pass the parentTaskId as an argument
+            args.putString(ARG_CONTEXT, context) // Pass the creation context as an argument
             fragment.arguments = args
             return fragment
         }
@@ -75,8 +70,7 @@ class TaskCreationFragment : DialogFragment() {
 
         val newInstance = createInstanceFromInput()
         newInstance?.let { instance ->
-            viewModel.viewModelScope.launch(Dispatchers.Main) {
-                Log.d("DoubleCreation", "TaskCreation: handleAddInstance")
+            taskCreationViewModel.viewModelScope.launch(Dispatchers.Main) {
                 listener?.onInstanceCreated(instance) // Notify the listener
                 dismiss() // Close the fragment
                 isProcessing = false // Reset flag
@@ -86,24 +80,33 @@ class TaskCreationFragment : DialogFragment() {
         }
     }
 
-
     private fun createInstanceFromInput(): InstanceWithTask? {
         val name = binding.editTextTaskName.text.toString()
         val inputType = binding.editTextTaskType.text.toString().toIntOrNull() ?: 0
         val regularity = binding.editTextTaskRegularity.text.toString().toIntOrNull() ?: 0
 
-        return if (name.isNotEmpty()) {
-            val dateOfCreation = getCurrentDate()
+        val dateOfCreation = getCurrentDate()
+        val status = when (creationContext) {
+            "vault" -> 98 // Vaulted
+            "main" -> 0  // Planned
+            "review" -> 99 // Review
+            "sub" -> 0    // Subtask default status is planned (status = 0)
+            else -> 0     // Default to planned
+        }
+
+        val instance = if (name.isNotEmpty()) {
             InstanceWithTask(
                 name = name,
                 dateOfCreation = dateOfCreation,
                 inputType = inputType,
                 regularity = regularity,
                 templateId = 0L,
-                status = 98
+                status = status
             )
         } else {
             null
         }
+        return instance
     }
+
 }

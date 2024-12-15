@@ -1,0 +1,28 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+        <!-- Declare a variable for the ViewModel -->
+        <variable
+            name="viewModel"
+            type="com.example.lifetracer.viewModel.SelectedInstanceViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/nameTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.selectedInstance != null ? viewModel.selectedInstance.name : ``}"
+            />
+
+        <TextView
+            android:id="@+id/statusTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.selectedInstance.status == 0 ? `Planned` : viewModel.selectedInstance.status == 98 ? `Vaulted` : viewModel.selectedInstance.status == 99 ? `Finished` : `Unknown`}" />    </LinearLayout>
+</layout>

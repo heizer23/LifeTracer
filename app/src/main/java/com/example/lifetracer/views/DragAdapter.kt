@@ -3,6 +3,7 @@ package com.example.lifetracer.views
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemVaultBinding
@@ -18,7 +19,8 @@ class DragAdapter(
     private val onDragEnd: (List<InstanceWithTask>) -> Unit,
     val onDeleteInstance: (InstanceWithTask) -> Unit,
     val onRestoreOrFinishInstance: (InstanceWithTask) -> Unit,
-    val onCircleClick: (InstanceWithTask) -> Unit
+    val onCircleClick: (InstanceWithTask) -> Unit,
+    private val onItemClick: (InstanceWithTask) -> Unit
 ) : RecyclerView.Adapter<DragAdapter.ViewHolder>() {
 
     private val mutableCurrentList = mutableListOf<InstanceWithTask>()
@@ -31,6 +33,9 @@ class DragAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val instanceWithTask = mutableCurrentList[position]
         holder.bind(instanceWithTask)
+        holder.itemView.setOnClickListener {
+            onItemClick(instanceWithTask) // Trigger the item click callback
+        }
     }
 
     override fun getItemCount(): Int = mutableCurrentList.size

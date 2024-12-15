@@ -15,7 +15,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.R
 import com.example.lifetracer.data.InstanceWithTask
+import com.example.lifetracer.model.AppDatabase
+import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.viewModel.ListViewModel
+import com.example.lifetracer.viewModel.ListViewModelFactory
+import com.example.lifetracer.viewModel.SelectedInstanceViewModel
+import com.example.lifetracer.viewModel.SelectedInstanceViewModelFactory
 import kotlinx.coroutines.launch
 
 class RecyclerViewFragment : Fragment() {
@@ -23,7 +28,21 @@ class RecyclerViewFragment : Fragment() {
     private lateinit var adapter: DragAdapter
     private lateinit var recyclerView: RecyclerView
 
-    private val listViewModel: ListViewModel by activityViewModels()
+    private val listViewModel: ListViewModel by activityViewModels {
+        ListViewModelFactory(
+            InstanceRepository(
+                AppDatabase.getDatabase(requireContext()).instanceDao()
+            )
+        )
+    }
+
+    private val selectedInstanceViewModel: SelectedInstanceViewModel by activityViewModels {
+        SelectedInstanceViewModelFactory(
+            InstanceRepository(
+                AppDatabase.getDatabase(requireContext()).instanceDao()
+            )
+        )
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,8 +69,15 @@ class RecyclerViewFragment : Fragment() {
                     putExtra("PARENT_TASK_ID", instance.id) // Pass the parent task ID
                 }
                 startActivity(intent)
+            },
+            onItemClick = { instance ->
+                selectedInstanceViewModel.setSelectedInstance(instance)
             }
         )
+
+
+
+
 
         recyclerView.adapter = adapter
 

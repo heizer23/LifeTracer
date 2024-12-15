@@ -18,6 +18,8 @@ class VaultActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelect
 
     private lateinit var binding: ActivityInstanceVaultBinding
 
+    val creationContext = "vault"
+
     private val listViewModel: ListViewModel by viewModels {
         ListViewModelFactory(
             instanceRepository = InstanceRepository(
@@ -29,7 +31,7 @@ class VaultActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelect
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        listViewModel.selectDataSource("vault")
+        listViewModel.selectDataSource(creationContext)
 
         // Initialize binding
         binding = ActivityInstanceVaultBinding.inflate(layoutInflater)
@@ -45,22 +47,20 @@ class VaultActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelect
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.buttonAddInstance.setOnClickListener {
-            val taskCreationFragment = TaskCreationFragment.newInstance().apply {
+            val taskCreationFragment = TaskCreationFragment.newInstance(context = creationContext).apply {
                 setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
                     override fun onInstanceCreated(subTask: InstanceWithTask) {
                         lifecycleScope.launch {
-                            viewModel.addInstance(subTask)
+                            taskCreationViewModel.addInstance(subTask)
                         }
                     }
                 })
             }
             taskCreationFragment.show(supportFragmentManager, "TaskCreationFragment")
-    }
+        }
     }
 
     override fun onInstanceSelected(instance: InstanceWithTask) {
-        val detailFragment = supportFragmentManager.findFragmentById(R.id.detailViewContainer) as? MainSelectedFragment
-        detailFragment?.updateUi(instance)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

@@ -1,4 +1,4 @@
-package com.example.lifetracer.viewModel
+package com.example.lifetracer.unused
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -7,17 +7,12 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.lifetracer.Utilities.getCurrentDate
-import com.example.lifetracer.Utilities.getCurrentTime
 import com.example.lifetracer.charts.ChartRepository
 import com.example.lifetracer.data.InstanceWithTask
-import com.example.lifetracer.data.TaskFilter
-import com.example.lifetracer.data.finish
-import com.example.lifetracer.data.pause
-import com.example.lifetracer.data.start
 import com.example.lifetracer.model.InstanceRepository
-import com.example.lifetracer.views.MainSelectedFragment
+import com.example.lifetracer.viewModel.InstanceManager
+import com.example.lifetracer.viewModel.InterfacerViewModelAdapter
 import com.github.mikephil.charting.data.BarEntry
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -60,16 +55,6 @@ class InstancesViewModel(
     enum class Mode {
         INSTANCES,
         SUBTASKS
-    }
-
-    fun setModeAndParentId(paId: Long){
-        if (paId<0){
-            _selectedMode.value = Mode.INSTANCES
-        }else{
-            _selectedMode.value = Mode.SUBTASKS
-            instanceRepository.seteParentId(paId)
-        }
-
     }
 
     val allActiveInstanceWithTask: LiveData<List<InstanceWithTask>> = instanceRepository.allActiveInstancesWithTasks
@@ -124,12 +109,6 @@ class InstancesViewModel(
         }
     }
 
-    fun copyInstance(instance: InstanceWithTask) {
-        viewModelScope.launch {
-            instanceRepository.copyInstance(instance)
-        }
-    }
-
     fun finishInstance(instanceWithTask: InstanceWithTask, inputQuality: String? = null, inputQuantity: String? = null) {
         val updatedInstance = instanceManager.finishInstance(instanceWithTask, inputQuality, inputQuantity, viewModelScope)
        // chartRepository.updateChartData(updatedInstance.taskId, viewModelScope)
@@ -173,10 +152,6 @@ class InstancesViewModel(
         return chartRepository.getChartData(taskId)
     }
 
-    suspend fun linkSubTask(parentId: Long, subTaskId: Long){
-        instanceRepository.linkSubTask(parentId, subTaskId)
-    }
-
     fun moveTaskToMain(instance: InstanceWithTask, isFromReview: Boolean) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -202,27 +177,7 @@ class InstancesViewModel(
 
 
 
-    fun addInstance(instance: InstanceWithTask) {
 
-        viewModelScope.launch(Dispatchers.IO) {
-            try { //
-                Log.d("DoubleCreation", "InstancesViewModel addInstance")
-                val insertedId = instanceRepository.insertInstance(instance)
-                val updatedInstance = instance.copy(id = insertedId, templateId = insertedId)
-                instanceRepository.updateInstance(updatedInstance)
-
-
-                // Optionally post success to LiveData or handle the result in some way
-            } catch (e: Exception) {
-                Log.e("InstancesViewModel", "Error adding instance: ${e.message}")
-                // Handle errors, e.g., post error to LiveData
-            }
-        }
-    }
-
-    fun getFinishedInstancesForDay(date: String): LiveData<List<InstanceWithTask>> {
-        return instanceRepository.getFinishedInstancesForDay(date)
-    }
 
 
 

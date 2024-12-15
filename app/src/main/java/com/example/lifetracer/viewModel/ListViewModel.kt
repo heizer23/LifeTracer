@@ -10,6 +10,9 @@ import kotlinx.coroutines.launch
 
 class ListViewModel(private val instanceRepository: InstanceRepository) : ViewModel() {
 
+    private val _selectedInstance = MutableLiveData<InstanceWithTask>()
+    val selectedInstance: LiveData<InstanceWithTask> = _selectedInstance
+
     private val _instances = MediatorLiveData<List<InstanceWithTask>>()
     val instances: LiveData<List<InstanceWithTask>> get() = _instances
 
@@ -65,9 +68,6 @@ class ListViewModel(private val instanceRepository: InstanceRepository) : ViewMo
         }
     }
 
-
-
-    // Updated method to delete an instance
     fun deleteInstance(instanceWithTask: InstanceWithTask) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -110,8 +110,6 @@ class ListViewModel(private val instanceRepository: InstanceRepository) : ViewMo
         }
     }
 
-
-    // Updated method to finish an instance
     fun finishInstance(instanceWithTask: InstanceWithTask) {
         viewModelScope.launch(Dispatchers.IO) {
             val updatedInstance = instanceWithTask.copy(status = InstanceWithTask.STATUS_FINISHED)
