@@ -13,8 +13,6 @@ import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.viewModel.ListViewModel
 import com.example.lifetracer.viewModel.ListViewModelFactory
-import com.example.lifetracer.viewModel.SelectedInstanceViewModel
-import com.example.lifetracer.viewModel.SelectedInstanceViewModelFactory
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelectedListener {
@@ -33,16 +31,6 @@ class MainActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelecte
         )
     }
 
-    private val selectedInstanceViewModel: SelectedInstanceViewModel by viewModels {
-        SelectedInstanceViewModelFactory(
-            instanceRepository = InstanceRepository(
-                instanceDao = AppDatabase.getDatabase(this).instanceDao()
-            )
-        )
-    }
-
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,7 +38,7 @@ class MainActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelecte
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Set the data source to "main"
+        // Set the data source to "main" with creationContext
         listViewModel.selectDataSource(creationContext)
 
         // Add fragments if not already added
@@ -68,6 +56,7 @@ class MainActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelecte
 
     private fun setupButtonListeners() {
         binding.buttonAddInstance.setOnClickListener {
+            // CreationContext defines that the fragment has a "main" task creation
             val taskCreationFragment = TaskCreationFragment.newInstance(context = creationContext).apply {
                 setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
                     override fun onInstanceCreated(subTask: InstanceWithTask) {

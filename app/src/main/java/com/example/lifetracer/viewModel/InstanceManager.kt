@@ -15,16 +15,30 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class InstanceManager(private val instanceRepository: InstanceRepository) {
-    fun startInstance(instance: InstanceWithTask, scope: CoroutineScope) {
-        val currentTime = System.currentTimeMillis()
-        val updatedInstance = instance.start(currentTime)
-        updateInstance(updatedInstance, scope)
+
+    fun startInstance(
+        instance: InstanceWithTask,
+        scope: CoroutineScope,
+        onUpdate: (InstanceWithTask) -> Unit
+    ) {
+        val updatedInstance = instance.start(System.currentTimeMillis())
+        scope.launch(Dispatchers.IO) {
+            instanceRepository.updateInstance(updatedInstance)
+            onUpdate(updatedInstance)
+        }
     }
 
-    fun pauseInstance(instance: InstanceWithTask, scope: CoroutineScope) {
-        val currentTime = System.currentTimeMillis()
-        val updatedInstance = instance.pause(currentTime)
-        updateInstance(updatedInstance, scope)
+
+    fun pauseInstance(
+        instance: InstanceWithTask,
+        scope: CoroutineScope,
+        onUpdate: (InstanceWithTask) -> Unit
+    ) {
+        val updatedInstance = instance.pause(System.currentTimeMillis())
+        scope.launch(Dispatchers.IO) {
+            instanceRepository.updateInstance(updatedInstance)
+            onUpdate(updatedInstance)
+        }
     }
 
     fun updateInstance(instance: InstanceWithTask, scope: CoroutineScope) {

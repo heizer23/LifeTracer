@@ -90,7 +90,6 @@ class RecyclerViewFragment : Fragment() {
 
     private fun loadInstances() {
         listViewModel.instances.observe(viewLifecycleOwner) { instances ->
-            Log.d("Checker RecyclerViewFragment", "Observed instances: ${instances.size}")
             lifecycleScope.launch {
                 adapter.setData(instances)
             }

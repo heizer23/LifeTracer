@@ -8,6 +8,7 @@ import java.util.Locale
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.EditText
+import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.databinding.InverseBindingAdapter
 import androidx.databinding.InverseBindingListener
@@ -57,4 +58,18 @@ object BindingAdapters {
             })
         }
     }
+
+    @JvmStatic
+    @BindingAdapter("formattedDuration")
+    fun bindFormattedDuration(textView: TextView, duration: Long?) {
+        duration?.let {
+            val seconds = it % 60
+            val minutes = (it / 60) % 60
+            val hours = (it / 3600)
+            textView.text = String.format("%02d:%02d:%02d", hours, minutes, seconds)
+        } ?: run {
+            textView.text = " "
+        }
+    }
+
 }

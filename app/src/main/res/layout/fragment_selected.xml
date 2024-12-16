@@ -1,28 +1,144 @@
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <!-- Declare a variable for the ViewModel -->
         <variable
             name="viewModel"
             type="com.example.lifetracer.viewModel.SelectedInstanceViewModel" />
+
+        <import type="android.view.View" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="16dp"
+        tools:context=".YourActivityOrFragment">
+
+        <!-- Main Content Area -->
+        <TextView
+            android:id="@+id/mainView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:text="@{viewModel.selectedInstance.name}"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
+            android:textColor="?attr/colorOnSurface"
+            android:onClick="@{() -> viewModel.toggleStartPauseInstance()}"
+            app:layout_constraintEnd_toStartOf="@id/buttonGroup"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/nameTextView"
-            android:layout_width="wrap_content"
+            android:id="@+id/time"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.selectedInstance != null ? viewModel.selectedInstance.name : ``}"
-            />
+            android:layout_marginEnd="16dp"
+            app:formattedDuration="@{viewModel.displayDuration}"
+            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textColor="?attr/colorOnSurface"
+            app:layout_constraintEnd_toStartOf="@id/buttonGroup"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/mainView" />
 
-        <TextView
-            android:id="@+id/statusTextView"
+        <!-- Buttons on the Right -->
+        <LinearLayout
+            android:id="@+id/buttonGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.selectedInstance.status == 0 ? `Planned` : viewModel.selectedInstance.status == 98 ? `Vaulted` : viewModel.selectedInstance.status == 99 ? `Finished` : `Unknown`}" />    </LinearLayout>
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonDetail"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="Detail"
+                app:icon="@drawable/open_details"
+                app:iconGravity="textStart" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/buttonFinish"
+                android:layout_width="120dp"
+                android:layout_height="wrap_content"
+                android:text="Finish"
+                android:onClick="@{() -> viewModel.toggleStartPauseInstance()}"
+                app:icon="@drawable/done"
+                app:iconGravity="textStart" />
+        </LinearLayout>
+
+        <!-- Quality Input Section -->
+        <LinearLayout
+            android:id="@+id/qualitySection"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="@{viewModel.selectedInstance.inputType == 1 || viewModel.selectedInstance.inputType == 3 ? View.VISIBLE : View.GONE}"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/buttonGroup"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Quality">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextQuality"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/quantitySection"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="@{viewModel.selectedInstance.inputType == 2 || viewModel.selectedInstance.inputType == 3 ? View.VISIBLE : View.GONE}"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/qualitySection"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="Quantity">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/editTextQuantity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="8dp">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonIncreaseQuantity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/baseline_arrow_drop_up_24"
+                    app:iconGravity="textStart" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/buttonDecreaseQuantity"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:icon="@drawable/baseline_arrow_drop_down_24"
+                    app:iconGravity="textStart" />
+            </LinearLayout>
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

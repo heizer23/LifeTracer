@@ -70,7 +70,7 @@ class InstancesViewModel(
     override fun selectAndStartInstance(newInstanceWithTask: InstanceWithTask) {
         instanceWithLowestPrio.value?.let { instanceWithTask ->
             if (instanceWithTask.status == InstanceWithTask.STATUS_STARTED) {
-                pauseInstance(instanceWithTask)
+//                pauseInstance(instanceWithTask)
             }
         }
         val currentPriority = instanceWithLowestPrio.value?.priority ?: 0
@@ -81,15 +81,15 @@ class InstancesViewModel(
         updateInstance(updatedInstance)
 
         // Start the new instance
-        startInstance(updatedInstance)
+//          startInstance(updatedInstance)
     }
 
     fun toggleStartPauseInstance() {
         instanceWithLowestPrio.value?.let { instanceWithTask ->
             if (instanceWithTask.status == InstanceWithTask.STATUS_STARTED) {
-                pauseInstance(instanceWithTask)
+//                  pauseInstance(instanceWithTask)
             } else {
-                startInstance(instanceWithTask)
+//                  startInstance(instanceWithTask)
             }
         }
     }
@@ -103,10 +103,23 @@ class InstancesViewModel(
         }
     }
 
-    fun finishActiveInstance(inputQuality: String? = null, inputQuantity: String? = null) {
-        instanceWithLowestPrio.value?.let { instanceWithTask ->
-            finishInstance(instanceWithTask, inputQuality, inputQuantity)
+    fun finishActiveInstance(instanceWithTask: InstanceWithTask, inputQuality: String? = null, inputQuantity: String? = null) {
+
+        val canFinish : Boolean = when (instanceWithTask.inputType) {
+            1 -> !inputQuality.isNullOrEmpty()  // Task requires quality input
+            2 -> !inputQuantity.isNullOrEmpty() // Task requires quantity input
+            3 -> !inputQuality.isNullOrEmpty() && !inputQuantity.isNullOrEmpty() // Both inputs required
+            else -> true // No input required
         }
+
+        if(canFinish){
+            instanceWithLowestPrio.value?.let { instanceWithTask ->
+                finishInstance(instanceWithTask, inputQuality, inputQuantity)
+            }
+        }else{
+
+        }
+
     }
 
     fun finishInstance(instanceWithTask: InstanceWithTask, inputQuality: String? = null, inputQuantity: String? = null) {
@@ -135,17 +148,12 @@ class InstancesViewModel(
         }
     }
 
-    private fun startInstance(updatedInstance: InstanceWithTask){
-        instanceManager.startInstance(updatedInstance, viewModelScope)
-    }
 
     override fun updateInstance(updatedInstance: InstanceWithTask){
         instanceManager.updateInstance(updatedInstance, viewModelScope)
     }
 
-    private fun pauseInstance(updatedInstance: InstanceWithTask){
-        instanceManager.pauseInstance(updatedInstance, viewModelScope)
-    }
+
 
 
     suspend fun getChartData(taskId: Long): List<BarEntry> {

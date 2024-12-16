@@ -10,9 +10,6 @@ import kotlinx.coroutines.launch
 
 class ListViewModel(private val instanceRepository: InstanceRepository) : ViewModel() {
 
-    private val _selectedInstance = MutableLiveData<InstanceWithTask>()
-    val selectedInstance: LiveData<InstanceWithTask> = _selectedInstance
-
     private val _instances = MediatorLiveData<List<InstanceWithTask>>()
     val instances: LiveData<List<InstanceWithTask>> get() = _instances
 
