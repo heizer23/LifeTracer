@@ -3,12 +3,9 @@ package com.example.lifetracer.views
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
 import androidx.recyclerview.widget.RecyclerView
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ListItemVaultBinding
-import com.example.lifetracer.viewModel.InterfacerViewModelAdapter
-import com.example.lifetracer.viewModel.ListViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -17,8 +14,8 @@ import java.util.Collections
 class DragAdapter(
     private val scope: CoroutineScope,
     private val onDragEnd: (List<InstanceWithTask>) -> Unit,
-    val onDeleteInstance: (InstanceWithTask) -> Unit,
-    val onRestoreOrFinishInstance: (InstanceWithTask) -> Unit,
+    val onSwipeLeft: (InstanceWithTask) -> Unit,
+    val onSwipeRight: (InstanceWithTask) -> Unit,
     val onCircleClick: (InstanceWithTask) -> Unit,
     private val onItemClick: (InstanceWithTask) -> Unit
 ) : RecyclerView.Adapter<DragAdapter.ViewHolder>() {

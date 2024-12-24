@@ -2,48 +2,43 @@ package com.example.lifetracer.viewModel
 
 import android.util.Log
 import androidx.lifecycle.*
-import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.model.InstanceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ListViewModel(private val instanceRepository: InstanceRepository) : ViewModel() {
+class ListViewModel(
+    private val instanceRepository: InstanceRepository
+) : ViewModel() {
+
+    private val instanceManager = InstanceManager(instanceRepository)
 
     private val _instances = MediatorLiveData<List<InstanceWithTask>>()
     val instances: LiveData<List<InstanceWithTask>> get() = _instances
 
+
+    private var currentSource: LiveData<*>? = null
+    private var sourceActivity: String = "n/a"
+
     // Dynamically sets the source LiveData
     fun selectDataSource(keyword: String, context: String? = null) {
-        when (keyword) {
-            "vault" -> {
-                _instances.addSource(instanceRepository.getVaultedTasks()) { data ->
-                    _instances.value = data
-                }
-            }
-            "main" -> {
-                _instances.addSource(instanceRepository.allActiveInstancesWithTasks) { data ->
-                    _instances.value = data
-                }
-            }
-            "review" -> {
-                context?.let { date ->
-                    _instances.addSource(instanceRepository.getFinishedInstancesForDay(date)) { data ->
-                        _instances.value = data
-                    }
-                } ?: throw IllegalArgumentException("Current date is required for review.")
-            }
-            "sub" -> {
-                context?.let { parentId ->
-                    _instances.addSource(instanceRepository.getSubtasksForParent(parentId.toLong())) { data ->
-                        _instances.value = data // ?: emptyList() // Use emptyList for null values
-                    }
-                } ?: throw IllegalArgumentException("Parent ID is required for 'sub'")
-            }
+        currentSource?.let { _instances.removeSource(it) }
+
+        sourceActivity = keyword
+
+        val newSource = when (sourceActivity) {
+            "vault" -> instanceRepository.getVaultedTasks()
+            "main" -> instanceRepository.allActiveInstancesWithTasks
+            "review" -> context?.let { instanceRepository.getFinishedInstancesForDay(it) }
+                ?: throw IllegalArgumentException("Current date is required for review.")
+            "sub" -> context?.let { instanceRepository.getSubtasksForParent(it.toLong()) }
+                ?: throw IllegalArgumentException("Parent ID is required for 'sub'")
             else -> throw IllegalArgumentException("Invalid keyword: $keyword")
         }
-    }
 
+        currentSource = newSource
+        _instances.addSource(newSource) { data -> _instances.value = data }
+    }
 
     // Flag to indicate if dragging is in progress
     private val _isDragging = MutableLiveData(false)
@@ -53,64 +48,62 @@ class ListViewModel(private val instanceRepository: InstanceRepository) : ViewMo
         _isDragging.value = value
     }
 
-
     fun updatePriorities(updatedList: List<InstanceWithTask>) = viewModelScope.launch(Dispatchers.IO) {
         // Make a copy of the list to avoid ConcurrentModificationException
         val safeList = ArrayList(updatedList)
 
         for (i in safeList.indices) {
             val instance = safeList[i]
-            // Update instance in the database
-            instanceRepository.updatePrio(instance.id, instance.priority)
+            instanceManager.updateInstance(
+                instance.copy(priority = i),
+                scope = this
+            )
         }
     }
 
-    fun deleteInstance(instanceWithTask: InstanceWithTask) {
+    fun swipeLeftAction(instance: InstanceWithTask) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                instanceRepository.deleteInstance(instanceWithTask)
-            } catch (e: Exception) {
-                Log.e("InstancesViewModel", "Error deleting instance: ${e.message}")
-            }
-        }
-    }
-
-    fun moveTaskToMain(instance: InstanceWithTask, isFromReview: Boolean) {
-        viewModelScope.launch(Dispatchers.IO) {
-            try {
-                if (isFromReview || instance.regularity == InstanceWithTask.Companion.Regularity.SINGLE) {
-                    // Just update the status to planned
-                    val updatedInstance = instance.copy(status = InstanceWithTask.STATUS_PLANNED)
-                    updateInstance(updatedInstance)
-                } else if (instance.regularity == InstanceWithTask.Companion.Regularity.REGULAR) {
-                    // Create a new instance and insert directly
-                    val newInstance = instance.copy(
-                        id = 0, // Auto-generate a new ID
-                        dateOfCreation = getCurrentDate(),
-                        status = InstanceWithTask.STATUS_PLANNED
-                    )
-                    instanceRepository.copyTaskWithSubtasks(instance.id, newInstance)
+                when (sourceActivity) {
+                    "vault" -> {
+                        instanceManager.deleteInstance(instance, this)
+                    }
+                    "main" -> {
+                        instanceManager.moveMainToVault(instance, this)
+                    }
+                    "review" -> {
+                        instanceManager.moveReviewToMain(instance, this)
+                    }
+                    else -> {
+                        Log.e("ListViewModel", "Invalid source provided: $sourceActivity")
+                    }
                 }
             } catch (e: Exception) {
-                Log.e("InstancesViewModel", "Error moving task to main: ${e.message}")
+                Log.e("ListViewModel", "Error handling swipe left: ${e.message}")
             }
         }
     }
 
-    fun updateInstance(updatedInstance: InstanceWithTask){
+    fun swipeRightAction(instance: InstanceWithTask) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                instanceRepository.updateInstance(updatedInstance)
+                when (sourceActivity) {
+                    "vault" -> {
+                        instanceManager.moveVaultToMain(instance, this)
+                    }
+                    "main" -> {
+                        instanceManager.finishInstance(instance, scope = this)
+                    }
+                    "review" -> {
+                        instanceManager.deleteInstance(instance, this)
+                    }
+                    else -> {
+                        Log.e("ListViewModel", "Invalid source provided: $sourceActivity")
+                    }
+                }
             } catch (e: Exception) {
-                Log.e("ViewModel", "Error updating instance: ${e.message}")
+                Log.e("ListViewModel", "Error handling swipe right: ${e.message}")
             }
-        }
-    }
-
-    fun finishInstance(instanceWithTask: InstanceWithTask) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val updatedInstance = instanceWithTask.copy(status = InstanceWithTask.STATUS_FINISHED)
-            instanceRepository.updateInstance(updatedInstance) // Update the repository
         }
     }
 }

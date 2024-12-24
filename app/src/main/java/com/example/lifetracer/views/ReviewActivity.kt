@@ -5,6 +5,7 @@ import android.view.MenuItem
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.example.lifetracer.R
+import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.databinding.ActivityFinishedInstancesBinding
 import com.example.lifetracer.model.AppDatabase
@@ -28,9 +29,9 @@ class ReviewActivity: AppCompatActivity(), RecyclerViewFragment.OnInstanceSelect
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val currentDate = "2024-12-11" // Replace with dynamic date logic
-        listViewModel.selectDataSource("review", currentDate)
 
+        val currentDate = getCurrentDate()
+        listViewModel.selectDataSource("review", currentDate)
 
 
         // Initialize binding

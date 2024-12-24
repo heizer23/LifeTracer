@@ -2,7 +2,6 @@ package com.example.lifetracer.views
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -61,8 +60,8 @@ class RecyclerViewFragment : Fragment() {
         adapter = DragAdapter(
             scope = lifecycleScope,
             onDragEnd = { updatedList -> listViewModel.updatePriorities(updatedList) },
-            onDeleteInstance = { instance -> listViewModel.deleteInstance(instance) },
-            onRestoreOrFinishInstance = { instance -> listViewModel.moveTaskToMain(instance, false) },
+            onSwipeLeft = { instance -> listViewModel.swipeLeftAction(instance) },
+            onSwipeRight = { instance -> listViewModel.swipeRightAction(instance) },
             onCircleClick = { instance ->
                 // Navigate to ActivitySubTask
                 val intent = Intent(requireContext(), ActivitySubTask::class.java).apply {
@@ -123,11 +122,11 @@ class RecyclerViewFragment : Fragment() {
 
                 when (direction) {
                     ItemTouchHelper.LEFT -> {
-                        adapter.onDeleteInstance(instance)
+                        adapter.onSwipeLeft(instance)
                         Toast.makeText(requireContext(), "Instance deleted", Toast.LENGTH_SHORT).show()
                     }
                     ItemTouchHelper.RIGHT -> {
-                        adapter.onRestoreOrFinishInstance(instance)
+                        adapter.onSwipeRight(instance)
                         Toast.makeText(requireContext(), "Task restored or finished", Toast.LENGTH_SHORT).show()
                     }
                 }

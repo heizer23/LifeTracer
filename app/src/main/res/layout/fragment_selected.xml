@@ -18,30 +18,41 @@
         tools:context=".YourActivityOrFragment">
 
         <!-- Main Content Area -->
-        <TextView
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/mainView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:text="@{viewModel.selectedInstance.name}"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
-            android:textColor="?attr/colorOnSurface"
+            android:layout_margin="8dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
+            android:focusable="true"
             android:onClick="@{() -> viewModel.toggleStartPauseInstance()}"
-            app:layout_constraintEnd_toStartOf="@id/buttonGroup"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/time"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            app:formattedDuration="@{viewModel.displayDuration}"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
-            android:textColor="?attr/colorOnSurface"
-            app:layout_constraintEnd_toStartOf="@id/buttonGroup"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/mainView" />
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="200dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:text="@{viewModel.selectedInstance.name}"
+                android:textAppearance="?attr/textAppearanceBodyLarge"
+                android:textColor="?attr/colorOnSurface"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:formattedDuration="@{viewModel.displayDuration}"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnSurface"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/name" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <!-- Buttons on the Right -->
         <LinearLayout
@@ -61,10 +72,10 @@
                 app:iconGravity="textStart" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/buttonFinish"
+                android:id="@+id/buttonSub"
                 android:layout_width="120dp"
                 android:layout_height="wrap_content"
-                android:text="Finish"
+                android:text="Sub"
                 android:onClick="@{() -> viewModel.toggleStartPauseInstance()}"
                 app:icon="@drawable/done"
                 app:iconGravity="textStart" />
@@ -108,16 +119,18 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:hint="Quantity">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/editTextQuantity"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@{viewModel.selectedInstance != null ? String.valueOf(viewModel.selectedInstance.quantity) : ``}"
                     android:inputType="numberDecimal" />
             </com.google.android.material.textfield.TextInputLayout>
+
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -127,16 +140,18 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonIncreaseQuantity"
-                    android:layout_width="wrap_content"
+                    android:layout_width="60dp"
                     android:layout_height="wrap_content"
                     app:icon="@drawable/baseline_arrow_drop_up_24"
+                    android:onClick="@{() -> viewModel.incrementQuantity(1)}"
                     app:iconGravity="textStart" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonDecreaseQuantity"
-                    android:layout_width="wrap_content"
+                    android:layout_width="60dp"
                     android:layout_height="wrap_content"
                     app:icon="@drawable/baseline_arrow_drop_down_24"
+                android:onClick="@{() -> viewModel.incrementQuantity(-1)}"
                     app:iconGravity="textStart" />
             </LinearLayout>
         </LinearLayout>

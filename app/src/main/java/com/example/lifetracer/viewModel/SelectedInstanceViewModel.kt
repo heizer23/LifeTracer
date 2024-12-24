@@ -1,5 +1,6 @@
 package com.example.lifetracer.viewModel
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
@@ -14,13 +15,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SelectedInstanceViewModel(
     private val instanceRepository: InstanceRepository
 ) : ViewModel() {
 
-    private val _selectedInstance = MutableLiveData<InstanceWithTask>()
-    val selectedInstance: LiveData<InstanceWithTask> = _selectedInstance
+    private val instanceManager = InstanceManager(instanceRepository)
+
+    // Allow null values
+    private val _selectedInstance = MutableLiveData<InstanceWithTask?>()
+    val selectedInstance: LiveData<InstanceWithTask?> get() = _selectedInstance
 
     private val _displayDuration = MutableLiveData<Long>()
     val displayDuration: LiveData<Long> = _displayDuration
@@ -62,31 +67,47 @@ class SelectedInstanceViewModel(
 
     fun toggleStartPauseInstance() {
         selectedInstance.value?.let { instance ->
-            if (instance.status == InstanceWithTask.STATUS_STARTED) {
-                pauseInstance(instance)
-            } else {
-                startInstance(instance)
+            instanceManager.toggleStartPauseInstance(instance, viewModelScope) { updatedInstance ->
+                _selectedInstance.value = updatedInstance
+                if (updatedInstance.status == InstanceWithTask.STATUS_STARTED) {
+                    startTimer(updatedInstance)
+                } else {
+                    stopTimer()
+                }
             }
         }
     }
 
-    private fun startInstance(instance: InstanceWithTask) {
-        val updatedInstance = instance.start(System.currentTimeMillis())
-        _selectedInstance.value = updatedInstance // Update LiveData first
+
+    fun swipeLeftAction(instance: InstanceWithTask) {
         viewModelScope.launch(Dispatchers.IO) {
-            instanceRepository.updateInstance(updatedInstance) // Save to DB in a coroutine
+            instanceRepository.deleteInstance(instance)
+            withContext(Dispatchers.Main) {
+                clearSelectedInstance() // Clear selected task after deletion
+            }
         }
-        startTimer(updatedInstance) // Start the timer
     }
 
-    private fun pauseInstance(instance: InstanceWithTask) {
-        val updatedInstance = instance.pause(System.currentTimeMillis())
-        _selectedInstance.value = updatedInstance // Update LiveData first
+    fun swipeRightAction(instance: InstanceWithTask) {
         viewModelScope.launch(Dispatchers.IO) {
-            instanceRepository.updateInstance(updatedInstance) // Save to DB in a coroutine
+            instanceManager.finishInstance(instance, scope = this)
+            withContext(Dispatchers.Main) {
+                clearSelectedInstance() // Clear selected task after deletion
+            }
         }
-        stopTimer() // Stop the timer
+    }
+
+    fun clearSelectedInstance() {
+        _selectedInstance.value = null
+    }
+
+    fun incrementQuantity(increment: Int) {
+        val currentInstance = _selectedInstance.value
+        if (currentInstance != null) {
+            instanceManager.incrementQuantity(currentInstance, viewModelScope, increment) { updatedInstance ->
+                _selectedInstance.value = updatedInstance // Update LiveData with the new quantity
+            }
+        }
     }
 
 }
-
