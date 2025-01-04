@@ -1,5 +1,7 @@
 package com.example.lifetracer.viewModel
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.lifetracer.Utilities.getCurrentDate
@@ -7,6 +9,18 @@ import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.model.InstanceRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+
+@Parcelize
+sealed class TaskScope : Parcelable {
+    @Parcelize
+    object Main : TaskScope()
+    @Parcelize
+    object Vault : TaskScope()
+    @Parcelize
+    object Review : TaskScope()
+    @Parcelize
+    data class Sub(val parentId: Long) : TaskScope()
+}
 
 class ListViewModel(
     private val instanceRepository: InstanceRepository
@@ -17,39 +31,24 @@ class ListViewModel(
     private val _instances = MediatorLiveData<List<InstanceWithTask>>()
     val instances: LiveData<List<InstanceWithTask>> get() = _instances
 
-    private val _parentId = MutableLiveData<Long?>()
-    val parentId: LiveData<Long?> get() = _parentId
+    private val _taskScope = MutableLiveData<TaskScope>(TaskScope.Main)
+    val taskScope: LiveData<TaskScope> get() = _taskScope
 
+    private var currentSource: LiveData<List<InstanceWithTask>>? = null
 
-
-    private var currentSource: LiveData<*>? = null
-    var sourceActivity: String = "n/a"
-
-    // Dynamically sets the source LiveData
-    fun selectDataSource(keyword: String, context: String? = null) {
-        currentSource?.let { _instances.removeSource(it) }
-
-        sourceActivity = keyword
-
-        val newSource = when (sourceActivity) {
-            "Vault" -> instanceRepository.getVaultedTasks()
-            "Main" -> instanceRepository.allActiveInstancesWithTasks
-            "Review" -> instanceRepository.getFinishedInstancesForDay(context ?: getCurrentDate())
-            "Sub" -> {
-                context?.let {
-                    _parentId.value = it.toLong()
-                    instanceRepository.getSubtasksForParent(_parentId.value!!)
-                } ?: throw IllegalArgumentException("Parent ID is required for 'Sub'")
-            }
-            else -> throw IllegalArgumentException("Invalid keyword: $keyword")
+    fun selectDataSource(taskScope: TaskScope) {
+        _taskScope.value = taskScope
+        val newSource = when (taskScope) {
+            is TaskScope.Main -> instanceRepository.allActiveInstancesWithTasks
+            is TaskScope.Vault -> instanceRepository.getVaultedTasks()
+            is TaskScope.Review -> instanceRepository.getFinishedInstancesForDay(getCurrentDate())
+            is TaskScope.Sub -> instanceRepository.getSubtasksForParent(taskScope.parentId)
         }
-
+        currentSource?.let { _instances.removeSource(it) }
         currentSource = newSource
         _instances.addSource(newSource) { data -> _instances.value = data }
     }
 
-
-    // Flag to indicate if dragging is in progress
     private val _isDragging = MutableLiveData(false)
     val isDragging: LiveData<Boolean> get() = _isDragging
 
@@ -58,9 +57,7 @@ class ListViewModel(
     }
 
     fun updatePriorities(updatedList: List<InstanceWithTask>) = viewModelScope.launch(Dispatchers.IO) {
-        // Make a copy of the list to avoid ConcurrentModificationException
         val safeList = ArrayList(updatedList)
-
         for (i in safeList.indices) {
             val instance = safeList[i]
             instanceManager.updateInstance(
@@ -73,22 +70,14 @@ class ListViewModel(
     fun swipeLeftAction(instance: InstanceWithTask) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                when (sourceActivity) {
-                    "vault" -> {
-                        instanceManager.deleteInstance(instance, this)
-                    }
-                    "main" -> {
-                        instanceManager.moveMainToVault(instance, this)
-                    }
-                    "review" -> {
-                        instanceManager.moveReviewToMain(instance, this)
-                    }
-                    else -> {
-                        Log.e("ListViewModel", "Invalid source provided: $sourceActivity")
-                    }
+                when (_taskScope.value) {
+                    is TaskScope.Vault -> instanceManager.deleteInstance(instance, this)
+                    is TaskScope.Main -> instanceManager.moveMainToVault(instance, this)
+                    is TaskScope.Review -> instanceManager.moveReviewToMain(instance, this)
+                    else -> Log.e("ListViewModel", "Invalid context for swipeLeftAction")
                 }
             } catch (e: Exception) {
-                Log.e("ListViewModel", "Error handling swipe left: ${e.message}")
+                Log.e("ListViewModel", "Error handling swipe left: ${e.message}", e)
             }
         }
     }
@@ -96,22 +85,14 @@ class ListViewModel(
     fun swipeRightAction(instance: InstanceWithTask) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                when (sourceActivity) {
-                    "vault" -> {
-                        instanceManager.moveVaultToMain(instance, this)
-                    }
-                    "main" -> {
-                        instanceManager.finishInstance(instance, scope = this)
-                    }
-                    "review" -> {
-                        instanceManager.deleteInstance(instance, this)
-                    }
-                    else -> {
-                        Log.e("ListViewModel", "Invalid source provided: $sourceActivity")
-                    }
+                when (_taskScope.value) {
+                    is TaskScope.Vault -> instanceManager.moveVaultToMain(instance, this)
+                    is TaskScope.Main -> instanceManager.finishInstance(instance, scope = this)
+                    is TaskScope.Review -> instanceManager.deleteInstance(instance, this)
+                    else -> Log.e("ListViewModel", "Invalid context for swipeRightAction")
                 }
             } catch (e: Exception) {
-                Log.e("ListViewModel", "Error handling swipe right: ${e.message}")
+                Log.e("ListViewModel", "Error handling swipe right: ${e.message}", e)
             }
         }
     }

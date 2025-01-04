@@ -11,6 +11,7 @@ import com.example.lifetracer.databinding.FragmentTaskCreationBinding
 import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.data.InstanceWithTask
+import com.example.lifetracer.viewModel.TaskScope
 import com.example.lifetracer.viewModel.TaskCreationViewModel
 import com.example.lifetracer.viewModel.TaskCreationViewModelFactory
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,6 @@ class TaskCreationFragment : DialogFragment() {
     }
 
     private var listener: TaskCreationListener? = null
-    private var creationContext: String = "main" // Default context is "main"
     private lateinit var binding: FragmentTaskCreationBinding
 
     val taskCreationViewModel: TaskCreationViewModel by viewModels {
@@ -32,19 +32,15 @@ class TaskCreationFragment : DialogFragment() {
         )
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        creationContext = arguments?.getString(ARG_CONTEXT, "main") ?: "main"
-    }
-
     companion object {
         private const val ARG_CONTEXT = "creationContext"
 
-        // Factory method to create a new instance of TaskCreationFragment with context and parentTaskId
-        fun newInstance(context: String = "main"): TaskCreationFragment {
+        fun newInstance(taskScope: TaskScope, parentId: Long? = null): TaskCreationFragment {
             val fragment = TaskCreationFragment()
-            val args = Bundle()
-            args.putString(ARG_CONTEXT, context) // Pass the creation context as an argument
+            val args = Bundle().apply {
+                putParcelable(ARG_CONTEXT, taskScope) // Ensure TaskScope implements Parcelable
+                parentId?.let { putLong("parentId", it) }
+            }
             fragment.arguments = args
             return fragment
         }
@@ -86,13 +82,6 @@ class TaskCreationFragment : DialogFragment() {
         val regularity = binding.editTextTaskRegularity.text.toString().toIntOrNull() ?: 0
 
         val dateOfCreation = getCurrentDate()
-        val status = when (creationContext) {
-            "vault" -> 98 // Vaulted
-            "main" -> 0  // Planned
-            "review" -> 99 // Review
-            "sub" -> 0    // Subtask default status is planned (status = 0)
-            else -> 0     // Default to planned
-        }
 
         val instance = if (name.isNotEmpty()) {
             InstanceWithTask(
@@ -101,7 +90,7 @@ class TaskCreationFragment : DialogFragment() {
                 inputType = inputType,
                 regularity = regularity,
                 templateId = 0L,
-                status = status
+                status = 0
             )
         } else {
             null

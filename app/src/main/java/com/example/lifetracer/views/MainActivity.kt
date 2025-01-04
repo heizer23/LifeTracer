@@ -14,6 +14,7 @@ import com.example.lifetracer.model.AppDatabase
 import com.example.lifetracer.model.InstanceRepository
 import com.example.lifetracer.viewModel.ListViewModel
 import com.example.lifetracer.viewModel.ListViewModelFactory
+import com.example.lifetracer.viewModel.TaskScope
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity(), OnSubTaskRequestedListener {
@@ -41,16 +42,16 @@ class MainActivity : AppCompatActivity(), OnSubTaskRequestedListener {
 
         // Add task button logic
         binding.buttonAddInstance.setOnClickListener {
+            // Determine the current context and parentId
+            val currentScope = listViewModel.taskScope.value ?: TaskScope.Main
+            val parentId = if (currentScope is TaskScope.Sub) currentScope.parentId else null
 
-            val currentContext = if (listViewModel.sourceActivity == "Sub") "Sub"
-            else binding.contextSpinner.selectedItem.toString()
-            val parentId = if (currentContext == "Sub") listViewModel.parentId.value else null
-
-            val taskCreationFragment = TaskCreationFragment.newInstance(context = currentContext).apply {
+            // Create TaskCreationFragment
+            val taskCreationFragment = TaskCreationFragment.newInstance(taskScope = currentScope).apply {
                 setTaskCreationListener(object : TaskCreationFragment.TaskCreationListener {
                     override fun onInstanceCreated(subTask: InstanceWithTask) {
                         lifecycleScope.launch {
-                            taskCreationViewModel.addInstance(subTask, parentId) // ViewModel handles instance addition
+                            taskCreationViewModel.addInstance(subTask, currentScope, parentId)// Pass parentId for Sub context
                         }
                     }
                 })
@@ -63,8 +64,13 @@ class MainActivity : AppCompatActivity(), OnSubTaskRequestedListener {
         val spinner: Spinner = binding.contextSpinner
         spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                val selectedContext = parent.getItemAtPosition(position).toString()
-                listViewModel.selectDataSource(selectedContext) // Directly update the ViewModel
+                val selectedContext = when (parent.getItemAtPosition(position).toString()) {
+                    "Main" -> TaskScope.Main
+                    "Vault" -> TaskScope.Vault
+                    "Review" -> TaskScope.Review
+                    else -> TaskScope.Main // Default to Main if invalid
+                }
+                listViewModel.selectDataSource(selectedContext)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>) {}
@@ -81,9 +87,7 @@ class MainActivity : AppCompatActivity(), OnSubTaskRequestedListener {
     // Callback from RecyclerViewFragment when a SubTask is requested
     override fun onSubTaskRequested(parentId: Long) {
         // Update the ViewModel to show SubTasks for the given parentId
-        listViewModel.selectDataSource("Sub", parentId.toString())
-
-        // Optionally update the UI to indicate the Sub context
+        listViewModel.selectDataSource(TaskScope.Sub(parentId))
     }
-
 }
+
