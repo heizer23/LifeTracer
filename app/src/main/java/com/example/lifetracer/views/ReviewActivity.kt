@@ -14,7 +14,7 @@ import com.example.lifetracer.viewModel.ListViewModel
 import com.example.lifetracer.viewModel.ListViewModelFactory
 
 
-class ReviewActivity: AppCompatActivity(), RecyclerViewFragment.OnInstanceSelectedListener {
+class ReviewActivity: AppCompatActivity(){
 
     private lateinit var binding: ActivityFinishedInstancesBinding
 
@@ -47,9 +47,6 @@ class ReviewActivity: AppCompatActivity(), RecyclerViewFragment.OnInstanceSelect
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-    }
-
-    override fun onInstanceSelected(instance: InstanceWithTask) {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

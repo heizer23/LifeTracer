@@ -13,14 +13,24 @@
         tools:context=".views.MainActivity"
         android:animateLayoutChanges="true">
 
-        <!-- FrameLayout to host MainSelectedFragment -->
+        <!-- Spinner for selecting the context -->
+        <Spinner
+            android:id="@+id/contextSpinner"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:entries="@array/view_contexts" />
+
+        <!-- FrameLayout for MainSelectedFragment -->
         <FrameLayout
             android:id="@+id/selectedInstanceContainer"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toBottomOf="@id/contextSpinner" />
 
         <!-- FrameLayout for RecyclerViewFragment -->
         <FrameLayout
@@ -32,7 +42,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Button to go to ManageTasksActivity -->
+        <!-- Button to add a new task -->
         <Button
             android:id="@+id/buttonAddInstance"
             android:layout_width="wrap_content"
@@ -40,35 +50,6 @@
             android:text="Add"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
-        <!-- Button to view finished tasks -->
-        <Button
-            android:id="@+id/buttonViewFinishedTasks"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Review"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/buttonAddInstance"
-            app:layout_constraintHorizontal_chainStyle="spread" />
-
-        <!-- Button to go to instance vault -->
-        <Button
-            android:id="@+id/buttonGoToInstanceVault"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Vault"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-        <!-- Button for test activity -->
-        <Button
-            android:id="@+id/buttonGoToTest"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Test"
-            app:layout_constraintBottom_toTopOf="@id/buttonGoToInstanceVault"
-            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

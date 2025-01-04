@@ -14,7 +14,7 @@ import com.example.lifetracer.viewModel.ListViewModel
 import com.example.lifetracer.viewModel.ListViewModelFactory
 import kotlinx.coroutines.launch
 
-class VaultActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelectedListener {
+class VaultActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityInstanceVaultBinding
 
@@ -58,9 +58,6 @@ class VaultActivity : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelect
             }
             taskCreationFragment.show(supportFragmentManager, "TaskCreationFragment")
         }
-    }
-
-    override fun onInstanceSelected(instance: InstanceWithTask) {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

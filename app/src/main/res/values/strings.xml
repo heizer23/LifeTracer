@@ -5,6 +5,12 @@
     <string name="quantity_hint">Quantity</string>
     <string name="quality_hint">Quality</string>
     <string name="delete_task">Delete</string>
+    <string-array name="view_contexts">
+        <item>Main</item>
+        <item>Vault</item>
+        <item>Review</item>
+        <item>Sub</item>
+    </string-array>
 
 
 </resources>

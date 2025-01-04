@@ -1,4 +1,4 @@
-package com.example.lifetracer.views
+package com.example.lifetracer.unused
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

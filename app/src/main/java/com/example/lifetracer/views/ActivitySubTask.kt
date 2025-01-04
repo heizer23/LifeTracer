@@ -14,11 +14,11 @@ import com.example.lifetracer.viewModel.ListViewModel
 import com.example.lifetracer.viewModel.ListViewModelFactory
 import kotlinx.coroutines.launch
 
-class ActivitySubTask : AppCompatActivity(), RecyclerViewFragment.OnInstanceSelectedListener {
+class ActivitySubTask : AppCompatActivity(){
 
     private lateinit var binding: ActivityInstanceVaultBinding
     private var parentId: Long = -1L // Default invalid value
-    val creationContext = "sub"
+    val creationContext = "Sub"
 
     private val listViewModel: ListViewModel by viewModels {
         ListViewModelFactory(
@@ -77,7 +77,5 @@ class ActivitySubTask : AppCompatActivity(), RecyclerViewFragment.OnInstanceSele
         }
     }
 
-    override fun onInstanceSelected(instance: InstanceWithTask) {
-        TODO("Not yet implemented")
-    }
+
 }

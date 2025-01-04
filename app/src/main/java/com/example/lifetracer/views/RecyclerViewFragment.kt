@@ -1,6 +1,6 @@
 package com.example.lifetracer.views
 
-import android.content.Intent
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -22,8 +22,13 @@ import com.example.lifetracer.viewModel.SelectedInstanceViewModel
 import com.example.lifetracer.viewModel.SelectedInstanceViewModelFactory
 import kotlinx.coroutines.launch
 
+interface OnSubTaskRequestedListener {
+    fun onSubTaskRequested(parentId: Long)
+}
+
 class RecyclerViewFragment : Fragment() {
 
+    private var listener: OnSubTaskRequestedListener? = null
     private lateinit var adapter: DragAdapter
     private lateinit var recyclerView: RecyclerView
 
@@ -43,6 +48,18 @@ class RecyclerViewFragment : Fragment() {
         )
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        if (context is OnSubTaskRequestedListener) {
+            listener = context
+        }
+    }
+
+    override fun onDetach() {
+        super.onDetach()
+        listener = null
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -52,9 +69,12 @@ class RecyclerViewFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setupRecyclerView()
+        observeData()
+    }
 
-        // Initialize RecyclerView and Adapter
-        recyclerView = view.findViewById(R.id.recyclerView)
+    private fun setupRecyclerView() {
+        recyclerView = requireView().findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         adapter = DragAdapter(
@@ -62,39 +82,21 @@ class RecyclerViewFragment : Fragment() {
             onDragEnd = { updatedList -> listViewModel.updatePriorities(updatedList) },
             onSwipeLeft = { instance -> listViewModel.swipeLeftAction(instance) },
             onSwipeRight = { instance -> listViewModel.swipeRightAction(instance) },
-            onCircleClick = { instance ->
-                // Navigate to ActivitySubTask
-                val intent = Intent(requireContext(), ActivitySubTask::class.java).apply {
-                    putExtra("PARENT_TASK_ID", instance.id) // Pass the parent task ID
-                }
-                startActivity(intent)
-            },
-            onItemClick = { instance ->
-                selectedInstanceViewModel.setSelectedInstance(instance)
-            }
+            onCircleClick = { instance -> listener?.onSubTaskRequested(instance.id) },
+            onItemClick = { instance -> selectedInstanceViewModel.setSelectedInstance(instance) }
         )
-
-
-
-
-
         recyclerView.adapter = adapter
 
-        // Set up ItemTouchHelper for drag-and-swipe functionality
         setupItemTouchHelper()
-
-        // Load instances into the RecyclerView
-        loadInstances()
     }
 
-    private fun loadInstances() {
+    private fun observeData() {
         listViewModel.instances.observe(viewLifecycleOwner) { instances ->
             lifecycleScope.launch {
                 adapter.setData(instances)
             }
         }
     }
-
 
     private fun setupItemTouchHelper() {
         val itemTouchHelperCallback = object : ItemTouchHelper.Callback() {
@@ -139,9 +141,5 @@ class RecyclerViewFragment : Fragment() {
         }
 
         ItemTouchHelper(itemTouchHelperCallback).attachToRecyclerView(recyclerView)
-    }
-
-    interface OnInstanceSelectedListener {
-        fun onInstanceSelected(instance: InstanceWithTask)
     }
 }

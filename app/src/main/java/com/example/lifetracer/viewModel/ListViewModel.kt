@@ -2,6 +2,7 @@ package com.example.lifetracer.viewModel
 
 import android.util.Log
 import androidx.lifecycle.*
+import com.example.lifetracer.Utilities.getCurrentDate
 import com.example.lifetracer.data.InstanceWithTask
 import com.example.lifetracer.model.InstanceRepository
 import kotlinx.coroutines.Dispatchers
@@ -16,9 +17,13 @@ class ListViewModel(
     private val _instances = MediatorLiveData<List<InstanceWithTask>>()
     val instances: LiveData<List<InstanceWithTask>> get() = _instances
 
+    private val _parentId = MutableLiveData<Long?>()
+    val parentId: LiveData<Long?> get() = _parentId
+
+
 
     private var currentSource: LiveData<*>? = null
-    private var sourceActivity: String = "n/a"
+    var sourceActivity: String = "n/a"
 
     // Dynamically sets the source LiveData
     fun selectDataSource(keyword: String, context: String? = null) {
@@ -27,18 +32,22 @@ class ListViewModel(
         sourceActivity = keyword
 
         val newSource = when (sourceActivity) {
-            "vault" -> instanceRepository.getVaultedTasks()
-            "main" -> instanceRepository.allActiveInstancesWithTasks
-            "review" -> context?.let { instanceRepository.getFinishedInstancesForDay(it) }
-                ?: throw IllegalArgumentException("Current date is required for review.")
-            "sub" -> context?.let { instanceRepository.getSubtasksForParent(it.toLong()) }
-                ?: throw IllegalArgumentException("Parent ID is required for 'sub'")
+            "Vault" -> instanceRepository.getVaultedTasks()
+            "Main" -> instanceRepository.allActiveInstancesWithTasks
+            "Review" -> instanceRepository.getFinishedInstancesForDay(context ?: getCurrentDate())
+            "Sub" -> {
+                context?.let {
+                    _parentId.value = it.toLong()
+                    instanceRepository.getSubtasksForParent(_parentId.value!!)
+                } ?: throw IllegalArgumentException("Parent ID is required for 'Sub'")
+            }
             else -> throw IllegalArgumentException("Invalid keyword: $keyword")
         }
 
         currentSource = newSource
         _instances.addSource(newSource) { data -> _instances.value = data }
     }
+
 
     // Flag to indicate if dragging is in progress
     private val _isDragging = MutableLiveData(false)
