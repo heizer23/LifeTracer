@@ -3,66 +3,72 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingStart="16dp"
         android:paddingTop="16dp"
         android:paddingEnd="16dp"
         android:paddingBottom="16dp"
-        tools:context=".views.MainActivity">
+        tools:context=".views.MainActivity"
+        android:animateLayoutChanges="true">
 
         <!-- FrameLayout to host MainSelectedFragment -->
         <FrameLayout
             android:id="@+id/selectedInstanceContainer"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:visibility="visible" />
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <!-- FrameLayout for RecyclerViewFragment -->
         <FrameLayout
             android:id="@+id/recyclerViewFragmentContainer"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_below="@id/selectedInstanceContainer"
-            android:layout_above="@id/buttonAddInstance" />
+            app:layout_constraintTop_toBottomOf="@id/selectedInstanceContainer"
+            app:layout_constraintBottom_toTopOf="@id/buttonAddInstance"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Button to go to ManageTasksActivity -->
         <Button
             android:id="@+id/buttonAddInstance"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:text="Add" />
+            android:text="Add"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
         <!-- Button to view finished tasks -->
         <Button
             android:id="@+id/buttonViewFinishedTasks"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:text="Review" />
+            android:text="Review"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/buttonAddInstance"
+            app:layout_constraintHorizontal_chainStyle="spread" />
 
         <!-- Button to go to instance vault -->
         <Button
             android:id="@+id/buttonGoToInstanceVault"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentStart="true"
-            android:text="Vault" />
+            android:text="Vault"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
         <!-- Button for test activity -->
         <Button
             android:id="@+id/buttonGoToTest"
-            android:layout_width="100dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_above="@id/buttonGoToInstanceVault"
-            android:layout_alignParentStart="true"
-            android:text="Test" />
+            android:text="Test"
+            app:layout_constraintBottom_toTopOf="@id/buttonGoToInstanceVault"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
-
