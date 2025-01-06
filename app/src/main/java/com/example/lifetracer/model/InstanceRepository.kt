@@ -14,26 +14,15 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
 
     val allActiveInstancesWithTasks: LiveData<List<InstanceWithTask>> = instanceDao.getActiveInstances()
 
-    val allVaultedTasks: LiveData<List<InstanceWithTask>> = instanceDao.getVaultedTasks()
-
-
-    val instanceWithTaskAndLowestPrio: LiveData<InstanceWithTask> = instanceDao.getLowestPriorityInstance()
-
     private val _parentId = MutableLiveData<Long>() // Observable parentId
     val parentId: LiveData<Long> get() = _parentId
 
-    val subTaskWithLowestPrio = MediatorLiveData<InstanceWithTask>().apply {
-        addSource(_parentId) { newParentId ->
-            val liveData = instanceDao.getLowestPrioritySubTask(newParentId)
-            addSource(liveData) { value ->
-                this.value = value
-                removeSource(liveData) // Clean up after fetching the data
-            }
-        }
-    }
-
     fun getVaultedTasks(): LiveData<List<InstanceWithTask>> {
         return instanceDao.getVaultedTasks()
+    }
+
+    fun getHistoricTasks(): LiveData<List<InstanceWithTask>> {
+        return instanceDao.getHistoricTasks()
     }
 
     fun getSubtasksForParent(parentId: Long): LiveData<List<InstanceWithTask>> {
@@ -47,15 +36,9 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
         )
     }
 
-
-    fun seteParentId(paId: Long) {
-        _parentId.value = paId // Dynamically update parentId
-    }
     suspend fun getInstance(instanceId: Long): InstanceWithTask {
         return instanceDao.getInstanceById(instanceId)
     }
-
-
 
     // Instance-related operations
     suspend fun insertInstance(instance: InstanceWithTask): Long {
@@ -91,8 +74,6 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
         }
     }
 
-
-
     suspend fun linkSubTask(parentId: Long, subTaskId: Long) {
         try {
             val taskRelation = TaskRelation(parentId, subTaskId)
@@ -102,18 +83,6 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
             // Handle any exceptions, such as updating LiveData with error status or rethrowing the exception
         }
     }
-
-    suspend fun copyInstance(instance: InstanceWithTask) {
-        withContext(Dispatchers.IO) {
-            val newInstance = instance.copy(
-                id = 0, // Reset the ID to create a new record
-                dateOfCreation = getCurrentDate(), // Set the current date
-                status = InstanceWithTask.STATUS_PLANNED // Set status to 0 (STATUS_PLANNED)
-            )
-            instanceDao.insert(newInstance)  // Insert the new instance into the database
-        }
-    }
-
 
     suspend fun updateInstance(instance: InstanceWithTask) {
         withContext(Dispatchers.IO) {
@@ -125,16 +94,5 @@ class InstanceRepository(private val instanceDao: InstanceDao) {
     suspend fun deleteInstance(instance: InstanceWithTask) {
         instanceDao.delete(instance)
     }
-
-    suspend fun updatePrio(instanceId: Long, priority: Int){
-        instanceDao.updatePrio(instanceId, priority)
-    }
-
-
-
-
-
-
-
 
 }

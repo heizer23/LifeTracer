@@ -19,6 +19,8 @@ sealed class TaskScope : Parcelable {
     @Parcelize
     object Review : TaskScope()
     @Parcelize
+    object Historic : TaskScope()
+    @Parcelize
     data class Sub(val parentId: Long) : TaskScope()
 }
 
@@ -42,6 +44,7 @@ class ListViewModel(
             is TaskScope.Main -> instanceRepository.allActiveInstancesWithTasks
             is TaskScope.Vault -> instanceRepository.getVaultedTasks()
             is TaskScope.Review -> instanceRepository.getFinishedInstancesForDay(getCurrentDate())
+            is TaskScope.Historic -> instanceRepository.getHistoricTasks()
             is TaskScope.Sub -> instanceRepository.getSubtasksForParent(taskScope.parentId)
         }
         currentSource?.let { _instances.removeSource(it) }
@@ -74,6 +77,7 @@ class ListViewModel(
                     is TaskScope.Vault -> instanceManager.deleteInstance(instance, this)
                     is TaskScope.Main -> instanceManager.moveMainToVault(instance, this)
                     is TaskScope.Review -> instanceManager.moveReviewToMain(instance, this)
+                    is TaskScope.Historic -> instanceManager.deleteInstance(instance, this)
                     else -> Log.e("ListViewModel", "Invalid context for swipeLeftAction")
                 }
             } catch (e: Exception) {
@@ -89,6 +93,7 @@ class ListViewModel(
                     is TaskScope.Vault -> instanceManager.moveVaultToMain(instance, this)
                     is TaskScope.Main -> instanceManager.finishInstance(instance, scope = this)
                     is TaskScope.Review -> instanceManager.deleteInstance(instance, this)
+                    is TaskScope.Historic -> instanceManager.moveVaultToMain(instance, this)
                     else -> Log.e("ListViewModel", "Invalid context for swipeRightAction")
                 }
             } catch (e: Exception) {

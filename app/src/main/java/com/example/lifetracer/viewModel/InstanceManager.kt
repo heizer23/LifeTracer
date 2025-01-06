@@ -82,7 +82,7 @@ class InstanceManager(private val instanceRepository: InstanceRepository) {
                 if (instance.regularity == InstanceWithTask.Companion.Regularity.REGULAR) {
                     deleteInstance(instance, scope)
                 } else if (instance.regularity == InstanceWithTask.Companion.Regularity.SINGLE) {
-                    moveInstanceToTab(instance, InstanceWithTask.Companion.STATUS_VAULTED, scope)
+                    moveInstanceToTab(instance, InstanceWithTask.STATUS_VAULTED, scope)
                 }
             } catch (e: Exception) {
                 Log.e("InstanceManager", "Error moving main instance to vault: ${e.message}")
@@ -94,9 +94,9 @@ class InstanceManager(private val instanceRepository: InstanceRepository) {
         scope.launch(Dispatchers.IO) {
             try {
                 if (instance.regularity == InstanceWithTask.Companion.Regularity.REGULAR) {
-                    copyInstanceToTab(instance, InstanceWithTask.Companion.STATUS_PLANNED, scope)
+                    copyInstanceToTab(instance, InstanceWithTask.STATUS_PLANNED, scope)
                 } else if (instance.regularity == InstanceWithTask.Companion.Regularity.SINGLE) {
-                    moveInstanceToTab(instance, InstanceWithTask.Companion.STATUS_PLANNED, scope)
+                    moveInstanceToTab(instance, InstanceWithTask.STATUS_PLANNED, scope)
                 }
             } catch (e: Exception) {
                 Log.e("InstanceManager", "Error moving vault instance to main: ${e.message}")

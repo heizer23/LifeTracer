@@ -75,6 +75,20 @@ interface InstanceDao {
 """)
     fun getLowestPrioritySubTask(parentId: Long): LiveData<InstanceWithTask>
 
+    @Query("""
+    SELECT * 
+    FROM instances
+    WHERE status = :statusFinished
+    AND id IN (
+        SELECT id 
+        FROM instances
+        WHERE status = :statusFinished
+        GROUP BY name
+        HAVING MAX(date || ' ' || time)
+    )
+    ORDER BY date DESC, time DESC
+""")
+    fun getHistoricTasks(statusFinished: Int = InstanceWithTask.STATUS_FINISHED): LiveData<List<InstanceWithTask>>
 
 
 

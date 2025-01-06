@@ -68,6 +68,7 @@ class MainActivity : AppCompatActivity(), OnSubTaskRequestedListener {
                     "Main" -> TaskScope.Main
                     "Vault" -> TaskScope.Vault
                     "Review" -> TaskScope.Review
+                    "Historic" -> TaskScope.Historic
                     else -> TaskScope.Main // Default to Main if invalid
                 }
                 listViewModel.selectDataSource(selectedContext)
